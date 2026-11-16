@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>国旗お絵かき v0.32</title>
+<title>国旗お絵かき v0.33</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPHJlY3QgeD0iNSIgeT0iNCIgd2lkdGg9IjQuNSIgaGVpZ2h0PSI1NyIgcng9IjIuMiIgZmlsbD0iIzZiNWE0NSIvPgogIDxwYXRoIGQ9Ik05LjUgN2g1MHYzNmgtNTB6IiBmaWxsPSIjZmZmIiBzdHJva2U9IiMyMjIiIHN0cm9rZS13aWR0aD0iMi44IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCAzLjc1KSByb3RhdGUoNDUgMzQuNSAyMS4yNSkiPgogICAgPHJlY3QgeD0iMzAuNSIgeT0iOCIgd2lkdGg9IjgiIGhlaWdodD0iMjIiIHJ4PSIxLjIiIGZpbGw9IiNmZmM4M2QiIHN0cm9rZT0iIzIyMiIgc3Ryb2tlLXdpZHRoPSIyLjIiLz4KICAgIDxwYXRoIGQ9Ik0zMC41IDMwaDhsLTQgOC41eiIgZmlsbD0iI2YzZDliMSIgc3Ryb2tlPSIjMjIyIiBzdHJva2Utd2lkdGg9IjIuMiIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgogICAgPHBhdGggZD0iTTMzLjEgMzUuNmgyLjhMMzQuNSAzOC41eiIgZmlsbD0iIzIyMiIvPgogICAgPHJlY3QgeD0iMzAuNSIgeT0iNCIgd2lkdGg9IjgiIGhlaWdodD0iNSIgcng9IjEuMiIgZmlsbD0iI2YwOGFhNiIgc3Ryb2tlPSIjMjIyIiBzdHJva2Utd2lkdGg9IjIuMiIvPgogIDwvZz4KPC9zdmc+">
 <style>
 :root{--bg:#f4f1ea;--panel:#fff;--ink:#222;--sub:#777;--line:#ddd;--accent:#e0457b}
@@ -219,7 +219,7 @@ table.sum td:last-child{text-align:right;font-weight:700}
 </head>
 <body>
 <div class="wrap">
-  <header><h1>国旗お絵かき v0.32</h1><div class="hd"><div id="prog"></div><button id="histBtn" class="mini">📜 りれき</button><button id="setBtn" class="mini">⚙ 設定</button></div></header>
+  <header><h1>国旗お絵かき v0.33</h1><div class="hd"><div id="prog"></div><button id="histBtn" class="mini">📜 りれき</button><button id="setBtn" class="mini">⚙ 設定</button></div></header>
   <div class="main"><div class="left">
   <div class="q"><div class="qname" id="qname"></div><div class="qratio" id="qratio"></div></div>
   <div class="stage" id="stage">
@@ -356,7 +356,7 @@ table.sum td:last-child{text-align:right;font-weight:700}
   <div class="tdata" id="tData">国旗データを読みこみ中…</div>
   <div class="tlinks"><button id="tSet" class="mini">⚙ あそびかた設定</button><button id="tHist" class="mini">📜 りれき</button></div>
   <div class="tmode" id="tMode"></div>
-  <div class="tver">v0.32</div>
+  <div class="tver">v0.33</div>
 </div></div>
 
 <div class="modal hidden" id="freeM"><div class="card setup">
@@ -1377,7 +1377,8 @@ function judge(){
     if(n===flag.stars)good.push(`星の数（${n}個）も正解！`);
     else if(n===0)hints.push('星を忘れてます。');else hints.push(`星の数は${flag.stars}個（はしっこの2つは半分切れてます）。いまは${n}個。`)}
   // --- 色のこまかいところ（しまや向きで言ったことは、くり返さない） ---
-  for(const t of r.miss){if(sibOf[t])continue;if(swapped[t])hints.push(swapped[t]==='x'?`${nm(t)}のところが、まだ塗られていません（灰色のまま）。`:`${nm(t)}のところが${nm(swapped[t])}になっています。`);else if(!structural&&!flipped)hints.push(`${nm(t)}の部分がほとんど描けていません。`)}
+  for(const t of r.miss){if(sibOf[t]||r.per[t].share<.02)continue;  // ほんの少ししかない色には言わない（念のため）
+  if(swapped[t])hints.push(swapped[t]==='x'?`${nm(t)}のところが、まだ塗られていません（灰色のまま）。`:`${nm(t)}のところが${nm(swapped[t])}になっています。`);else if(!structural&&!flipped)hints.push(`${nm(t)}の部分がほとんど描けていません。`)}
   for(const k of r.extraCols)if(!extraUsed.has(k))hints.push(k==='x'?'まだ塗っていないところ（灰色）があります。白いところも白で塗ってね。':`この旗に${nm(k)}はありません。`);
   if(!structural&&!flipped)for(const t of tcols){if(r.miss.includes(t)||great.includes(t)||covered.has(t)||r.per[t].share<.04)continue;
     if(r.per[t].r<.75)hints.push(`${nm(t)}が足りないところがあります。`);
@@ -1706,6 +1707,18 @@ function start(){if(freeMode){showTitle();return}startMode(gameMode)}
 // データの旗を、ゲームで使える形に（いまの15か国は手作りの形とコメントを使う）
 const SVGF={};
 function approxRatio(w,h){const r=h/w;let best=null;for(let q=1;q<=20;q++){const p=Math.round(r*q);if(p<1)continue;const e=Math.abs(p/q-r)/r;if(e<.01&&(!best||q<best.q))best={p,q}}return best?[best.p,best.q]:[Math.round(h),Math.round(w)]}
+// 境目のにじみ取り：SVGを絵にすると、色の境目に2色が混ざった点ができる（青＋黄→緑など）。
+// 中身のかたまりがほとんどない色（細い線にしかなっていない色）は、にじみとみなして、となりの色にぬりかえる
+function cleanBlend(G,RW,RH){const n=RW*RH,K=KEYS.length,area=new Int32Array(K),inner=new Int32Array(K);
+  for(let j=0;j<RH;j++)for(let i=0;i<RW;i++){const p=j*RW+i,k=G[p];area[k]++;if(i>0&&j>0&&i<RW-1&&j<RH-1){let ok=1;
+    for(let dj=-1;dj<=1&&ok;dj++)for(let di=-1;di<=1;di++)if(G[p+dj*RW+di]!==k){ok=0;break}if(ok)inner[k]++}}
+  const bad=new Uint8Array(K);for(let k=0;k<K;k++)if(area[k]&&KEYS[k]!=='x'&&inner[k]<3)bad[k]=1;
+  if(!bad.some(x=>x))return;
+  for(let it=0;it<12;it++){let left=0;const NG=G.slice(),cnt=new Int32Array(K);
+    for(let j=0;j<RH;j++)for(let i=0;i<RW;i++){const p=j*RW+i;if(!bad[G[p]])continue;cnt.fill(0);let best=-1,bc=0;
+      for(let dj=-1;dj<=1;dj++){const jj=j+dj;if(jj<0||jj>=RH)continue;for(let di=-1;di<=1;di++){const ii=i+di;if(ii<0||ii>=RW)continue;const k=G[jj*RW+ii];if(bad[k])continue;if(++cnt[k]>bc){bc=cnt[k];best=k}}}
+      if(best>=0)NG[p]=best;else left++}
+    G.set(NG);if(!left)break}}
 async function flagFromData(d){
   const name=d.ja.replace(/（.*?）/g,'').trim(),hm=FLAGS.find(f=>f.name===name);if(hm)return hm;if(SVGF[d.code])return SVGF[d.code];
   let svg=d.svg.replace(/^﻿/,'');if(!/<svg[^>]*\swidth=/.test(svg.slice(0,svg.indexOf('>')+1)))svg=svg.replace('<svg',`<svg width="${d.w}" height="${d.h}"`);
@@ -1714,6 +1727,7 @@ async function flagFromData(d){
   const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(img,0,0,RW,RH);const px=x.getImageData(0,0,RW,RH).data;
   const cm=Object.entries(d.colorMap||{}).map(([hx,k])=>[hex2rgb(hx),k]).filter(([,k])=>KIDX[k]!==undefined),grid=new Uint8Array(RW*RH),mp=makeMapper(d.colorMap);
   for(let q=0;q<RW*RH;q++){if(px[q*4+3]<128){grid[q]=KIDX.x;continue}grid[q]=mp(px[q*4],px[q*4+1],px[q*4+2])}
+  cleanBlend(grid,RW,RH);
   const real={};for(const[c3,k]of cm)if(!real[k])real[k]='#'+c3.map(v=>v.toString(16).padStart(2,'0')).join('');
   const f={name,ratio:approxRatio(d.w,d.h),real,img,code:d.code,tip:d.note||'',
     cls:(u,v)=>KEYS[grid[Math.min(RH-1,Math.max(0,Math.floor(v*RH)))*RW+Math.min(RW-1,Math.max(0,Math.floor(u*RW)))]]};
