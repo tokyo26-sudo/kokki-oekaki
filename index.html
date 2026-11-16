@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>国旗お絵かき v0.35</title>
+<title>国旗お絵かき v0.40</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPHJlY3QgeD0iNSIgeT0iNCIgd2lkdGg9IjQuNSIgaGVpZ2h0PSI1NyIgcng9IjIuMiIgZmlsbD0iIzZiNWE0NSIvPgogIDxwYXRoIGQ9Ik05LjUgN2g1MHYzNmgtNTB6IiBmaWxsPSIjZmZmIiBzdHJva2U9IiMyMjIiIHN0cm9rZS13aWR0aD0iMi44IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCAzLjc1KSByb3RhdGUoNDUgMzQuNSAyMS4yNSkiPgogICAgPHJlY3QgeD0iMzAuNSIgeT0iOCIgd2lkdGg9IjgiIGhlaWdodD0iMjIiIHJ4PSIxLjIiIGZpbGw9IiNmZmM4M2QiIHN0cm9rZT0iIzIyMiIgc3Ryb2tlLXdpZHRoPSIyLjIiLz4KICAgIDxwYXRoIGQ9Ik0zMC41IDMwaDhsLTQgOC41eiIgZmlsbD0iI2YzZDliMSIgc3Ryb2tlPSIjMjIyIiBzdHJva2Utd2lkdGg9IjIuMiIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgogICAgPHBhdGggZD0iTTMzLjEgMzUuNmgyLjhMMzQuNSAzOC41eiIgZmlsbD0iIzIyMiIvPgogICAgPHJlY3QgeD0iMzAuNSIgeT0iNCIgd2lkdGg9IjgiIGhlaWdodD0iNSIgcng9IjEuMiIgZmlsbD0iI2YwOGFhNiIgc3Ryb2tlPSIjMjIyIiBzdHJva2Utd2lkdGg9IjIuMiIvPgogIDwvZz4KPC9zdmc+">
 <style>
 :root{--bg:#f4f1ea;--panel:#fff;--ink:#222;--sub:#777;--line:#ddd;--accent:#e0457b}
@@ -108,6 +108,29 @@ button.mini{font-size:12px;padding:4px 9px;border-radius:8px}
 #hintCv{display:block;border-radius:3px;box-shadow:0 1px 4px rgba(0,0,0,.28)}
 #hintLbl{font-size:12px;color:var(--sub);line-height:1.35}
 #hintLbl b{color:var(--ink);font-size:13px}
+.oppchip{font-weight:800;font-size:14px;background:#fff;border-radius:10px;padding:5px 10px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.oppchip.done{background:#fde3ea;color:#a3244b}
+.oppchip.hidden{display:none}
+body.battle #setBtn,body.battle #skip{display:none}
+#btToast{position:fixed;left:50%;top:18%;white-space:nowrap;transform:translate(-50%,-10px);background:#2a2620;color:#fff;font-weight:800;padding:10px 18px;border-radius:14px;z-index:20;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s}
+#btToast.show{opacity:1;transform:translate(-50%,0)}
+.btcode{font-size:44px;font-weight:900;letter-spacing:.12em;text-align:center;font-variant-numeric:tabular-nums}
+#btQR{width:130px;height:130px;margin:4px auto}#btQR svg{width:100%;height:100%}
+#btQRBox{text-align:center}
+#btMembers{margin:10px 0;line-height:1.9;font-weight:700}#btMembers .wait{color:var(--sub);font-weight:600}#btMembers .lost{color:#b0543c}
+#btWarn{font-size:13px;color:#a3542b;line-height:1.6}#btMsg{font-size:13px;color:#a3542b;min-height:1em;margin-top:6px;word-break:break-all}
+.btrow{display:flex;gap:8px}.btrow .tin{flex:1}
+.btrule{font-size:12.5px;color:var(--sub);line-height:1.6;margin-top:8px}
+#rVs{margin:8px 0 4px}#rVs.hidden{display:none}
+body.battle #res .pair figure:first-child{display:none}  /* 対決では自分の絵は上のくらべに出ている */
+.vsrow{display:flex;align-items:center;gap:8px;justify-content:center}
+.vsc{flex:1;max-width:220px;text-align:center;border:2px solid transparent;border-radius:12px;padding:6px}
+.vsc.win{border-color:#d14f7a;background:#fff3f6}
+.vsc img{width:100%;border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.vsn{font-weight:800;font-size:13px}.vss{font-weight:900;font-size:22px}.vst{font-size:11px;color:var(--sub)}
+.noimg{font-size:12px;color:var(--sub);padding:18px 0}
+.vsx{font-weight:900;color:#d14f7a}.vsv{text-align:center;font-weight:800;margin-top:6px}
+table.sum th{font-size:12px;color:var(--sub)}table.sum td.w{color:#d14f7a;font-weight:900}table.sum tr.tot td{font-weight:800;border-top:1px solid var(--line)}
 .timer{margin-left:auto;font-variant-numeric:tabular-nums;font-weight:800;font-size:20px;background:#fff;border-radius:10px;padding:3px 12px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
 .timer.hidden{display:none}
 .timer.warn{color:#dc2626;animation:pulse 1s infinite}
@@ -219,14 +242,14 @@ table.sum td:last-child{text-align:right;font-weight:700}
 </head>
 <body>
 <div class="wrap">
-  <header><h1>国旗お絵かき v0.35</h1><div class="hd"><div id="prog"></div><button id="histBtn" class="mini">📜 りれき</button><button id="setBtn" class="mini">⚙ 設定</button></div></header>
+  <header><h1>国旗お絵かき v0.40</h1><div class="hd"><div id="prog"></div><button id="histBtn" class="mini">📜 りれき</button><button id="setBtn" class="mini">⚙ 設定</button></div></header>
   <div class="main"><div class="left">
   <div class="q"><div class="qname" id="qname"></div><div class="qratio" id="qratio"></div></div>
   <div class="stage" id="stage">
     <div id="stageTop" class="hidden">
       <div class="eyebox hidden" id="eyeBox"><button id="eyeBtn"></button><div class="dots" id="eyeDots"></div></div>
       <div class="hintbox hidden" id="hintBox" title="押しているあいだ大きく見られる"><canvas id="hintCv"></canvas><div id="hintLbl"></div></div>
-      <div class="timer hidden" id="timer"></div>
+      <div class="oppchip hidden" id="oppChip"></div><div class="timer hidden" id="timer"></div>
     </div>
     <div id="cvWrap"><canvas id="c"></canvas><div id="peek"><canvas id="peekCv"></canvas><div id="peekLbl"></div></div><div id="fx"><div id="fxShade"></div><div id="fxMarks"></div><div id="fxLine"></div><div id="fxTag"></div><div id="fxBox"><div id="fxNum"></div><div id="fxWord"></div></div><div id="fxSkip">タップでとばす</div></div></div>
   </div>
@@ -321,6 +344,7 @@ table.sum td:last-child{text-align:right;font-weight:700}
   <div class="timeup hidden" id="rTimeUp">⏰ 時間切れ！ ここまでの絵で答え合わせ</div>
   <div class="score" id="rScore"></div>
   <div class="rank" id="rRank"></div>
+  <div id="rVs" class="hidden"></div>
   <div class="pair">
     <figure><canvas id="rA"></canvas><figcaption>あなたの絵</figcaption></figure>
     <figure><canvas id="rB"></canvas><figcaption>本物</figcaption></figure>
@@ -329,6 +353,7 @@ table.sum td:last-child{text-align:right;font-weight:700}
   <ul class="hints" id="rHints"></ul>
   <div class="tip" id="rTip"></div>
   <button class="big" id="next">次へ</button>
+  <button class="ghost hidden" id="btSkipWait">待たずに進む</button>
 </div></div>
 
 <div class="modal hidden" id="sum"><div class="card">
@@ -337,6 +362,7 @@ table.sum td:last-child{text-align:right;font-weight:700}
   <div class="smode" id="sMode"></div>
   <table class="sum" id="sTable"></table>
   <button class="big" id="again">もう一回</button>
+  <button class="ghost hidden" id="btLeaveSum">部屋を出る</button>
 </div></div>
 
 <div id="title"><div class="tcard">
@@ -352,12 +378,38 @@ table.sum td:last-child{text-align:right;font-weight:700}
     <button class="big" id="tStartE">🔰 練習モード<small>かんたんな旗だけ・3問</small></button>
     <button class="big" id="tStartN">🌍 ふつうモード<small>199か国ぜんぶから・3問</small></button>
     <button class="big" id="tFree">🎨 じぶんの旗<small>自由に描いて、PNG・JPGで保存</small></button>
+    <button class="big" id="tBattle">⚔️ 対決<small>友だちと2人で、同じ国を同時に描く・3問勝負</small></button>
   </div>
   <div class="tdata" id="tData">国旗データを読みこみ中…</div>
   <div class="tlinks"><button id="tSet" class="mini">⚙ あそびかた設定</button><button id="tHist" class="mini">📜 りれき</button></div>
   <div class="tmode" id="tMode"></div>
-  <div class="tver">v0.35</div>
+  <div class="tver">v0.40</div>
 </div></div>
+
+<div class="modal hidden" id="btM"><div class="card setup">
+  <div class="rank">⚔️ 対決</div>
+  <div class="sgroup"><div class="slbl">あなたの名前</div><input id="btName" class="tin" maxlength="12" placeholder="プレイヤー"></div>
+  <div id="btStep1">
+    <button class="big" id="btCreate">部屋を作る</button>
+    <div class="sgroup"><div class="slbl">部屋番号で入る</div><div class="btrow"><input id="btCode" class="tin" maxlength="4" inputmode="numeric" placeholder="4けた"><button id="btJoin">入る</button></div></div>
+  </div>
+  <div id="btStep2" class="hidden">
+    <div class="slbl">部屋番号</div><div class="btcode" id="btCodeShow"></div>
+    <div id="btQRBox"><div id="btQR"></div><button class="mini" id="btCopy">🔗 リンクをコピー</button></div>
+    <div id="btMembers"></div>
+    <div id="btHostOpts">
+      <div class="sgroup"><div class="slbl">モード</div><div class="chips" id="btModeSel"><button data-v="easy" class="on">🔰 練習</button><button data-v="all">🌍 ふつう</button></div></div>
+      <div class="sgroup"><div class="slbl">ヒント</div><div class="chips" id="btHintSel"><button data-v="none" class="on">なし</button><button data-v="peek">ちら見せ</button><button data-v="sample">見本あり</button></div></div>
+      <button class="big" id="btStart" disabled>スタート</button>
+    </div>
+    <div id="btGuestWait" class="hidden">ホストがスタートするのを待っています…</div>
+    <div id="btWarn"></div>
+  </div>
+  <div class="btrule">3問勝負。どっちかが「こたえあわせ」したら、もう1人はのこり1分。1問3分まで。点数が高いほうの勝ち（同点なら先に出したほう）。</div>
+  <div id="btMsg"></div>
+  <button class="ghost" id="btLeave">やめる</button>
+</div></div>
+<div id="btToast"></div>
 
 <div class="modal hidden" id="freeM"><div class="card setup">
   <div class="rank">🎨 じぶんの旗</div>
@@ -1474,6 +1526,7 @@ function showResult(r){
   $('#rHints').innerHTML=r.hints.map(t=>`<li>${t}</li>`).join('');
   $('#rTip').innerHTML=flag.tip?`<b>📘 豆知識</b>　${flag.tip}`:'';$('#rTip').style.display=flag.tip?'':'none';
   $('#next').textContent=qi<order.length-1?'次の問題へ':'結果を見る';
+  if(BT&&BT.game)btShowVs();else{$('#rVs').classList.add('hidden');$('#next').disabled=false;$('#btSkipWait').classList.add('hidden')}
   $('#res').classList.remove('hidden');
 }
 // ---- 設定（ヒント・おしまいの合図） ----
@@ -1555,6 +1608,7 @@ function elapsed(){return(clock.acc+(clock.run?nowMs()-clock.t0:0))/1000}
 let tick=null,qDone=false,peekState=null,hintIdx=-1,hintImgs=null,ovShown=null;
 setInterval(onTick,200);
 function onTick(){
+  if(BT&&BT.game){btTick();return}
   if(!flag||qDone)return;
   if(peekState)return;
   const e=elapsed();
@@ -1614,7 +1668,7 @@ window.addEventListener('pointercancel',()=>{if(ovShown&&ovShown.hold)hideOverla
 $('#hintBox').addEventListener('contextmenu',e=>e.preventDefault());
 
 function stopQ(){qDone=true;clkPause();peekState=null;hideOverlay();document.body.classList.remove('peeking');updEye()}
-function doJudge(isTimeUp){if(qDone)return;stopQ();const r=judge();r.rank=rankText(r.s);scores.push({name:flag.name,s:r.s});addHist(r);$('#rTimeUp').classList.toggle('hidden',!isTimeUp);playFx(r,isTimeUp,()=>showResult(r))}
+function doJudge(isTimeUp){if(qDone)return;stopQ();const r=judge();r.rank=rankText(r.s);scores.push({name:flag.name,s:r.s});addHist(r);if(BT&&BT.game)btSubmit(r);$('#rTimeUp').classList.toggle('hidden',!isTimeUp);playFx(r,isTimeUp,()=>showResult(r))}
 // 答え合わせの演出（ぜんぶで3秒くらい）：走査線が上からおりる → 合っているところに⭕ → ％がルーレット → 一言がポン。タップでとばせる
 const FX_SCAN=1500,FX_ROLL=1000,FX_HOLD=750;
 function playFx(r,isTimeUp,done){
@@ -1654,8 +1708,8 @@ $('#judge').onclick=()=>{if(flag&&flag.free){$('#sName').value=flag.name;$('#sav
 $('#skip').onclick=()=>{if(flag&&flag.free){const b=$('#skip');if(b.textContent!=='ほんとに？'){b.textContent='ほんとに？';setTimeout(()=>{if(flag&&flag.free)b.textContent='おわる'},2500);return}
     stopQ();freeMode=false;showTitle();return}
   if(qDone)return;stopQ();scores.push({name:flag.name,s:0});nextQ()};
-$('#next').onclick=()=>{$('#res').classList.add('hidden');nextQ()};
-$('#again').onclick=()=>{$('#sum').classList.add('hidden');showTitle()};
+$('#next').onclick=()=>{if(BT&&BT.game){btNext();return}$('#res').classList.add('hidden');nextQ()};
+$('#again').onclick=()=>{if(BT&&BT.game){btAgain();return}$('#sum').classList.add('hidden');showTitle()};
 
 // ---- flow ----
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
@@ -1674,7 +1728,8 @@ function loadQ(){
   updEye();
   fit();
   if(flag.free){$('#qname').textContent=flag.name;$('#qratio').classList.remove('hide');return}
-  spinQ(()=>{if(!qDone)clkStart()});
+  if(BT&&BT.game)btLoadQ();
+  spinQ(()=>{if(!qDone)clkStart();if(BT&&BT.game)btQStart()});
 }
 // 出題ルーレット：国名がパラパラ切りかわって、だんだんゆっくりになって止まる（1.5秒くらい）。タップでとばせる
 const SPIN_MS=1500;let spinState=null;
@@ -1698,6 +1753,8 @@ $('.q').addEventListener('click',()=>{if(spinState)spinState.finish()});
 $('#cvWrap').addEventListener('pointerdown',e=>{if(spinState){e.stopPropagation();spinState.finish()}},true);
 function nextQ(){qi++;if(qi>=order.length)showSummary();else loadQ()}
 function showSummary(){
+  $('#btLeaveSum').classList.add('hidden');$('#again').textContent='もう一回';
+  if(BT&&BT.game){btSummary();$('#sum').classList.remove('hidden');return}
   const avg=Math.round(scores.reduce((a,b)=>a+b.s,0)/scores.length);
   $('#sAvg').innerHTML=`${avg}<small>% 平均</small>`;$('#sMode').textContent=modeText();
   $('#sTable').innerHTML=scores.map(x=>`<tr><td>${x.name}</td><td>${x.s}%</td></tr>`).join('');
@@ -1768,6 +1825,168 @@ async function flagFromData(d){
   SVGF[d.code]=f;return f}
 window.addEventListener('resize',()=>{if(flag)fit()});
 showTitle();
+
+// ===================== ⚔️ 対決モード（v0.40） =====================
+// 2人で同じ国を同時に描く。3問勝負。どっちかが「こたえあわせ」したら、もう1人はのこり1分。1問3分まで。
+// 通信：Supabase Realtime の部屋チャンネル（broadcast だけ。テーブルは使わない）。
+// テスト用：URLに ?fakenet=1 を付けると、同じブラウザのタブどうしで BroadcastChannel を使う。
+const SB_URL='https://acytuhewfhuoxugwmbat.supabase.co',SB_KEY='sb_publishable_ruAGcA3YSvXXCPkc3s6aTQ_4lg3wAYJ';
+const SB_CDN='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js';
+const BT_CAP=180,BT_CHASE=60,BT_HB=2000,BT_LOST=8000,BT_NAME_KEY='kokki-oekaki-name',APP_VER='v0.40';
+let BT=null;  // いまの部屋（入っていなければ null）
+const btFake=()=>/[?&]fakenet=1/.test(location.search);
+const rid=()=>Math.random().toString(36).slice(2,10);
+function loadScript(src){return new Promise((ok,ng)=>{const s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=()=>ng(new Error('load'));document.head.appendChild(s)})}
+// ---- 通信のつなぎ（どちらも send / close だけ） ----
+async function btTransport(code,onMsg){
+  if(btFake()){const bc=new BroadcastChannel('kokki-oekaki-'+code);bc.onmessage=e=>onMsg(e.data);
+    return{send:m=>bc.postMessage(m),close:()=>bc.close()}}
+  if(!window.supabase)await loadScript(SB_CDN);
+  const sb=window.__sb||(window.__sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:false,autoRefreshToken:false}}));
+  const ch=sb.channel('kokki-oekaki-'+code,{config:{broadcast:{self:false}}});
+  ch.on('broadcast',{event:'m'},({payload})=>onMsg(payload));
+  await new Promise((ok,ng)=>{let done=false;const t=setTimeout(()=>{if(!done){done=true;ng(new Error('timeout'))}},10000);
+    ch.subscribe(s=>{if(done)return;if(s==='SUBSCRIBED'){done=true;clearTimeout(t);ok()}else if(s==='CHANNEL_ERROR'||s==='TIMED_OUT'||s==='CLOSED'){done=true;clearTimeout(t);ng(new Error(s))}})});
+  return{send:m=>{ch.send({type:'broadcast',event:'m',payload:m}).catch(()=>{})},close:()=>{try{sb.removeChannel(ch)}catch(e){}}}}
+const btStamp=()=>pdataState==='ok'?`${(window.FLAG_DATA&&window.FLAG_DATA.generated)||'?'}/${PDATA.length}/${PARTS.length}`:'none';
+// ---- 部屋に入る・出る ----
+async function btOpen(code,host){
+  const name=(($('#btName').value||'').trim()||'プレイヤー').slice(0,12);try{localStorage.setItem(BT_NAME_KEY,name)}catch(e){}
+  btMsg('つないでいます…');
+  const me={id:rid(),name,host,joined:Date.now()};
+  const b={code,me,peers:{},tr:null,game:null,hb:null,saved:null,mode:'easy',hint:'none'};
+  try{b.tr=await btTransport(code,m=>btRecv(b,m))}catch(e){btMsg('つなげませんでした。ネットにつながっているか確かめてね（'+e.message+'）');return false}
+  BT=b;btSendHb();b.hb=setInterval(()=>{btSendHb();btCheck()},BT_HB);
+  return true}
+function btClose(silent){if(!BT)return;try{BT.tr.send({t:'bye',id:BT.me.id})}catch(e){}clearInterval(BT.hb);try{BT.tr.close()}catch(e){}
+  if(BT.saved){setting=BT.saved}BT=null;document.body.classList.remove('battle');$('#oppChip').classList.add('hidden');if(!silent)btMsg('')}
+window.addEventListener('pagehide',()=>{if(BT)try{BT.tr.send({t:'bye',id:BT.me.id})}catch(e){}});
+function btSendHb(){if(!BT)return;const g=BT.game;
+  const m={t:'hb',id:BT.me.id,name:BT.me.name,host:BT.me.host,joined:BT.me.joined,stamp:btStamp(),ver:APP_VER};
+  if(g){m.gid=g.gid;m.ready=g.ready.me;m.res={};for(const q in g.res)m.res[q]={s:g.res[q].s,at:g.res[q].at};if(BT.me.host)m.start=g.spec}
+  BT.tr.send(m)}
+function btOpp(){if(!BT)return null;const ps=Object.values(BT.peers).sort((a,b)=>a.joined-b.joined);return ps[0]||null}
+const btAlive=p=>p&&Date.now()-p.last<BT_LOST;
+function btRecv(b,m){if(b!==BT||!m||m.id===b.me.id)return;
+  if(m.t==='bye'){delete b.peers[m.id];btUpd();return}
+  let p=b.peers[m.id];
+  if(m.t==='hb'){
+    if(!p)p=b.peers[m.id]={};
+    Object.assign(p,{name:m.name,host:m.host,joined:m.joined,stamp:m.stamp,ver:m.ver,last:Date.now()});
+    // 満員チェック：自分より先に2人以上いたら、自分が出る
+    if(!b.game){const earlier=Object.values(b.peers).filter(x=>btAlive(x)&&x.joined<b.me.joined);
+      if(earlier.length>=2){btMsg('この部屋はもう2人そろっています（満員）');btClose(true);btShowStep(1);return}
+      if(b.me.host&&m.host&&m.joined<b.me.joined){btMsg('その番号はほかの人が使っていたので、番号を変えます…');btClose(true);btCreate();return}}
+    if(b.game&&m.gid===b.game.gid){const g=b.game;
+      if(typeof m.ready==='number'&&m.ready>g.ready.opp){g.ready.opp=m.ready;btTryAdvance()}
+      for(const q in(m.res||{}))if(!g.opp[q]){g.opp[q]={s:m.res[q].s,at:m.res[q].at,img:null};btOnOppRes(+q)}}
+    if(!b.me.host&&m.start&&(!b.game||b.game.gid!==m.start.gid)&&!b.starting)btBegin(m.start);
+    btUpd();return}
+  if(!p)return;p.last=Date.now();
+  if(m.t==='start'&&!b.me.host&&(!b.game||b.game.gid!==m.start.gid)&&!b.starting)btBegin(m.start);
+  if(m.t==='res'&&b.game&&m.gid===b.game.gid){const g=b.game,had=g.opp[m.q];g.opp[m.q]={s:m.s,at:m.at,img:m.img||(had&&had.img)||null};if(!had)btOnOppRes(m.q);else btRefresh()}
+  if(m.t==='ready'&&b.game&&m.gid===b.game.gid&&m.q>b.game.ready.opp){b.game.ready.opp=m.q;btTryAdvance()}
+  btUpd()}
+function btCheck(){if(!BT)return;btUpd();if(BT.game)btTryAdvance()}
+// ---- 画面（部屋の窓） ----
+function btMsg(t){const e=$('#btMsg');if(e)e.textContent=t||''}
+function btShowStep(n){$('#btStep1').classList.toggle('hidden',n!==1);$('#btStep2').classList.toggle('hidden',n!==2)}
+function btLink(code){return location.origin+location.pathname+'?room='+code+(btFake()?'&fakenet=1':'')}
+function btOpenModal(code){$('#btName').value=(()=>{try{return localStorage.getItem(BT_NAME_KEY)||''}catch(e){return''}})();
+  $('#btCode').value=code||'';btMsg('');btShowStep(BT?2:1);$('#btM').classList.remove('hidden');if(BT)btUpd()}
+async function btCreate(){const code=String(1000+Math.floor(Math.random()*9000));
+  if(!await btOpen(code,true))return;btShowStep(2);btMsg('');btUpd()}
+async function btJoin(){const code=($('#btCode').value||'').replace(/\D/g,'');if(code.length!==4){btMsg('4けたの部屋番号を入れてね');return}
+  if(!await btOpen(code,false))return;btShowStep(2);btMsg('');btUpd();
+  setTimeout(()=>{if(BT&&!BT.me.host&&!Object.values(BT.peers).some(p=>p.host&&btAlive(p)))btMsg(`部屋 ${code} のホストが見つかりません。番号を確かめてね（このまま待っていても、ホストが来たら入れます）`)},4000)}
+function btUpd(){if(!BT)return;const o=btOpp(),alive=btAlive(o);
+  $('#btCodeShow').textContent=BT.code;
+  if(BT.me.host&&$('#btQR').dataset.code!==BT.code){const q=qrcode(0,'M');q.addData(btLink(BT.code));q.make();$('#btQR').innerHTML=q.createSvgTag({cellSize:4,margin:2,scalable:true});$('#btQR').dataset.code=BT.code}
+  $('#btQRBox').classList.toggle('hidden',!BT.me.host);
+  $('#btMembers').innerHTML=`<div>👤 ${esc(BT.me.name)}（あなた${BT.me.host?'・ホスト':''}）</div>`+(o?`<div class="${alive?'':'lost'}">👤 ${esc(o.name)}${o.host?'（ホスト）':''}${alive?'':' …📡 応答なし'}</div>`:'<div class="wait">もう1人を待っています…</div>');
+  $('#btHostOpts').classList.toggle('hidden',!BT.me.host);$('#btGuestWait').classList.toggle('hidden',BT.me.host||!(o&&o.host&&alive));
+  $('#btStart').disabled=!(alive&&!BT.starting);
+  const warn=[];if(o&&o.stamp&&o.stamp!==btStamp())warn.push('⚠️ 国旗データ（flags-data.js）の書き出し日時が2人でちがいます。本物の形がずれるかも。同じファイルにそろえると安心');
+  if(o&&o.ver&&o.ver!==APP_VER)warn.push(`⚠️ ゲームの版がちがいます（あなた ${APP_VER}・相手 ${o.ver}）。強制リロードしてそろえてね`);
+  $('#btWarn').innerHTML=warn.map(t=>`<div>${t}</div>`).join('');
+  if(BT.game)btChip()}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+// ---- ゲームを始める ----
+async function btHostStart(){if(!BT||!BT.me.host||BT.starting)return;BT.starting=true;$('#btStart').disabled=true;
+  try{const pick=shuffle(poolFor(BT.mode)).slice(0,Q_PER_GAME);
+    const spec={gid:rid(),mode:BT.mode,hint:BT.hint,items:pick.map(it=>it.hand?{h:it.hand.name}:{d:it.data.code})};
+    BT.tr.send({t:'start',id:BT.me.id,start:spec});await btBegin(spec,true)}
+  finally{if(BT)BT.starting=false;btUpd()}}
+async function btBegin(spec,already){if(!BT)return;BT.starting=true;
+  try{const list=[];for(const it of spec.items){try{if(it.h){const f=FLAGS.find(x=>x.name===it.h);if(f)list.push(f)}else{const d=PDATA.find(x=>x.code===it.d);if(d)list.push(await flagFromData(d))}}catch(e){console.warn(e)}}
+    if(!list.length){btMsg('問題が作れませんでした（国旗データがちがうかも）');return}
+    BT.game={gid:spec.gid,spec,res:{},opp:{},ready:{me:-1,opp:-1},qStart:0,capEnd:0,chaseEnd:0};
+    if(!BT.saved)BT.saved={...setting};setting={...BT.saved,hint:spec.hint,end:'none'};
+    document.body.classList.add('battle');
+    ['#btM','#title','#res','#sum'].forEach(id=>$(id).classList.add('hidden'));
+    freeMode=false;order=list;qi=0;scores=[];loadQ()}
+  finally{if(BT)BT.starting=false}}
+// loadQ から：対決の表示（時計・相手のようす）
+function btLoadQ(){const g=BT.game;g.qStart=0;g.capEnd=0;g.chaseEnd=0;
+  $('#stageTop').classList.remove('hidden');$('#timer').classList.remove('hidden');showTimer(BT_CAP);$('#oppChip').classList.remove('hidden');btChip()}
+function btQStart(){const g=BT&&BT.game;if(!g)return;g.qStart=Date.now();g.capEnd=g.qStart+BT_CAP*1000;
+  if(g.opp[qi]&&!g.res[qi])g.chaseEnd=Math.min(g.capEnd,Date.now()+BT_CHASE*1000);btChip()}
+function btTick(){const g=BT.game;if(!flag||qDone||spinState||!g.qStart)return;
+  const end=g.chaseEnd?Math.min(g.capEnd,g.chaseEnd):g.capEnd,left=Math.max(0,(end-Date.now())/1000);showTimer(left);
+  if(left<=0)timeUp()}
+function btChip(){const g=BT&&BT.game,el=$('#oppChip');if(!g)return;const o=btOpp(),nm=o?esc(o.name):'相手';
+  let t;if(!btAlive(o))t=`📡 ${nm}：応答なし`;else if(g.opp[qi])t=`✅ ${nm}：できた！`+(g.res[qi]?'':'（のこり1分）');else t=`✏️ ${nm}：描いてる…`;
+  el.innerHTML=t;el.classList.toggle('done',!!g.opp[qi])}
+function btOnOppRes(q){const g=BT.game;if(q===qi&&!g.res[q]&&g.qStart){g.chaseEnd=Math.min(g.capEnd,Date.now()+BT_CHASE*1000);btToast(`${btOpp()?esc(btOpp().name):'相手'}ができた！ のこり1分`)}btChip();btRefresh()}
+function btToast(t){const e=$('#btToast');e.innerHTML=t;e.classList.remove('show');void e.offsetWidth;e.classList.add('show');clearTimeout(btToast.t);btToast.t=setTimeout(()=>e.classList.remove('show'),2600)}
+// doJudge から：自分の答えを送る
+function btSubmit(r){const g=BT.game,at=g.qStart?(Date.now()-g.qStart)/1000:0;let img=null;
+  try{const t=document.createElement('canvas'),tw=200;rasterToCanvas(t,r.R,tw,Math.round(tw/ar()));img=t.toDataURL('image/png')}catch(e){}
+  g.res[qi]={s:r.s,at,img};BT.tr.send({t:'res',id:BT.me.id,gid:g.gid,q:qi,s:r.s,at,img});btChip()}
+function btVerdict(a,b){if(!a||!b)return 0;if(a.s!==b.s)return a.s>b.s?1:-1;if(Math.abs(a.at-b.at)<.05)return 0;return a.at<b.at?1:-1}
+const fmtAt=s=>`${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;
+// 結果の窓に、2人のくらべを出す
+function btShowVs(){const g=BT&&BT.game;if(!g)return;const box=$('#rVs');box.classList.remove('hidden');
+  const a=g.res[qi],b=g.opp[qi],o=btOpp(),on=o?esc(o.name):'相手';
+  const card=(nm,x,mine)=>`<div class="vsc${x&&b&&a?(btVerdict(mine?a:b,mine?b:a)>0?' win':''):''}"><div class="vsn">${nm}</div>${x?(x.img?`<img src="${x.img}">`:'<div class="noimg">（絵は届かなかった）</div>'):'<div class="noimg">描いてる…</div>'}<div class="vss">${x?x.s+'%':'—'}</div>${x?`<div class="vst">${fmtAt(x.at)}で提出</div>`:''}</div>`;
+  const v=btVerdict(a,b);
+  box.innerHTML=`<div class="vsrow">${card('あなた',a,true)}<div class="vsx">VS</div>${card(on,b,false)}</div><div class="vsv">${!b?`${on}はまだ描いてる…（のこり最大1分）`:v>0?'🎉 この問題はあなたの勝ち！':v<0?`😣 この問題は${on}の勝ち`:'🤝 引き分け'}${a&&b&&a.s===b.s&&v!==0?'（同点なので先に出したほうの勝ち）':''}</div>`;
+  btNextBtn()}
+function btRefresh(){if(!BT||!BT.game)return;if(!$('#res').classList.contains('hidden'))btShowVs();if(!$('#sum').classList.contains('hidden'))btSummary()}
+function btNextBtn(){const g=BT.game,b=$('#next');const waiting=g.ready.me>=qi;
+  if(waiting){b.textContent='相手を待っています…';b.disabled=true;$('#btSkipWait').classList.remove('hidden')}
+  else{b.textContent=qi<order.length-1?'次の問題へ':'結果を見る';b.disabled=false;$('#btSkipWait').classList.add('hidden')}}
+function btNext(){const g=BT.game;g.ready.me=qi;BT.tr.send({t:'ready',id:BT.me.id,gid:g.gid,q:qi});btNextBtn();btTryAdvance()}
+function btTryAdvance(force){const g=BT&&BT.game;if(!g||g.ready.me<qi)return;if(!qDone||$('#res').classList.contains('hidden'))return;
+  const o=btOpp();if(!force&&g.ready.opp<qi&&btAlive(o))return;
+  $('#res').classList.add('hidden');$('#next').disabled=false;$('#btSkipWait').classList.add('hidden');nextQ()}
+// まとめ
+function btSummary(){const g=BT.game,o=btOpp(),on=o?esc(o.name):'相手';let w=0,l=0,sa=0,sb=0;
+  const rows=order.map((f,i)=>{const a=g.res[i],b=g.opp[i],v=btVerdict(a,b);if(a&&b){if(v>0)w++;else if(v<0)l++}sa+=a?a.s:0;sb+=b?b.s:0;
+    return`<tr><td>${esc(f.name)}</td><td class="${v>0?'w':''}">${a?a.s+'%':'—'}</td><td class="${v<0?'w':''}">${b?b.s+'%':'…'}</td></tr>`}).join('');
+  const all=order.every((f,i)=>g.opp[i]),fin=w!==l?(w>l?'🏆 あなたの勝ち！':`${on}の勝ち…`):(sa!==sb?(sa>sb?'🏆 あなたの勝ち！（合計点で）':`${on}の勝ち…（合計点で）`):'🤝 引き分け');
+  $('#sAvg').innerHTML=`${w}<small>勝</small> ${l}<small>敗</small>`;$('#sMode').textContent=all?fin:`${on}の結果を待っています…`;
+  $('#sTable').innerHTML=`<tr><th></th><th>あなた</th><th>${on}</th></tr>`+rows+`<tr class="tot"><td>合計</td><td>${sa}</td><td>${sb}</td></tr>`;
+  $('#again').textContent=BT.me.host?'もう一回（同じ部屋で）':'もう一回（ホストを待つ）';$('#btLeaveSum').classList.remove('hidden')}
+function btAgain(){$('#sum').classList.add('hidden');BT.game=null;if(BT.saved){setting=BT.saved;BT.saved=null}document.body.classList.remove('battle');$('#oppChip').classList.add('hidden');
+  $('#title').classList.remove('hidden');btOpenModal();btShowStep(2);btUpd()}
+// ---- ボタン ----
+$('#tBattle').onclick=()=>btOpenModal();
+$('#btCreate').onclick=btCreate;$('#btJoin').onclick=btJoin;
+$('#btCode').addEventListener('keydown',e=>{if(e.key==='Enter')btJoin()});
+$('#btStart').onclick=btHostStart;
+$('#btLeave').onclick=()=>{btClose();btShowStep(1);$('#btM').classList.add('hidden')};
+$('#btCopy').onclick=()=>{const u=btLink(BT.code);(navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>btMsg('リンクをコピーしました'),()=>btMsg(u))};
+document.querySelectorAll('#btModeSel button').forEach(b=>b.onclick=()=>{BT&&(BT.mode=b.dataset.v);document.querySelectorAll('#btModeSel button').forEach(x=>x.classList.toggle('on',x===b))});
+document.querySelectorAll('#btHintSel button').forEach(b=>b.onclick=()=>{BT&&(BT.hint=b.dataset.v);document.querySelectorAll('#btHintSel button').forEach(x=>x.classList.toggle('on',x===b))});
+$('#btSkipWait').onclick=()=>btTryAdvance(true);
+$('#btLeaveSum').onclick=()=>{$('#sum').classList.add('hidden');btClose();showTitle()};
+// リンク（?room=1234）から来たら、番号を入れた状態で窓を開く
+{const m=location.search.match(/[?&]room=(\d{4})/);if(m)setTimeout(()=>{$('#title').classList.remove('hidden');btOpenModal(m[1])},300)}
+
+</script>
+<script>/* qrcode-generator 1.4.4 (MIT, Kazuhiko Arase) */
+var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],f={},c=function(t,r){o=function(t){for(var r=new Array(t),e=0;e<t;e+=1){r[e]=new Array(t);for(var n=0;n<t;n+=1)r[e][n]=null}return r}(i=4*e+17),l(0,0),l(i-7,0),l(0,i-7),s(),h(),d(t,r),e>=7&&v(t),null==a&&(a=p(e,n,u)),w(a,r)},l=function(t,r){for(var e=-1;e<=7;e+=1)if(!(t+e<=-1||i<=t+e))for(var n=-1;n<=7;n+=1)r+n<=-1||i<=r+n||(o[t+e][r+n]=0<=e&&e<=6&&(0==n||6==n)||0<=n&&n<=6&&(0==e||6==e)||2<=e&&e<=4&&2<=n&&n<=4)},h=function(){for(var t=8;t<i-8;t+=1)null==o[t][6]&&(o[t][6]=t%2==0);for(var r=8;r<i-8;r+=1)null==o[6][r]&&(o[6][r]=r%2==0)},s=function(){for(var t=B.getPatternPosition(e),r=0;r<t.length;r+=1)for(var n=0;n<t.length;n+=1){var i=t[r],a=t[n];if(null==o[i][a])for(var u=-2;u<=2;u+=1)for(var f=-2;f<=2;f+=1)o[i+u][a+f]=-2==u||2==u||-2==f||2==f||0==u&&0==f}},v=function(t){for(var r=B.getBCHTypeNumber(e),n=0;n<18;n+=1){var a=!t&&1==(r>>n&1);o[Math.floor(n/3)][n%3+i-8-3]=a}for(n=0;n<18;n+=1){a=!t&&1==(r>>n&1);o[n%3+i-8-3][Math.floor(n/3)]=a}},d=function(t,r){for(var e=n<<3|r,a=B.getBCHTypeInfo(e),u=0;u<15;u+=1){var f=!t&&1==(a>>u&1);u<6?o[u][8]=f:u<8?o[u+1][8]=f:o[i-15+u][8]=f}for(u=0;u<15;u+=1){f=!t&&1==(a>>u&1);u<8?o[8][i-u-1]=f:u<9?o[8][15-u-1+1]=f:o[8][15-u-1]=f}o[i-8][8]=!t},w=function(t,r){for(var e=-1,n=i-1,a=7,u=0,f=B.getMaskFunction(r),c=i-1;c>0;c-=2)for(6==c&&(c-=1);;){for(var g=0;g<2;g+=1)if(null==o[n][c-g]){var l=!1;u<t.length&&(l=1==(t[u]>>>a&1)),f(n,c-g)&&(l=!l),o[n][c-g]=l,-1==(a-=1)&&(u+=1,a=7)}if((n+=e)<0||i<=n){n-=e,e=-e;break}}},p=function(t,r,e){for(var n=A.getRSBlocks(t,r),o=b(),i=0;i<e.length;i+=1){var a=e[i];o.put(a.getMode(),4),o.put(a.getLength(),B.getLengthInBits(a.getMode(),t)),a.write(o)}var u=0;for(i=0;i<n.length;i+=1)u+=n[i].dataCount;if(o.getLengthInBits()>8*u)throw"code length overflow. ("+o.getLengthInBits()+">"+8*u+")";for(o.getLengthInBits()+4<=8*u&&o.put(0,4);o.getLengthInBits()%8!=0;)o.putBit(!1);for(;!(o.getLengthInBits()>=8*u||(o.put(236,8),o.getLengthInBits()>=8*u));)o.put(17,8);return function(t,r){for(var e=0,n=0,o=0,i=new Array(r.length),a=new Array(r.length),u=0;u<r.length;u+=1){var f=r[u].dataCount,c=r[u].totalCount-f;n=Math.max(n,f),o=Math.max(o,c),i[u]=new Array(f);for(var g=0;g<i[u].length;g+=1)i[u][g]=255&t.getBuffer()[g+e];e+=f;var l=B.getErrorCorrectPolynomial(c),h=k(i[u],l.getLength()-1).mod(l);for(a[u]=new Array(l.getLength()-1),g=0;g<a[u].length;g+=1){var s=g+h.getLength()-a[u].length;a[u][g]=s>=0?h.getAt(s):0}}var v=0;for(g=0;g<r.length;g+=1)v+=r[g].totalCount;var d=new Array(v),w=0;for(g=0;g<n;g+=1)for(u=0;u<r.length;u+=1)g<i[u].length&&(d[w]=i[u][g],w+=1);for(g=0;g<o;g+=1)for(u=0;u<r.length;u+=1)g<a[u].length&&(d[w]=a[u][g],w+=1);return d}(o,n)};f.addData=function(t,r){var e=null;switch(r=r||"Byte"){case"Numeric":e=M(t);break;case"Alphanumeric":e=x(t);break;case"Byte":e=m(t);break;case"Kanji":e=L(t);break;default:throw"mode:"+r}u.push(e),a=null},f.isDark=function(t,r){if(t<0||i<=t||r<0||i<=r)throw t+","+r;return o[t][r]},f.getModuleCount=function(){return i},f.make=function(){if(e<1){for(var t=1;t<40;t++){for(var r=A.getRSBlocks(t,n),o=b(),i=0;i<u.length;i++){var a=u[i];o.put(a.getMode(),4),o.put(a.getLength(),B.getLengthInBits(a.getMode(),t)),a.write(o)}var g=0;for(i=0;i<r.length;i++)g+=r[i].dataCount;if(o.getLengthInBits()<=8*g)break}e=t}c(!1,function(){for(var t=0,r=0,e=0;e<8;e+=1){c(!0,e);var n=B.getLostPoint(f);(0==e||t>n)&&(t=n,r=e)}return r}())},f.createTableTag=function(t,r){t=t||2;var e="";e+='<table style="',e+=" border-width: 0px; border-style: none;",e+=" border-collapse: collapse;",e+=" padding: 0px; margin: "+(r=void 0===r?4*t:r)+"px;",e+='">',e+="<tbody>";for(var n=0;n<f.getModuleCount();n+=1){e+="<tr>";for(var o=0;o<f.getModuleCount();o+=1)e+='<td style="',e+=" border-width: 0px; border-style: none;",e+=" border-collapse: collapse;",e+=" padding: 0px; margin: 0px;",e+=" width: "+t+"px;",e+=" height: "+t+"px;",e+=" background-color: ",e+=f.isDark(n,o)?"#000000":"#ffffff",e+=";",e+='"/>';e+="</tr>"}return e+="</tbody>",e+="</table>"},f.createSvgTag=function(t,r,e,n){var o={};"object"==typeof arguments[0]&&(t=(o=arguments[0]).cellSize,r=o.margin,e=o.alt,n=o.title),t=t||2,r=void 0===r?4*t:r,(e="string"==typeof e?{text:e}:e||{}).text=e.text||null,e.id=e.text?e.id||"qrcode-description":null,(n="string"==typeof n?{text:n}:n||{}).text=n.text||null,n.id=n.text?n.id||"qrcode-title":null;var i,a,u,c,g=f.getModuleCount()*t+2*r,l="";for(c="l"+t+",0 0,"+t+" -"+t+",0 0,-"+t+"z ",l+='<svg version="1.1" xmlns="http://www.w3.org/2000/svg"',l+=o.scalable?"":' width="'+g+'px" height="'+g+'px"',l+=' viewBox="0 0 '+g+" "+g+'" ',l+=' preserveAspectRatio="xMinYMin meet"',l+=n.text||e.text?' role="img" aria-labelledby="'+y([n.id,e.id].join(" ").trim())+'"':"",l+=">",l+=n.text?'<title id="'+y(n.id)+'">'+y(n.text)+"</title>":"",l+=e.text?'<description id="'+y(e.id)+'">'+y(e.text)+"</description>":"",l+='<rect width="100%" height="100%" fill="white" cx="0" cy="0"/>',l+='<path d="',a=0;a<f.getModuleCount();a+=1)for(u=a*t+r,i=0;i<f.getModuleCount();i+=1)f.isDark(a,i)&&(l+="M"+(i*t+r)+","+u+c);return l+='" stroke="transparent" fill="black"/>',l+="</svg>"},f.createDataURL=function(t,r){t=t||2,r=void 0===r?4*t:r;var e=f.getModuleCount()*t+2*r,n=r,o=e-r;return I(e,e,function(r,e){if(n<=r&&r<o&&n<=e&&e<o){var i=Math.floor((r-n)/t),a=Math.floor((e-n)/t);return f.isDark(a,i)?0:1}return 1})},f.createImgTag=function(t,r,e){t=t||2,r=void 0===r?4*t:r;var n=f.getModuleCount()*t+2*r,o="";return o+="<img",o+=' src="',o+=f.createDataURL(t,r),o+='"',o+=' width="',o+=n,o+='"',o+=' height="',o+=n,o+='"',e&&(o+=' alt="',o+=y(e),o+='"'),o+="/>"};var y=function(t){for(var r="",e=0;e<t.length;e+=1){var n=t.charAt(e);switch(n){case"<":r+="&lt;";break;case">":r+="&gt;";break;case"&":r+="&amp;";break;case'"':r+="&quot;";break;default:r+=n}}return r};return f.createASCII=function(t,r){if((t=t||1)<2)return function(t){t=void 0===t?2:t;var r,e,n,o,i,a=1*f.getModuleCount()+2*t,u=t,c=a-t,g={"██":"█","█ ":"▀"," █":"▄","  ":" "},l={"██":"▀","█ ":"▀"," █":" ","  ":" "},h="";for(r=0;r<a;r+=2){for(n=Math.floor((r-u)/1),o=Math.floor((r+1-u)/1),e=0;e<a;e+=1)i="█",u<=e&&e<c&&u<=r&&r<c&&f.isDark(n,Math.floor((e-u)/1))&&(i=" "),u<=e&&e<c&&u<=r+1&&r+1<c&&f.isDark(o,Math.floor((e-u)/1))?i+=" ":i+="█",h+=t<1&&r+1>=c?l[i]:g[i];h+="\n"}return a%2&&t>0?h.substring(0,h.length-a-1)+Array(a+1).join("▀"):h.substring(0,h.length-1)}(r);t-=1,r=void 0===r?2*t:r;var e,n,o,i,a=f.getModuleCount()*t+2*r,u=r,c=a-r,g=Array(t+1).join("██"),l=Array(t+1).join("  "),h="",s="";for(e=0;e<a;e+=1){for(o=Math.floor((e-u)/t),s="",n=0;n<a;n+=1)i=1,u<=n&&n<c&&u<=e&&e<c&&f.isDark(o,Math.floor((n-u)/t))&&(i=0),s+=i?g:l;for(o=0;o<t;o+=1)h+=s+"\n"}return h.substring(0,h.length-1)},f.renderTo2dContext=function(t,r){r=r||2;for(var e=f.getModuleCount(),n=0;n<e;n++)for(var o=0;o<e;o++)t.fillStyle=f.isDark(n,o)?"black":"white",t.fillRect(n*r,o*r,r,r)},f};t.stringToBytes=(t.stringToBytesFuncs={default:function(t){for(var r=[],e=0;e<t.length;e+=1){var n=t.charCodeAt(e);r.push(255&n)}return r}}).default,t.createStringToBytes=function(t,r){var e=function(){for(var e=S(t),n=function(){var t=e.read();if(-1==t)throw"eof";return t},o=0,i={};;){var a=e.read();if(-1==a)break;var u=n(),f=n()<<8|n();i[String.fromCharCode(a<<8|u)]=f,o+=1}if(o!=r)throw o+" != "+r;return i}(),n="?".charCodeAt(0);return function(t){for(var r=[],o=0;o<t.length;o+=1){var i=t.charCodeAt(o);if(i<128)r.push(i);else{var a=e[t.charAt(o)];"number"==typeof a?(255&a)==a?r.push(a):(r.push(a>>>8),r.push(255&a)):r.push(n)}}return r}};var r,e,n,o,i,a=1,u=2,f=4,c=8,g={L:1,M:0,Q:3,H:2},l=0,h=1,s=2,v=3,d=4,w=5,p=6,y=7,B=(r=[[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],[6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]],e=1335,n=7973,i=function(t){for(var r=0;0!=t;)r+=1,t>>>=1;return r},(o={}).getBCHTypeInfo=function(t){for(var r=t<<10;i(r)-i(e)>=0;)r^=e<<i(r)-i(e);return 21522^(t<<10|r)},o.getBCHTypeNumber=function(t){for(var r=t<<12;i(r)-i(n)>=0;)r^=n<<i(r)-i(n);return t<<12|r},o.getPatternPosition=function(t){return r[t-1]},o.getMaskFunction=function(t){switch(t){case l:return function(t,r){return(t+r)%2==0};case h:return function(t,r){return t%2==0};case s:return function(t,r){return r%3==0};case v:return function(t,r){return(t+r)%3==0};case d:return function(t,r){return(Math.floor(t/2)+Math.floor(r/3))%2==0};case w:return function(t,r){return t*r%2+t*r%3==0};case p:return function(t,r){return(t*r%2+t*r%3)%2==0};case y:return function(t,r){return(t*r%3+(t+r)%2)%2==0};default:throw"bad maskPattern:"+t}},o.getErrorCorrectPolynomial=function(t){for(var r=k([1],0),e=0;e<t;e+=1)r=r.multiply(k([1,C.gexp(e)],0));return r},o.getLengthInBits=function(t,r){if(1<=r&&r<10)switch(t){case a:return 10;case u:return 9;case f:case c:return 8;default:throw"mode:"+t}else if(r<27)switch(t){case a:return 12;case u:return 11;case f:return 16;case c:return 10;default:throw"mode:"+t}else{if(!(r<41))throw"type:"+r;switch(t){case a:return 14;case u:return 13;case f:return 16;case c:return 12;default:throw"mode:"+t}}},o.getLostPoint=function(t){for(var r=t.getModuleCount(),e=0,n=0;n<r;n+=1)for(var o=0;o<r;o+=1){for(var i=0,a=t.isDark(n,o),u=-1;u<=1;u+=1)if(!(n+u<0||r<=n+u))for(var f=-1;f<=1;f+=1)o+f<0||r<=o+f||0==u&&0==f||a==t.isDark(n+u,o+f)&&(i+=1);i>5&&(e+=3+i-5)}for(n=0;n<r-1;n+=1)for(o=0;o<r-1;o+=1){var c=0;t.isDark(n,o)&&(c+=1),t.isDark(n+1,o)&&(c+=1),t.isDark(n,o+1)&&(c+=1),t.isDark(n+1,o+1)&&(c+=1),0!=c&&4!=c||(e+=3)}for(n=0;n<r;n+=1)for(o=0;o<r-6;o+=1)t.isDark(n,o)&&!t.isDark(n,o+1)&&t.isDark(n,o+2)&&t.isDark(n,o+3)&&t.isDark(n,o+4)&&!t.isDark(n,o+5)&&t.isDark(n,o+6)&&(e+=40);for(o=0;o<r;o+=1)for(n=0;n<r-6;n+=1)t.isDark(n,o)&&!t.isDark(n+1,o)&&t.isDark(n+2,o)&&t.isDark(n+3,o)&&t.isDark(n+4,o)&&!t.isDark(n+5,o)&&t.isDark(n+6,o)&&(e+=40);var g=0;for(o=0;o<r;o+=1)for(n=0;n<r;n+=1)t.isDark(n,o)&&(g+=1);return e+=Math.abs(100*g/r/r-50)/5*10},o),C=function(){for(var t=new Array(256),r=new Array(256),e=0;e<8;e+=1)t[e]=1<<e;for(e=8;e<256;e+=1)t[e]=t[e-4]^t[e-5]^t[e-6]^t[e-8];for(e=0;e<255;e+=1)r[t[e]]=e;var n={glog:function(t){if(t<1)throw"glog("+t+")";return r[t]},gexp:function(r){for(;r<0;)r+=255;for(;r>=256;)r-=255;return t[r]}};return n}();function k(t,r){if(void 0===t.length)throw t.length+"/"+r;var e=function(){for(var e=0;e<t.length&&0==t[e];)e+=1;for(var n=new Array(t.length-e+r),o=0;o<t.length-e;o+=1)n[o]=t[o+e];return n}(),n={getAt:function(t){return e[t]},getLength:function(){return e.length},multiply:function(t){for(var r=new Array(n.getLength()+t.getLength()-1),e=0;e<n.getLength();e+=1)for(var o=0;o<t.getLength();o+=1)r[e+o]^=C.gexp(C.glog(n.getAt(e))+C.glog(t.getAt(o)));return k(r,0)},mod:function(t){if(n.getLength()-t.getLength()<0)return n;for(var r=C.glog(n.getAt(0))-C.glog(t.getAt(0)),e=new Array(n.getLength()),o=0;o<n.getLength();o+=1)e[o]=n.getAt(o);for(o=0;o<t.getLength();o+=1)e[o]^=C.gexp(C.glog(t.getAt(o))+r);return k(e,0).mod(t)}};return n}var A=function(){var t=[[1,26,19],[1,26,16],[1,26,13],[1,26,9],[1,44,34],[1,44,28],[1,44,22],[1,44,16],[1,70,55],[1,70,44],[2,35,17],[2,35,13],[1,100,80],[2,50,32],[2,50,24],[4,25,9],[1,134,108],[2,67,43],[2,33,15,2,34,16],[2,33,11,2,34,12],[2,86,68],[4,43,27],[4,43,19],[4,43,15],[2,98,78],[4,49,31],[2,32,14,4,33,15],[4,39,13,1,40,14],[2,121,97],[2,60,38,2,61,39],[4,40,18,2,41,19],[4,40,14,2,41,15],[2,146,116],[3,58,36,2,59,37],[4,36,16,4,37,17],[4,36,12,4,37,13],[2,86,68,2,87,69],[4,69,43,1,70,44],[6,43,19,2,44,20],[6,43,15,2,44,16],[4,101,81],[1,80,50,4,81,51],[4,50,22,4,51,23],[3,36,12,8,37,13],[2,116,92,2,117,93],[6,58,36,2,59,37],[4,46,20,6,47,21],[7,42,14,4,43,15],[4,133,107],[8,59,37,1,60,38],[8,44,20,4,45,21],[12,33,11,4,34,12],[3,145,115,1,146,116],[4,64,40,5,65,41],[11,36,16,5,37,17],[11,36,12,5,37,13],[5,109,87,1,110,88],[5,65,41,5,66,42],[5,54,24,7,55,25],[11,36,12,7,37,13],[5,122,98,1,123,99],[7,73,45,3,74,46],[15,43,19,2,44,20],[3,45,15,13,46,16],[1,135,107,5,136,108],[10,74,46,1,75,47],[1,50,22,15,51,23],[2,42,14,17,43,15],[5,150,120,1,151,121],[9,69,43,4,70,44],[17,50,22,1,51,23],[2,42,14,19,43,15],[3,141,113,4,142,114],[3,70,44,11,71,45],[17,47,21,4,48,22],[9,39,13,16,40,14],[3,135,107,5,136,108],[3,67,41,13,68,42],[15,54,24,5,55,25],[15,43,15,10,44,16],[4,144,116,4,145,117],[17,68,42],[17,50,22,6,51,23],[19,46,16,6,47,17],[2,139,111,7,140,112],[17,74,46],[7,54,24,16,55,25],[34,37,13],[4,151,121,5,152,122],[4,75,47,14,76,48],[11,54,24,14,55,25],[16,45,15,14,46,16],[6,147,117,4,148,118],[6,73,45,14,74,46],[11,54,24,16,55,25],[30,46,16,2,47,17],[8,132,106,4,133,107],[8,75,47,13,76,48],[7,54,24,22,55,25],[22,45,15,13,46,16],[10,142,114,2,143,115],[19,74,46,4,75,47],[28,50,22,6,51,23],[33,46,16,4,47,17],[8,152,122,4,153,123],[22,73,45,3,74,46],[8,53,23,26,54,24],[12,45,15,28,46,16],[3,147,117,10,148,118],[3,73,45,23,74,46],[4,54,24,31,55,25],[11,45,15,31,46,16],[7,146,116,7,147,117],[21,73,45,7,74,46],[1,53,23,37,54,24],[19,45,15,26,46,16],[5,145,115,10,146,116],[19,75,47,10,76,48],[15,54,24,25,55,25],[23,45,15,25,46,16],[13,145,115,3,146,116],[2,74,46,29,75,47],[42,54,24,1,55,25],[23,45,15,28,46,16],[17,145,115],[10,74,46,23,75,47],[10,54,24,35,55,25],[19,45,15,35,46,16],[17,145,115,1,146,116],[14,74,46,21,75,47],[29,54,24,19,55,25],[11,45,15,46,46,16],[13,145,115,6,146,116],[14,74,46,23,75,47],[44,54,24,7,55,25],[59,46,16,1,47,17],[12,151,121,7,152,122],[12,75,47,26,76,48],[39,54,24,14,55,25],[22,45,15,41,46,16],[6,151,121,14,152,122],[6,75,47,34,76,48],[46,54,24,10,55,25],[2,45,15,64,46,16],[17,152,122,4,153,123],[29,74,46,14,75,47],[49,54,24,10,55,25],[24,45,15,46,46,16],[4,152,122,18,153,123],[13,74,46,32,75,47],[48,54,24,14,55,25],[42,45,15,32,46,16],[20,147,117,4,148,118],[40,75,47,7,76,48],[43,54,24,22,55,25],[10,45,15,67,46,16],[19,148,118,6,149,119],[18,75,47,31,76,48],[34,54,24,34,55,25],[20,45,15,61,46,16]],r=function(t,r){var e={};return e.totalCount=t,e.dataCount=r,e},e={};return e.getRSBlocks=function(e,n){var o=function(r,e){switch(e){case g.L:return t[4*(r-1)+0];case g.M:return t[4*(r-1)+1];case g.Q:return t[4*(r-1)+2];case g.H:return t[4*(r-1)+3];default:return}}(e,n);if(void 0===o)throw"bad rs block @ typeNumber:"+e+"/errorCorrectionLevel:"+n;for(var i=o.length/3,a=[],u=0;u<i;u+=1)for(var f=o[3*u+0],c=o[3*u+1],l=o[3*u+2],h=0;h<f;h+=1)a.push(r(c,l));return a},e}(),b=function(){var t=[],r=0,e={getBuffer:function(){return t},getAt:function(r){var e=Math.floor(r/8);return 1==(t[e]>>>7-r%8&1)},put:function(t,r){for(var n=0;n<r;n+=1)e.putBit(1==(t>>>r-n-1&1))},getLengthInBits:function(){return r},putBit:function(e){var n=Math.floor(r/8);t.length<=n&&t.push(0),e&&(t[n]|=128>>>r%8),r+=1}};return e},M=function(t){var r=a,e=t,n={getMode:function(){return r},getLength:function(t){return e.length},write:function(t){for(var r=e,n=0;n+2<r.length;)t.put(o(r.substring(n,n+3)),10),n+=3;n<r.length&&(r.length-n==1?t.put(o(r.substring(n,n+1)),4):r.length-n==2&&t.put(o(r.substring(n,n+2)),7))}},o=function(t){for(var r=0,e=0;e<t.length;e+=1)r=10*r+i(t.charAt(e));return r},i=function(t){if("0"<=t&&t<="9")return t.charCodeAt(0)-"0".charCodeAt(0);throw"illegal char :"+t};return n},x=function(t){var r=u,e=t,n={getMode:function(){return r},getLength:function(t){return e.length},write:function(t){for(var r=e,n=0;n+1<r.length;)t.put(45*o(r.charAt(n))+o(r.charAt(n+1)),11),n+=2;n<r.length&&t.put(o(r.charAt(n)),6)}},o=function(t){if("0"<=t&&t<="9")return t.charCodeAt(0)-"0".charCodeAt(0);if("A"<=t&&t<="Z")return t.charCodeAt(0)-"A".charCodeAt(0)+10;switch(t){case" ":return 36;case"$":return 37;case"%":return 38;case"*":return 39;case"+":return 40;case"-":return 41;case".":return 42;case"/":return 43;case":":return 44;default:throw"illegal char :"+t}};return n},m=function(r){var e=f,n=t.stringToBytes(r),o={getMode:function(){return e},getLength:function(t){return n.length},write:function(t){for(var r=0;r<n.length;r+=1)t.put(n[r],8)}};return o},L=function(r){var e=c,n=t.stringToBytesFuncs.SJIS;if(!n)throw"sjis not supported.";!function(){var t=n("友");if(2!=t.length||38726!=(t[0]<<8|t[1]))throw"sjis not supported."}();var o=n(r),i={getMode:function(){return e},getLength:function(t){return~~(o.length/2)},write:function(t){for(var r=o,e=0;e+1<r.length;){var n=(255&r[e])<<8|255&r[e+1];if(33088<=n&&n<=40956)n-=33088;else{if(!(57408<=n&&n<=60351))throw"illegal char at "+(e+1)+"/"+n;n-=49472}n=192*(n>>>8&255)+(255&n),t.put(n,13),e+=2}if(e<r.length)throw"illegal char at "+(e+1)}};return i},D=function(){var t=[],r={writeByte:function(r){t.push(255&r)},writeShort:function(t){r.writeByte(t),r.writeByte(t>>>8)},writeBytes:function(t,e,n){e=e||0,n=n||t.length;for(var o=0;o<n;o+=1)r.writeByte(t[o+e])},writeString:function(t){for(var e=0;e<t.length;e+=1)r.writeByte(t.charCodeAt(e))},toByteArray:function(){return t},toString:function(){var r="";r+="[";for(var e=0;e<t.length;e+=1)e>0&&(r+=","),r+=t[e];return r+="]"}};return r},S=function(t){var r=t,e=0,n=0,o=0,i={read:function(){for(;o<8;){if(e>=r.length){if(0==o)return-1;throw"unexpected end of file./"+o}var t=r.charAt(e);if(e+=1,"="==t)return o=0,-1;t.match(/^\s$/)||(n=n<<6|a(t.charCodeAt(0)),o+=6)}var i=n>>>o-8&255;return o-=8,i}},a=function(t){if(65<=t&&t<=90)return t-65;if(97<=t&&t<=122)return t-97+26;if(48<=t&&t<=57)return t-48+52;if(43==t)return 62;if(47==t)return 63;throw"c:"+t};return i},I=function(t,r,e){for(var n=function(t,r){var e=t,n=r,o=new Array(t*r),i={setPixel:function(t,r,n){o[r*e+t]=n},write:function(t){t.writeString("GIF87a"),t.writeShort(e),t.writeShort(n),t.writeByte(128),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(255),t.writeByte(255),t.writeByte(255),t.writeString(","),t.writeShort(0),t.writeShort(0),t.writeShort(e),t.writeShort(n),t.writeByte(0);var r=a(2);t.writeByte(2);for(var o=0;r.length-o>255;)t.writeByte(255),t.writeBytes(r,o,255),o+=255;t.writeByte(r.length-o),t.writeBytes(r,o,r.length-o),t.writeByte(0),t.writeString(";")}},a=function(t){for(var r=1<<t,e=1+(1<<t),n=t+1,i=u(),a=0;a<r;a+=1)i.add(String.fromCharCode(a));i.add(String.fromCharCode(r)),i.add(String.fromCharCode(e));var f,c,g,l=D(),h=(f=l,c=0,g=0,{write:function(t,r){if(t>>>r!=0)throw"length over";for(;c+r>=8;)f.writeByte(255&(t<<c|g)),r-=8-c,t>>>=8-c,g=0,c=0;g|=t<<c,c+=r},flush:function(){c>0&&f.writeByte(g)}});h.write(r,n);var s=0,v=String.fromCharCode(o[s]);for(s+=1;s<o.length;){var d=String.fromCharCode(o[s]);s+=1,i.contains(v+d)?v+=d:(h.write(i.indexOf(v),n),i.size()<4095&&(i.size()==1<<n&&(n+=1),i.add(v+d)),v=d)}return h.write(i.indexOf(v),n),h.write(e,n),h.flush(),l.toByteArray()},u=function(){var t={},r=0,e={add:function(n){if(e.contains(n))throw"dup key:"+n;t[n]=r,r+=1},size:function(){return r},indexOf:function(r){return t[r]},contains:function(r){return void 0!==t[r]}};return e};return i}(t,r),o=0;o<r;o+=1)for(var i=0;i<t;i+=1)n.setPixel(i,o,e(i,o));var a=D();n.write(a);for(var u=function(){var t=0,r=0,e=0,n="",o={},i=function(t){n+=String.fromCharCode(a(63&t))},a=function(t){if(t<0);else{if(t<26)return 65+t;if(t<52)return t-26+97;if(t<62)return t-52+48;if(62==t)return 43;if(63==t)return 47}throw"n:"+t};return o.writeByte=function(n){for(t=t<<8|255&n,r+=8,e+=1;r>=6;)i(t>>>r-6),r-=6},o.flush=function(){if(r>0&&(i(t<<6-r),t=0,r=0),e%3!=0)for(var o=3-e%3,a=0;a<o;a+=1)n+="="},o.toString=function(){return n},o}(),f=a.toByteArray(),c=0;c<f.length;c+=1)u.writeByte(f[c]);return u.flush(),"data:image/gif;base64,"+u};return t}();qrcode.stringToBytesFuncs["UTF-8"]=function(t){return function(t){for(var r=[],e=0;e<t.length;e++){var n=t.charCodeAt(e);n<128?r.push(n):n<2048?r.push(192|n>>6,128|63&n):n<55296||n>=57344?r.push(224|n>>12,128|n>>6&63,128|63&n):(e++,n=65536+((1023&n)<<10|1023&t.charCodeAt(e)),r.push(240|n>>18,128|n>>12&63,128|n>>6&63,128|63&n))}return r}(t)},function(t){"function"==typeof define&&define.amd?define([],t):"object"==typeof exports&&(module.exports=t())}(function(){return qrcode});
 </script>
 </body>
 </html>
