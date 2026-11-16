@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>国旗お絵かき v0.26</title>
+<title>国旗お絵かき v0.27</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPHJlY3QgeD0iNSIgeT0iNCIgd2lkdGg9IjQuNSIgaGVpZ2h0PSI1NyIgcng9IjIuMiIgZmlsbD0iIzZiNWE0NSIvPgogIDxwYXRoIGQ9Ik05LjUgN2g1MHYzNmgtNTB6IiBmaWxsPSIjZmZmIiBzdHJva2U9IiMyMjIiIHN0cm9rZS13aWR0aD0iMi44IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCAzLjc1KSByb3RhdGUoNDUgMzQuNSAyMS4yNSkiPgogICAgPHJlY3QgeD0iMzAuNSIgeT0iOCIgd2lkdGg9IjgiIGhlaWdodD0iMjIiIHJ4PSIxLjIiIGZpbGw9IiNmZmM4M2QiIHN0cm9rZT0iIzIyMiIgc3Ryb2tlLXdpZHRoPSIyLjIiLz4KICAgIDxwYXRoIGQ9Ik0zMC41IDMwaDhsLTQgOC41eiIgZmlsbD0iI2YzZDliMSIgc3Ryb2tlPSIjMjIyIiBzdHJva2Utd2lkdGg9IjIuMiIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgogICAgPHBhdGggZD0iTTMzLjEgMzUuNmgyLjhMMzQuNSAzOC41eiIgZmlsbD0iIzIyMiIvPgogICAgPHJlY3QgeD0iMzAuNSIgeT0iNCIgd2lkdGg9IjgiIGhlaWdodD0iNSIgcng9IjEuMiIgZmlsbD0iI2YwOGFhNiIgc3Ryb2tlPSIjMjIyIiBzdHJva2Utd2lkdGg9IjIuMiIvPgogIDwvZz4KPC9zdmc+">
 <style>
 :root{--bg:#f4f1ea;--panel:#fff;--ink:#222;--sub:#777;--line:#ddd;--accent:#e0457b}
 *{box-sizing:border-box}
@@ -20,9 +21,10 @@ details.note summary{cursor:pointer;font-weight:700;color:var(--ink)}
   .qname{font-size:22px}
   .stage{position:sticky;top:0;z-index:4;background:var(--bg);margin:0;padding:6px 0 8px}
   .tools{padding:8px;gap:6px}
-  .tools .row{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}
-  .tools .row::-webkit-scrollbar{display:none}
+  .tools .row{flex-wrap:wrap;padding:3px 0}
   .tools .row>*{flex:none}
+  .tools .lbl{width:100%;font-weight:700}
+  #pal{padding:3px;flex:1 1 100%!important;flex-wrap:wrap;min-width:0}
   .lbl{width:auto;min-width:3em;font-size:11px}
   button{padding:8px 11px}
   .sw{width:34px;height:34px}
@@ -108,13 +110,23 @@ button.mini{font-size:12px;padding:4px 9px;border-radius:8px}
 .sdesc{font-size:13px;color:#555;line-height:1.6;background:#f5f3ee;border-radius:10px;padding:7px 11px;margin-top:8px}
 button.ghost{background:none;border:none;color:var(--sub);width:100%;justify-content:center;margin-top:6px;text-decoration:underline}
 .smode{font-size:13px;color:var(--sub);margin-top:4px}
+#title{position:fixed;inset:0;z-index:8;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto}
+#title.hidden{display:none}
+.tcard{max-width:460px;width:100%;text-align:center}
+.tlogo{width:96px;height:96px;display:block;margin:0 auto 6px}
+.ttl{font-size:34px;font-weight:900;letter-spacing:.06em}
+.tsub{font-size:15px;color:var(--sub);margin:6px 0 18px}
+.tsteps{text-align:left;background:#fff;border-radius:14px;padding:12px 16px 12px 36px;margin:0 0 18px;line-height:1.9;font-size:15px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.tlinks{display:flex;justify-content:center;gap:8px;margin-top:14px}
+.tmode{font-size:12px;color:var(--sub);margin-top:6px}
+.tver{font-size:11px;color:#b5b0a6;margin-top:18px}
 .hcard{max-height:88vh;display:flex;flex-direction:column}
 .pcard{max-height:88vh;display:flex;flex-direction:column;max-width:640px;width:calc(100% - 24px)}
 #pFilter{margin-top:10px;justify-content:center}
 #pFilter button{font-size:13px;padding:5px 10px}
 #pGrid{overflow-y:auto;flex:1;min-height:120px;margin:10px -4px;padding:4px;display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px}
 .pthumb{height:76px;padding:6px;justify-content:center;background:repeating-conic-gradient(#9b978f 0 25%,#b3afa7 0 50%) 0 0/14px 14px;border-color:#9b978f}
-.pthumb img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+.pthumb canvas{display:block}
 .pthumb:hover{outline:2px solid var(--accent)}
 .pempty{grid-column:1/-1;color:var(--sub);font-size:14px;line-height:1.7;padding:20px 6px;text-align:center}
 #hList{overflow-y:auto;margin:10px -6px 0;padding:0 6px;flex:1;min-height:80px}
@@ -176,7 +188,7 @@ table.sum td:last-child{text-align:right;font-weight:700}
 </head>
 <body>
 <div class="wrap">
-  <header><h1>国旗お絵かき v0.26</h1><div class="hd"><div id="prog"></div><button id="histBtn" class="mini">📜 りれき</button><button id="setBtn" class="mini">⚙ 設定</button></div></header>
+  <header><h1>国旗お絵かき v0.27</h1><div class="hd"><div id="prog"></div><button id="histBtn" class="mini">📜 りれき</button><button id="setBtn" class="mini">⚙ 設定</button></div></header>
   <div class="main"><div class="left">
   <div class="q"><div class="qname" id="qname"></div><div class="qratio" id="qratio"></div></div>
   <div class="stage" id="stage">
@@ -195,6 +207,7 @@ table.sum td:last-child{text-align:right;font-weight:700}
       <button id="mFill">🪣 塗る</button>
       <button id="mMove">✋ 動かす</button>
       <button id="mErase">🧽 消しゴム</button>
+      <button id="mPick" title="絵の上をタップすると、そこの色が「いまの色」になる">🧪 スポイト</button>
     </div>
     <div class="row" id="eraseRow" style="display:none"><span class="lbl">消しゴム</span>
       <button data-ew="0.025">小</button>
@@ -250,7 +263,9 @@ table.sum td:last-child{text-align:right;font-weight:700}
   <details class="note"><summary>使い方</summary>
     <b>ヒント</b>（⚙設定で選ぶ）：なし／ちら見せ（👀を押すと本物がちょっとだけ見える。1秒 → 0.5秒 → 0.25秒 → 0.125秒 と短くなって4回でおしまい。見ているあいだは時計が止まる）／見本あり（小窓にずっと本物。押しているあいだ大きく見られる）。<br>
     <b>おしまいの合図</b>：なし（自分で「こたえあわせ」）／1枚30・60・90秒（時間切れになったら、その時点の絵で答え合わせ）。点数は一致率だけで、早さは関係ない。<br>
-    <b>部品</b>：「🧩 部品をえらぶ」で紋章・星・月などを置ける（工房で書き出した flags-data.js を、ゲームのとなり → kobo フォルダの順に探して読む）。置いたら図形と同じく、動かす・4すみで大きさ・上の○で回す。答え合わせでは、部品の色もいちばん近いパレットの色として数える。<br>
+    <b>白も塗る</b>：描きはじめは灰色（まだ塗っていない）。白いところも白で塗らないと点にならない。<br>
+    <b>🧪 スポイト</b>：絵の上をタップすると、そこの色が「いまの色」になって「塗る」にもどる（部品の色をそのまま地に塗れる）。<br>
+    <b>部品</b>：「🧩 部品をえらぶ」で紋章・星・月などを置ける（工房で書き出した flags-data.js を、ゲームのとなり → kobo フォルダの順に探して読む）。置いたら図形と同じく、動かす・4すみで大きさ・上の○で回す。部品は本物と同じ大きさで出てくる。表示も採点もパレットの色。部品を置いたときは、点の3割が「正しい部品か・場所・大きさ・向き」になる。<br>
     <b>消しゴム</b>：こすったところだけ、ペンの線（色ペン・仕切り線）が切れて消える。図形・直線・輪っかはタップで丸ごと消える。大きさは小・中・大。<br>
     <b>ペン</b>：「細」は黒い仕切り線。「中・太・極太」は今選んでいる色で描ける（色ペンで塗りたくってもOK）。<br>
     <b>直線でつなぐ</b>：点をタップ（またはひと筆描く）→ Shiftを押しながら次の場所をクリックすると、直線でつながる。続けると折れ線、最初の点の近くでつなぐと閉じる。スマホは「⇧直線つなぎ」をオンにするとタップでつながる。<br>
@@ -286,6 +301,21 @@ table.sum td:last-child{text-align:right;font-weight:700}
   <div class="smode" id="sMode"></div>
   <table class="sum" id="sTable"></table>
   <button class="big" id="again">もう一回</button>
+</div></div>
+
+<div id="title"><div class="tcard">
+  <img class="tlogo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPHJlY3QgeD0iNSIgeT0iNCIgd2lkdGg9IjQuNSIgaGVpZ2h0PSI1NyIgcng9IjIuMiIgZmlsbD0iIzZiNWE0NSIvPgogIDxwYXRoIGQ9Ik05LjUgN2g1MHYzNmgtNTB6IiBmaWxsPSIjZmZmIiBzdHJva2U9IiMyMjIiIHN0cm9rZS13aWR0aD0iMi44IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCAzLjc1KSByb3RhdGUoNDUgMzQuNSAyMS4yNSkiPgogICAgPHJlY3QgeD0iMzAuNSIgeT0iOCIgd2lkdGg9IjgiIGhlaWdodD0iMjIiIHJ4PSIxLjIiIGZpbGw9IiNmZmM4M2QiIHN0cm9rZT0iIzIyMiIgc3Ryb2tlLXdpZHRoPSIyLjIiLz4KICAgIDxwYXRoIGQ9Ik0zMC41IDMwaDhsLTQgOC41eiIgZmlsbD0iI2YzZDliMSIgc3Ryb2tlPSIjMjIyIiBzdHJva2Utd2lkdGg9IjIuMiIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgogICAgPHBhdGggZD0iTTMzLjEgMzUuNmgyLjhMMzQuNSAzOC41eiIgZmlsbD0iIzIyMiIvPgogICAgPHJlY3QgeD0iMzAuNSIgeT0iNCIgd2lkdGg9IjgiIGhlaWdodD0iNSIgcng9IjEuMiIgZmlsbD0iI2YwOGFhNiIgc3Ryb2tlPSIjMjIyIiBzdHJva2Utd2lkdGg9IjIuMiIvPgogIDwvZz4KPC9zdmc+" alt="">
+  <div class="ttl">国旗お絵かき</div>
+  <div class="tsub">自分で国旗をお絵かきして、本物に近づけよう。</div>
+  <ol class="tsteps">
+    <li>国名と「たて：よこ」だけが出る</li>
+    <li>覚えているとおりに描いて、塗る（白も塗ってね）</li>
+    <li>「こたえあわせ」で、本物と何％合っているか</li>
+  </ol>
+  <button class="big" id="tStart">はじめる</button>
+  <div class="tlinks"><button id="tSet" class="mini">⚙ あそびかた設定</button><button id="tHist" class="mini">📜 りれき</button></div>
+  <div class="tmode" id="tMode"></div>
+  <div class="tver">v0.27</div>
 </div></div>
 
 <div class="modal hidden" id="partsM"><div class="card pcard">
@@ -326,6 +356,7 @@ const PAL={
   o:{n:'オレンジ',c:'#f28a1d',g:'o'}, y:{n:'黄',c:'#ffcc00',g:'y'},
   g:{n:'緑',c:'#1d9a50',g:'g'}, d:{n:'深緑',c:'#0b5e3c',g:'g'},
   s:{n:'水色',c:'#5ab4e5',g:'b'}, b:{n:'青',c:'#1f55b5',g:'b'}, n:{n:'紺',c:'#14286e',g:'b'},
+  x:{n:'まだ塗ってない',c:'#d6d2c9',g:'x',blank:true},  // パレットには出さない。採点では「色なし」
 };
 const KEYS=Object.keys(PAL),KIDX={};KEYS.forEach((k,i)=>KIDX[k]=i);
 const hex2rgb=h=>[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];
@@ -429,10 +460,10 @@ function frameSnap(sh){
 const clone=o=>JSON.parse(JSON.stringify(o));
 
 // ---- model ----
-const newState=()=>({lines:[],colors:{'':'w'},shapes:[],strokes:[],fills:[]});
+const newState=()=>({lines:[],colors:{'':'x'},shapes:[],strokes:[],fills:[]});
 const side=(L,u,v)=>(L.b.u-L.a.u)*(v-L.a.v)-(L.b.v-L.a.v)*(u-L.a.u);
 function keyOf(s,u,v){let k='';for(const L of s.lines)k+=side(L,u,v)>=0?'+':'-';return k}
-const cellColor=(s,u,v)=>s.colors[keyOf(s,u,v)]||'w';
+const cellColor=(s,u,v)=>s.colors[keyOf(s,u,v)]||'x';
 const EPS=1e-9;
 const isV=L=>Math.abs(L.a.u-L.b.u)<EPS,isH=L=>Math.abs(L.a.v-L.b.v)<EPS;
 function clipHalf(pts,L,sg){const out=[],f=p=>sg*side(L,p[0],p[1]);for(let i=0;i<pts.length;i++){const P=pts[i],Q=pts[(i+1)%pts.length],fp=f(P),fq=f(Q);if(fp>=0)out.push(P);if((fp>=0)!==(fq>=0)){const t=fp/(fp-fq);out.push([P[0]+(Q[0]-P[0])*t,P[1]+(Q[1]-P[1])*t])}}return out}
@@ -444,7 +475,7 @@ function polys(s){
 }
 function resample(old,lines){const n={...old,lines,colors:{}};for(const p of polys(n))n.colors[p.key]=cellColor(old,p.c[0],p.c[1]);return n}
 function fillMissing(s,snap){for(const p of polys(s))if(!(p.key in s.colors))s.colors[p.key]=cellColor(snap,p.c[0],p.c[1])}
-function prune(s){const c={};for(const p of polys(s))c[p.key]=s.colors[p.key]||'w';s.colors=c}
+function prune(s){const c={};for(const p of polys(s))c[p.key]=s.colors[p.key]||'x';s.colors=c}
 function local(sh,u,v,a){const dx=(u-sh.u)*a,dy=v-sh.v,c=Math.cos(sh.rot||0),s=Math.sin(sh.rot||0);return[dx*c+dy*s,-dx*s+dy*c]}
 function inShape(sh,u,v,a){
   if(sh.type==='ring')return false;
@@ -491,7 +522,7 @@ function raster(){
     for(let q=sh.length-1;q>=0;q--){const o=sh[q];if(o.x.type==='part'){const kk=partKey(o.x,u,v,a);if(kk>=0){I=1e6+o.i;col=KEYS[kk];break}continue}
       if(o.pts?inPoly(u*a,v,o.pts):inShape(o.x,u,v,a)){I=1e6+o.i;col=o.x.k;break}}
     if(I<0){let bits=0;for(let t=0;t<L.length;t++)if(side(L[t],u,v)>=0)bits|=1<<t;I=bits;col=kc.get(bits);
-      if(col===undefined){let k='';for(let t=0;t<L.length;t++)k+=(bits>>t)&1?'+':'-';col=st.colors[k]||'w';kc.set(bits,col)}}
+      if(col===undefined){let k='';for(let t=0;t<L.length;t++)k+=(bits>>t)&1?'+':'-';col=st.colors[k]||'x';kc.set(bits,col)}}
     id[p]=I;base[p]=KIDX[col]}}
   const mc=document.createElement('canvas');mc.width=RW;mc.height=RH;const mx=mc.getContext('2d',{willReadFrequently:true});
   mx.strokeStyle='#000';mx.lineCap='round';mx.lineJoin='round';
@@ -547,7 +578,7 @@ function partKey(sh,u,v,a){const P=PIMG[sh.pid];const[lx,ly]=local(sh,u,v,a),{hw
   const k=P.keys[py*P.KW+px];return k===255?-1:k}
 function drawPart(x,sh,w,h){const P=PIMG[sh.pid];if(!P)return;const{hw,hh}=partHalf(sh);
   x.save();x.translate(sh.u*w,sh.v*h);x.rotate(sh.rot||0);x.drawImage(P.img,-hw*h,-hh*h,2*hw*h,2*hh*h);x.restore()}
-function nearestKey(r,g,b){let bi=0,bd=1e9;PRGB.forEach((c,i)=>{const d=.3*(c[0]-r)**2+.59*(c[1]-g)**2+.11*(c[2]-b)**2;if(d<bd){bd=d;bi=i}});return bi}
+function nearestKey(r,g,b){let bi=0,bd=1e9;PRGB.forEach((c,i)=>{if(PAL[KEYS[i]].blank)return;const d=.3*(c[0]-r)**2+.59*(c[1]-g)**2+.11*(c[2]-b)**2;if(d<bd){bd=d;bi=i}});return bi}
 function partSvg(p){  // 幅と高さを書きこんでおく（ブラウザによっては、ないと描けない）
   const m=p.svg.match(/viewBox="\s*([-\d.eE]+)[\s,]+([-\d.eE]+)[\s,]+([\d.eE]+)[\s,]+([\d.eE]+)/);const vw=m?+m[3]:100,vh=m?+m[4]:100;
   let svg=p.svg;if(!/<svg[^>]*\swidth=/.test(svg.slice(0,svg.indexOf('>')+1)))svg=svg.replace('<svg',`<svg width="${vw}" height="${vh}"`);
@@ -555,37 +586,50 @@ function partSvg(p){  // 幅と高さを書きこんでおく（ブラウザに�
 function loadPart(p){
   if(PIMG[p.id])return Promise.resolve(PIMG[p.id]);
   return new Promise((res,rej)=>{const{url,asp}=partSvg(p),img=new Image();
-    img.onload=()=>{const KW=Math.max(8,Math.round(asp>=1?256:256*asp)),KH=Math.max(8,Math.round(asp>=1?256/asp:256));
+    img.onload=()=>{const S=512,KW=Math.max(8,Math.round(asp>=1?S:S*asp)),KH=Math.max(8,Math.round(asp>=1?S/asp:S));
       const c=document.createElement('canvas');c.width=KW;c.height=KH;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(img,0,0,KW,KH);
-      const d=x.getImageData(0,0,KW,KH).data,keys=new Uint8Array(KW*KH),memo=new Map();
-      for(let q=0;q<KW*KH;q++){if(d[q*4+3]<128){keys[q]=255;continue}const key=(d[q*4]>>3)<<10|(d[q*4+1]>>3)<<5|(d[q*4+2]>>3);
-        let k=memo.get(key);if(k===undefined){k=nearestKey(d[q*4],d[q*4+1],d[q*4+2]);memo.set(key,k)}keys[q]=k}
-      PIMG[p.id]={img,KW,KH,keys,asp};res(PIMG[p.id])};
+      const id=x.getImageData(0,0,KW,KH),d=id.data,keys=new Uint8Array(KW*KH),memo=new Map();let bx0=KW,by0=KH,bx1=-1,by1=-1;
+      for(let q=0;q<KW*KH;q++){if(d[q*4+3]<128){keys[q]=255}else{const key=(d[q*4]>>3)<<10|(d[q*4+1]>>3)<<5|(d[q*4+2]>>3);
+          let k=memo.get(key);if(k===undefined){k=nearestKey(d[q*4],d[q*4+1],d[q*4+2]);memo.set(key,k)}keys[q]=k;
+          const i=q%KW,j=(q-i)/KW;if(i<bx0)bx0=i;if(i>bx1)bx1=i;if(j<by0)by0=j;if(j>by1)by1=j}
+        // 見た目もパレットの色に（ふちのなめらかさは元の透明度をそのまま使う）
+        if(d[q*4+3]>8){let k=keys[q];if(k===255){const key=(d[q*4]>>3)<<10|(d[q*4+1]>>3)<<5|(d[q*4+2]>>3);k=memo.get(key);if(k===undefined){k=nearestKey(d[q*4],d[q*4+1],d[q*4+2]);memo.set(key,k)}}
+          const c3=PRGB[k];d[q*4]=c3[0];d[q*4+1]=c3[1];d[q*4+2]=c3[2]}}
+      x.putImageData(id,0,0);
+      PIMG[p.id]={img:c,KW,KH,keys,asp,box:bx1<0?null:{x0:bx0,y0:by0,x1:bx1+1,y1:by1+1}};res(PIMG[p.id])};
     img.onerror=rej;img.src=url})}
 async function addPart(p){
   let P;try{P=await loadPart(p)}catch(e){return}
-  pushHist();const a=ar();let hh=.2,hw=hh*P.asp;if(hw>.42*a){hw=.42*a;hh=hw/P.asp}
+  pushHist();let hh=p.bbox&&p.bbox.h>0?p.bbox.h/2:.2,hw=hh*P.asp;  // 本物の旗の中での大きさ（高さに対する割合）のまま出す
   st.shapes.push({type:'part',pid:p.id,u:.5,v:.5,rh:Math.hypot(hw,hh),asp:P.asp,rot:0,k:'w'});
   sel={t:'s',i:st.shapes.length-1};clearMulti();setMode('move');
 }
 // この問題で出してよい部品（「この国の問題だけ」「ほかの国の問題だけ」をみる）
-let partOrder=[],partFilter='すべて';
+let partOrder=[],partFilter='すべて',thumbJobs=null;
+const partCats=p=>[...new Set([p.type,...(p.tags||[])].filter(Boolean))];
+// 一覧の小さい絵：色のついているところだけを切り出して、枠いっぱいに（パレットの色で）
+async function runThumbs(jobs){for(const[p,c]of jobs){if(thumbJobs!==jobs)return;let P;try{P=await loadPart(p)}catch(e){continue}
+  const b=P.box||{x0:0,y0:0,x1:P.KW,y1:P.KH},bw=b.x1-b.x0,bh=b.y1-b.y0,MW=72,MH=60,sc=Math.min(MW/bw,MH/bh),w=Math.max(1,Math.round(bw*sc)),h=Math.max(1,Math.round(bh*sc));
+  const x=setupCanvas(c,w,h);x.imageSmoothingQuality='high';x.drawImage(P.img,b.x0,b.y0,bw,bh,0,0,w,h)}}
 function partsForQ(){const code=flag&&NAME2CODE[flag.name];
   return PARTS.filter(p=>p.use==='own'?p.code===code:p.use==='others'?p.code!==code:true)}
 function openParts(){
   const list=partsForQ(),F=$('#pFilter'),G=$('#pGrid');
   if(!partOrder.length||partOrder.qi!==qi){partOrder=shuffle(list.map(p=>p.id));partOrder.qi=qi}
-  const cnt={};for(const p of list)cnt[p.type]=(cnt[p.type]||0)+1;
-  const types=['すべて',...PTYPES.filter(t=>cnt[t]),...Object.keys(cnt).filter(t=>!PTYPES.includes(t))];
+  // 見出し：種類とタグをまぜる。1つの部品は、当てはまる見出しぜんぶに出る（例：種類「星」＋タグ「三日月」）
+  const cnt={};for(const p of list)for(const t of partCats(p))cnt[t]=(cnt[t]||0)+1;
+  const types=['すべて',...Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]||a.localeCompare(b,'ja'))];
   if(!types.includes(partFilter))partFilter='すべて';
   F.innerHTML=list.length?types.map(t=>`<button data-t="${t}" class="${t===partFilter?'on':''}">${t} ${t==='すべて'?list.length:cnt[t]}</button>`).join(''):'';
   F.querySelectorAll('button').forEach(b=>b.onclick=()=>{partFilter=b.dataset.t;openParts()});
   G.innerHTML='';
   if(!PARTS.length)G.innerHTML=pdataState==='loading'?'<div class="pempty">部品のデータを読みこみ中…ちょっと待ってから、もう一回押してね。</div>':'<div class="pempty">部品のデータが見つからない。<br>工房で「flags-data.js を書き出す」をして、ゲームのとなりか、<b>kobo</b> フォルダに置いてね。</div>';
-  for(const id of partOrder){const p=PART_BY_ID[id];if(!p||(partFilter!=='すべて'&&p.type!==partFilter))continue;
-    const b=document.createElement('button');b.className='pthumb';b.title=p.type+((p.tags||[]).length?'（'+p.tags.join('・')+'）':'');
-    const im=document.createElement('img');im.loading='lazy';im.alt=p.type;im.src=partSvg(p).url;b.appendChild(im);
+  const jobs=[];
+  for(const id of partOrder){const p=PART_BY_ID[id];if(!p||(partFilter!=='すべて'&&!partCats(p).includes(partFilter)))continue;
+    const b=document.createElement('button');b.className='pthumb';b.title=partCats(p).join('・');
+    const c=document.createElement('canvas');b.appendChild(c);jobs.push([p,c]);
     b.onclick=()=>{$('#partsM').classList.add('hidden');addPart(p)};G.appendChild(b)}
+  thumbJobs=jobs;runThumbs(jobs);
   $('#partsM').classList.remove('hidden');
 }
 $('#partBtn').onclick=openParts;$('#pClose').onclick=()=>$('#partsM').classList.add('hidden');
@@ -622,7 +666,7 @@ function moveObj(o,du,dv){if(o.pts)o.pts=o.pts.map(q=>[q[0]+du,q[1]+dv]);else{o.
 const rectHandles=sh=>{const c=Math.cos(sh.rot||0),s=Math.sin(sh.rot||0),cx=sh.u*W,cy=sh.v*H,X=sh.hw*H,Y=sh.hh*H;
   return[{t:'rw',side:1,p:[cx+X*c,cy+X*s]},{t:'rw',side:-1,p:[cx-X*c,cy-X*s]},{t:'rh',side:1,p:[cx-Y*s,cy+Y*c]},{t:'rh',side:-1,p:[cx+Y*s,cy-Y*c]}]};
 function drawModel(x,s,w,h){
-  for(const p of polys(s)){const col=PAL[s.colors[p.key]||'w'].c;x.fillStyle=col;x.strokeStyle=col;x.lineWidth=1;x.beginPath();p.pts.forEach((q,i)=>i?x.lineTo(q[0]*w,q[1]*h):x.moveTo(q[0]*w,q[1]*h));x.closePath();x.fill();x.stroke()}
+  for(const p of polys(s)){const col=PAL[s.colors[p.key]||'x'].c;x.fillStyle=col;x.strokeStyle=col;x.lineWidth=1;x.beginPath();p.pts.forEach((q,i)=>i?x.lineTo(q[0]*w,q[1]*h):x.moveTo(q[0]*w,q[1]*h));x.closePath();x.fill();x.stroke()}
   for(const sh of s.shapes){if(sh.type==='ring')continue;if(sh.type==='part'){drawPart(x,sh,w,h);continue}x.fillStyle=PAL[sh.k].c;x.beginPath();shapePath(x,sh,w,h);x.fill()}
 }
 function drawBounds(){
@@ -834,6 +878,8 @@ cv.addEventListener('pointerdown',e=>{
   const p=pos(e);cv.setPointerCapture(e.pointerId);TR=e.pointerType==='touch'?1.7:1;
   if(mode==='erase'){pushHist();sel=null;multi=[];lastDup=null;erasing={p0:p,last:p,did:eraseAlong(p.x,p.y,p.x,p.y)};eraseCur=p;rafRender();return}
   if(mode==='pen'){if((e.shiftKey||lineLink)&&lastPen){sel=null;penLine(p);return}pen=[[p.u,p.v]];sel=null;return}
+  if(mode==='pick'){const R=raster(),i=clamp(Math.floor(p.u*R.RW),0,R.RW-1),j=clamp(Math.floor(p.v*R.RH),0,R.RH-1),k=KEYS[R.J[j*R.RW+i]];
+    if(k&&!PAL[k].blank){setColor(k);setMode('fill')}return}
   if(mode==='move')cv.style.cursor='grabbing';
   const cands=hitList(p);
   const addMode=mode==='move'&&(e.shiftKey||multiOn);
@@ -993,10 +1039,16 @@ function penCursor(){const k=penW?color:'k',c=PAL[k].c,e=k==='w'?'#888':'#222';
 <path d="M8.5 23.5 L12.5 27.5 L3 31 Z" fill="#f3dcb4" stroke="#222" stroke-width="1.5" stroke-linejoin="round"/>
 <path d="M5 26 L7 28 L3 31 Z" fill="${c}" stroke="${e}" stroke-width="1"/></svg>`;
   return `url("data:image/svg+xml,${encodeURIComponent(svg)}") 3 31, crosshair`}
-function updCursor(){if(mode==='fill')cv.style.cursor=bucketCursor(color);else if(mode==='pen')cv.style.cursor=penCursor();else if(mode==='move')cv.style.cursor='grab';else if(mode!=='erase')cv.style.cursor=''}
-function setMode(m){mode=m;$('#mMove').classList.toggle('on',m==='move');$('#mFill').classList.toggle('on',m==='fill');$('#mPen').classList.toggle('on',m==='pen');
+function pickCursor(){const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<path d="M19 6l7 7-3 3-7-7z" fill="#555" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/>
+<path d="M17.5 10.5l4 4L9 27l-4 1 1-4z" fill="#e8f3ff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/>
+<path d="M5.5 26.5 L4 28" stroke="#222" stroke-width="1.6" stroke-linecap="round"/></svg>`;
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}") 3 29, crosshair`}
+function updCursor(){if(mode==='pick'){cv.style.cursor=pickCursor();return}if(mode==='fill')cv.style.cursor=bucketCursor(color);else if(mode==='pen')cv.style.cursor=penCursor();else if(mode==='move')cv.style.cursor='grab';else if(mode!=='erase')cv.style.cursor=''}
+function setMode(m){mode=m;$('#mMove').classList.toggle('on',m==='move');$('#mPick').classList.toggle('on',m==='pick');$('#mFill').classList.toggle('on',m==='fill');$('#mPen').classList.toggle('on',m==='pen');
   $('#mErase').classList.toggle('on',m==='erase');$('#eraseRow').style.display=m==='erase'?'':'none';if(m!=='erase')eraseCur=null;cv.style.cursor=m==='erase'?'none':'';updCursor();render()}
 $('#mErase').onclick=()=>setMode('erase');
+$('#mPick').onclick=()=>setMode('pick');
 const ewBtns=[...document.querySelectorAll('[data-ew]')];ewBtns.forEach(b=>b.onclick=()=>{eraseW=+b.dataset.ew;ewBtns.forEach(x=>x.classList.toggle('on',x===b));setMode('erase')});
 $('#mMove').onclick=()=>setMode('move');$('#mFill').onclick=()=>setMode('fill');$('#mPen').onclick=()=>setMode('pen');
 let penW=null;
@@ -1007,7 +1059,7 @@ $('#undo2').onclick=()=>$('#undo').click();
 $('#linkBtn').onclick=()=>{lineLink=!lineLink;$('#linkBtn').classList.toggle('on',lineLink);setMode('pen')};
 const palEl=$('#pal');
 function setColor(k){color=k;[...palEl.children].forEach(x=>x.classList.toggle('on',x.dataset.k===k));$('#colName').textContent=PAL[k].n;if(typeof cv!=='undefined')updCursor()}
-for(const k in PAL){const b=document.createElement('button');b.className='sw';b.style.background=PAL[k].c;b.title=PAL[k].n;b.dataset.k=k;b.onclick=()=>{setColor(k);
+for(const k in PAL){if(PAL[k].blank)continue;const b=document.createElement('button');b.className='sw';b.style.background=PAL[k].c;b.title=PAL[k].n;b.dataset.k=k;b.onclick=()=>{setColor(k);
   if(multi.length){pushHist();for(const m of multi){const o=objOf(m);if(m.t==='s'&&o.type!=='ring')o.k=k;else if(m.t==='k'&&o.k)o.k=k}render();return}
   if(!(mode==='pen'&&penW))setMode('fill')};palEl.appendChild(b)}
 setColor(color);
@@ -1123,7 +1175,7 @@ const pick=a=>a[Math.floor(Math.random()*a.length)];
 function judge(){
   const a=ar(),N=120,M=Math.round(N/a),R=raster();
   const fn=(u,v)=>KEYS[R.J[clamp(Math.floor(v*R.RH),0,R.RH-1)*R.RW+clamp(Math.floor(u*R.RW),0,R.RW-1)]];
-  const D=grid(fn,N,M),T=grid((u,v)=>flag.cls(u,v,a),N,M),r=cmp(D,T,N,M),s=r.s,hints=[];
+  const D=grid(fn,N,M),T=grid((u,v)=>flag.cls(u,v,a),N,M),r=cmp(D,T,N,M),hints=[];let s=r.s;
   const good=[],nm=k=>`「${PAL[k].n}」`,tcols=Object.keys(r.per);
   const sV=cmp(grid((u,v)=>fn(u,1-v),N,M),T,N,M).s,sH=cmp(grid((u,v)=>fn(1-u,v),N,M),T,N,M).s;
   const flipped=(sV>s+15&&sV>85)||(sH>s+15&&sH>85);
@@ -1187,13 +1239,34 @@ function judge(){
     else if(dc.rh>tc.rh)hints.push(`丸がちょっと大きすぎ（本物の直径は縦の${fracName(tc.rh*2)}くらい）。`);
     else hints.push(`丸がちょっと小さすぎ（本物の直径は縦の${fracName(tc.rh*2)}くらい）。`);
   }
+  // --- 部品（正しい部品か・場所・大きさ・向き）。部品を1つも置いていなければ、色だけで採点 ---
+  const placed=st.shapes.filter(x=>x.type==='part'),partGood=[];let partS=null;
+  if(placed.length){
+    const code=NAME2CODE[flag.name],fd=PDATA.find(f=>f.code===code),want=((fd&&fd.parts)||[]).filter(p=>p.use!=='others'&&p.bbox);
+    const pname=p=>(p.tags&&p.tags[0])||p.type||'部品';
+    const wrong=placed.filter(x=>!want.some(p=>p.id===x.pid));
+    if(wrong.length)hints.push(want.length?'この旗のものじゃない部品が入っています。':'この旗には部品はいりません（自分で描く旗）。');
+    let sum=0;
+    for(const p of want){const cands=placed.filter(x=>x.pid===p.id);if(!cands.length){hints.push(`「${pname(p)}」の部品が入っていません。`);continue}
+      const tu=p.bbox.x+p.bbox.w/2,tv=p.bbox.y+p.bbox.h/2,th=p.bbox.h/2;let best=null;
+      for(const x of cands){const{hh}=partHalf(x),dx=(x.u-tu)*a,dy=x.v-tv,d=Math.hypot(dx,dy),ratio=hh/th,rot=Math.abs(norm(x.rot||0));
+        const ps=Math.max(0,1-d/.25),ss=Math.max(0,1-Math.abs(Math.log(ratio))/Math.log(2)),rs=Math.max(0,1-rot/(Math.PI/6)),sc=ps*.5+ss*.3+rs*.2;
+        if(!best||sc>best.sc)best={sc,dx,dy,d,ratio,rot}}
+      sum+=best.sc;const nm2=`「${pname(p)}」`;
+      if(best.d<.04&&Math.abs(best.ratio-1)<.12&&best.rot<.1)partGood.push(`${nm2}の部品は、場所も大きさもぴったり！`);
+      else{if(best.d>=.04){const dir=[];if(Math.abs(best.dx)>=.03)dir.push(best.dx>0?'右':'左');if(Math.abs(best.dy)>=.03)dir.push(best.dy>0?'下':'上');
+          hints.push(`${nm2}の部品が少し${dir.join('・')||'ずれて'}${dir.length?'によっています':'います'}。`)}else partGood.push(`${nm2}の部品の場所はばっちり！`);
+        if(Math.abs(best.ratio-1)>=.12)hints.push(`${nm2}の部品が${best.ratio>1?'大きすぎ':'小さすぎ'}（いまは本物の${Math.round(best.ratio*10)/10}倍）。`);
+        if(best.rot>=.1)hints.push(`${nm2}の部品が回っています。本物はまっすぐ。`)}}
+    partS=want.length?Math.max(0,sum/want.length-.25*wrong.length):0;
+  }
   // --- 星 ---
   if(flag.stars){const n=st.shapes.filter(x=>x.type==='star').length;
     if(n===flag.stars)good.push(`星の数（${n}個）も正解！`);
     else if(n===0)hints.push('星を忘れてます。');else hints.push(`星の数は${flag.stars}個（はしっこの2つは半分切れてます）。いまは${n}個。`)}
   // --- 色のこまかいところ（しまや向きで言ったことは、くり返さない） ---
-  for(const t of r.miss){if(sibOf[t])continue;if(swapped[t])hints.push(`${nm(t)}のところが${nm(swapped[t])}になっています。`);else if(!structural&&!flipped)hints.push(`${nm(t)}の部分がほとんど描けていません。`)}
-  for(const k of r.extraCols)if(!extraUsed.has(k))hints.push(`この旗に${nm(k)}はありません。`);
+  for(const t of r.miss){if(sibOf[t])continue;if(swapped[t])hints.push(swapped[t]==='x'?`${nm(t)}のところが、まだ塗られていません（灰色のまま）。`:`${nm(t)}のところが${nm(swapped[t])}になっています。`);else if(!structural&&!flipped)hints.push(`${nm(t)}の部分がほとんど描けていません。`)}
+  for(const k of r.extraCols)if(!extraUsed.has(k))hints.push(k==='x'?'まだ塗っていないところ（灰色）があります。白いところも白で塗ってね。':`この旗に${nm(k)}はありません。`);
   if(!structural&&!flipped)for(const t of tcols){if(r.miss.includes(t)||great.includes(t)||covered.has(t)||r.per[t].share<.04)continue;
     if(r.per[t].r<.75)hints.push(`${nm(t)}が足りないところがあります。`);
     else if(r.per[t].p<.75)hints.push(`${nm(t)}が本物より広がりすぎ（はみ出し）。`)}
@@ -1208,8 +1281,10 @@ function judge(){
   if(!good.length){
     if(s>=40)good.push(pick(['雰囲気はつかめてる！','方向性は合ってる！','ところどころ本物っぽい！']));
     else if(used.size>1||st.shapes.length||st.strokes.length||st.lines.length)good.push(pick(['チャレンジしたのがえらい！','描いてみたのが大事！次はもっと近づける！']));
-    else good.push('まっしろでも、出したのがえらい！');
+    else good.push('まだ何も塗ってなくても、出したのがえらい！');
   }
+  if(partS!==null)s=s*.7+partS*100*.3;
+  good.unshift(...partGood);  // 部品のほめ言葉は先に（あとで5つに切られても残るように）
   if(s>=98)good.unshift(pick(['もう言うことなし！','本物と見分けがつかない！','大使館に飾れるレベル！']));
   // 演出用の⭕：「ここが合ってる！」と指さす印。本物の旗を同じ色でつながった部分（帯・丸・十字など）に分け、
   // 7割以上合っている部分のまん中（いちばん内側）に1つずつ。大きい部分から順に、ぜんぶで4つまで
@@ -1277,10 +1352,17 @@ function updSetupUI(){
   $('#endDesc').innerHTML=draft.end==='limit'?`1枚<b>${draft.limitSec}秒</b>。時間切れになったら、その時点の絵で答え合わせ。点数は一致率だけで、早さは関係ない。`:'自分で「こたえあわせ」を押すまで、ゆっくり描ける。';
 }
 document.querySelectorAll('#setup .chips').forEach(row=>row.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const k=row.dataset.k;draft[k]=k==='limitSec'?+b.dataset.v:b.dataset.v;updSetupUI()}));
-function openSetup(canClose){draft={...setting};$('#setClose').classList.toggle('hidden',!canClose);if(canClose)clkPause();updSetupUI();$('#setup').classList.remove('hidden')}
-$('#go').onclick=()=>{setting={...draft};saveSet();['#setup','#res','#sum'].forEach(s=>$(s).classList.add('hidden'));start()};
+let setupCtx='title';
+function openSetup(ctx){setupCtx=ctx;draft={...setting};const canClose=ctx==='game'&&!!flag&&!qDone;
+  $('#setClose').classList.toggle('hidden',!canClose);$('#go').textContent=ctx==='title'?'これで決定':'この設定で最初からやりなおす';
+  if(canClose)clkPause();updSetupUI();$('#setup').classList.remove('hidden')}
+$('#go').onclick=()=>{setting={...draft};saveSet();['#setup','#res','#sum'].forEach(s=>$(s).classList.add('hidden'));if(setupCtx==='title')showTitle();else start()};
+function showTitle(){$('#tMode').textContent=`いまの設定：${modeText()}`;$('#title').classList.remove('hidden')}
+$('#tStart').onclick=()=>{$('#title').classList.add('hidden');start()};
+$('#tSet').onclick=()=>openSetup('title');
+$('#tHist').onclick=()=>openHist();
 $('#setClose').onclick=()=>{$('#setup').classList.add('hidden');if(!qDone&&!peekState)clkStart()};
-$('#setBtn').onclick=()=>openSetup(!!flag&&!qDone);
+$('#setBtn').onclick=()=>openSetup('game');
 
 // ---- りれき（答え合わせした絵を、新しいほうから100枚まで。このブラウザの中だけ） ----
 const HIST_KEY='kokki-oekaki-history',HIST_MAX=100;
@@ -1421,7 +1503,7 @@ function timeUp(){
 $('#judge').onclick=()=>doJudge(false);
 $('#skip').onclick=()=>{if(qDone)return;stopQ();scores.push({name:flag.name,s:0});nextQ()};
 $('#next').onclick=()=>{$('#res').classList.add('hidden');nextQ()};
-$('#again').onclick=()=>{$('#sum').classList.add('hidden');openSetup(false)};
+$('#again').onclick=()=>{$('#sum').classList.add('hidden');showTitle()};
 
 // ---- flow ----
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
@@ -1469,7 +1551,7 @@ function showSummary(){
 }
 function start(){order=shuffle([...FLAGS]);qi=0;scores=[];loadQ()}
 window.addEventListener('resize',()=>{if(flag)fit()});
-openSetup(false);
+showTitle();
 </script>
 </body>
 </html>
