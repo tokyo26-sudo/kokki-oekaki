@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>国旗お絵かき v0.25</title>
+<title>国旗お絵かき v0.26</title>
 <style>
 :root{--bg:#f4f1ea;--panel:#fff;--ink:#222;--sub:#777;--line:#ddd;--accent:#e0457b}
 *{box-sizing:border-box}
@@ -33,6 +33,16 @@ h1{font-size:15px;margin:0;color:var(--sub);font-weight:600}
 .q{background:var(--panel);border-radius:14px;padding:10px 14px;margin:8px 0;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
 .qname{font-size:28px;font-weight:800;letter-spacing:.03em}
 .qratio{font-size:14px;color:var(--sub)}
+.qratio.hide{visibility:hidden}
+.qname.spin{color:#9a958a}
+.qname.pop{animation:qpop .45s cubic-bezier(.3,1.8,.6,1)}
+@keyframes qpop{0%{transform:scale(1.35);color:var(--accent)}100%{transform:none}}
+.q{cursor:default}
+.spinning .q{cursor:pointer}
+#cvWrap{transition:opacity .25s}
+.spinning #cvWrap{opacity:.12}
+.spinning #stageTop{visibility:hidden}
+.spinning .tools,.spinning .bar,.spinning header button{pointer-events:none;opacity:.45}
 .stage{display:flex;justify-content:center;margin:10px 0 12px;min-height:120px}
 canvas#c{touch-action:none;box-shadow:0 2px 12px rgba(0,0,0,.18);background:#fff;display:block}
 .tools{background:var(--panel);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:8px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
@@ -166,7 +176,7 @@ table.sum td:last-child{text-align:right;font-weight:700}
 </head>
 <body>
 <div class="wrap">
-  <header><h1>国旗お絵かき v0.25</h1><div class="hd"><div id="prog"></div><button id="histBtn" class="mini">📜 りれき</button><button id="setBtn" class="mini">⚙ 設定</button></div></header>
+  <header><h1>国旗お絵かき v0.26</h1><div class="hd"><div id="prog"></div><button id="histBtn" class="mini">📜 りれき</button><button id="setBtn" class="mini">⚙ 設定</button></div></header>
   <div class="main"><div class="left">
   <div class="q"><div class="qname" id="qname"></div><div class="qratio" id="qratio"></div></div>
   <div class="stage" id="stage">
@@ -240,7 +250,7 @@ table.sum td:last-child{text-align:right;font-weight:700}
   <details class="note"><summary>使い方</summary>
     <b>ヒント</b>（⚙設定で選ぶ）：なし／ちら見せ（👀を押すと本物がちょっとだけ見える。1秒 → 0.5秒 → 0.25秒 → 0.125秒 と短くなって4回でおしまい。見ているあいだは時計が止まる）／見本あり（小窓にずっと本物。押しているあいだ大きく見られる）。<br>
     <b>おしまいの合図</b>：なし（自分で「こたえあわせ」）／1枚30・60・90秒（時間切れになったら、その時点の絵で答え合わせ）。点数は一致率だけで、早さは関係ない。<br>
-    <b>部品</b>：「🧩 部品をえらぶ」で紋章・星・月などを置ける（工房で書き出した kobo/flags-data.js を読む）。置いたら図形と同じく、動かす・4すみで大きさ・上の○で回す。答え合わせでは、部品の色もいちばん近いパレットの色として数える。<br>
+    <b>部品</b>：「🧩 部品をえらぶ」で紋章・星・月などを置ける（工房で書き出した flags-data.js を、ゲームのとなり → kobo フォルダの順に探して読む）。置いたら図形と同じく、動かす・4すみで大きさ・上の○で回す。答え合わせでは、部品の色もいちばん近いパレットの色として数える。<br>
     <b>消しゴム</b>：こすったところだけ、ペンの線（色ペン・仕切り線）が切れて消える。図形・直線・輪っかはタップで丸ごと消える。大きさは小・中・大。<br>
     <b>ペン</b>：「細」は黒い仕切り線。「中・太・極太」は今選んでいる色で描ける（色ペンで塗りたくってもOK）。<br>
     <b>直線でつなぐ</b>：点をタップ（またはひと筆描く）→ Shiftを押しながら次の場所をクリックすると、直線でつながる。続けると折れ線、最初の点の近くでつなぐと閉じる。スマホは「⇧直線つなぎ」をオンにするとタップでつながる。<br>
@@ -308,7 +318,6 @@ table.sum td:last-child{text-align:right;font-weight:700}
   <button class="ghost hidden" id="setClose">とじる（いまの問題のつづき）</button>
 </div></div>
 
-<script src="kobo/flags-data.js"></script>
 <script>
 const ACC='#e0457b',INK='#111111';
 const PAL={
@@ -511,10 +520,22 @@ function raster(){
 
 // ---- 部品（kobo/flags-data.js の部品を絵に置く） ----
 // 形は {type:'part',pid,u,v,rh,asp,rot}。rh＝対角線の半分（旗の高さを1とした長さ）、asp＝部品の横÷縦
-const PDATA=(window.FLAG_DATA&&Array.isArray(window.FLAG_DATA.flags))?window.FLAG_DATA.flags:[];
-const NAME2CODE={};for(const f of PDATA)NAME2CODE[f.ja]=f.code;
-const PARTS=[];for(const f of PDATA){if(f.enabled===false)continue;for(const p of f.parts||[])if(p&&p.svg&&p.id)PARTS.push({...p,code:f.code})}
-const PART_BY_ID={};for(const p of PARTS)PART_BY_ID[p.id]=p;
+// flags-data.js は、まずゲームのとなり、なければ kobo フォルダを探す
+let PDATA=[],NAME2CODE={},PARTS=[],PART_BY_ID={},WORLD_NAMES=[],pdataState='loading';
+function initPartsData(){
+  PDATA=(window.FLAG_DATA&&Array.isArray(window.FLAG_DATA.flags))?window.FLAG_DATA.flags:[];
+  NAME2CODE={};for(const f of PDATA)NAME2CODE[f.ja]=f.code;
+  PARTS=[];for(const f of PDATA){if(f.enabled===false)continue;for(const p of f.parts||[])if(p&&p.svg&&p.id)PARTS.push({...p,code:f.code})}
+  PART_BY_ID={};for(const p of PARTS)PART_BY_ID[p.id]=p;
+  WORLD_NAMES=PDATA.filter(f=>f.enabled!==false&&f.ja).map(f=>f.ja.replace(/（.*?）/g,''));
+  pdataState=PDATA.length?'ok':'none';
+}
+(function loadFlagData(){
+  const tries=['flags-data.js','kobo/flags-data.js'];let i=0;
+  const next=()=>{if(i>=tries.length){initPartsData();return}const sc=document.createElement('script');sc.src=tries[i++];
+    sc.onload=()=>{if(window.FLAG_DATA)initPartsData();else next()};sc.onerror=next;document.head.appendChild(sc)};
+  next();
+})();
 const PTYPES=['紋章','星','月','太陽','模様','文字','十字','その他'];
 const PIMG={};  // id → {img,KW,KH,keys}（keys：小さい絵にしたときの各点の色番号。255＝すきま）
 function partHalf(sh){const d=Math.sqrt(1+sh.asp*sh.asp);return{hh:sh.rh/d,hw:sh.rh/d*sh.asp}}
@@ -560,7 +581,7 @@ function openParts(){
   F.innerHTML=list.length?types.map(t=>`<button data-t="${t}" class="${t===partFilter?'on':''}">${t} ${t==='すべて'?list.length:cnt[t]}</button>`).join(''):'';
   F.querySelectorAll('button').forEach(b=>b.onclick=()=>{partFilter=b.dataset.t;openParts()});
   G.innerHTML='';
-  if(!PARTS.length){G.innerHTML='<div class="pempty">部品のデータが見つからない。<br>工房で「flags-data.js を書き出す」をして、ゲームと同じところの <b>kobo</b> フォルダに置いてね。</div>'}
+  if(!PARTS.length)G.innerHTML=pdataState==='loading'?'<div class="pempty">部品のデータを読みこみ中…ちょっと待ってから、もう一回押してね。</div>':'<div class="pempty">部品のデータが見つからない。<br>工房で「flags-data.js を書き出す」をして、ゲームのとなりか、<b>kobo</b> フォルダに置いてね。</div>';
   for(const id of partOrder){const p=PART_BY_ID[id];if(!p||(partFilter!=='すべて'&&p.type!==partFilter))continue;
     const b=document.createElement('button');b.className='pthumb';b.title=p.type+((p.tags||[]).length?'（'+p.tags.join('・')+'）':'');
     const im=document.createElement('img');im.loading='lazy';im.alt=p.type;im.src=partSvg(p).url;b.appendChild(im);
@@ -1417,8 +1438,28 @@ function loadQ(){
   if(setting.hint==='sample')$('#hintLbl').innerHTML='<b>見本</b><br>押すと大きく';
   updEye();
   fit();
-  clkStart();
+  spinQ(()=>{if(!qDone)clkStart()});
 }
+// 出題ルーレット：国名がパラパラ切りかわって、だんだんゆっくりになって止まる（1.5秒くらい）。タップでとばせる
+const SPIN_MS=1500;let spinState=null;
+function spinQ(done){
+  const nm=$('#qname'),ra=$('#qratio'),final=flag.name;
+  const finish=()=>{if(!spinState)return;cancelAnimationFrame(spinState.raf);spinState=null;document.body.classList.remove('spinning');
+    nm.classList.remove('spin');nm.textContent=final;nm.classList.remove('pop');void nm.offsetWidth;nm.classList.add('pop');ra.classList.remove('hide');done()};
+  if(spinState){cancelAnimationFrame(spinState.raf);spinState=null}
+  if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches){nm.textContent=final;ra.classList.remove('hide');done();return}
+  const pool=(WORLD_NAMES.length?WORLD_NAMES:FLAGS.map(f=>f.name)).filter(n=>n!==final);
+  document.body.classList.add('spinning');nm.classList.add('spin');nm.classList.remove('pop');ra.classList.add('hide');
+  let t0=null,last=0,prev='';spinState={raf:0,finish};
+  const step=t=>{if(!spinState)return;if(t0===null)t0=t;const e=t-t0,p=e/SPIN_MS;
+    if(p>=1){finish();return}
+    const gap=40+240*p*p;  // だんだんゆっくり
+    if(t-last>=gap){last=t;let n;do{n=pool[Math.floor(Math.random()*pool.length)]}while(n===prev&&pool.length>1);prev=n;nm.textContent=n}
+    spinState.raf=requestAnimationFrame(step)};
+  spinState.raf=requestAnimationFrame(step);
+}
+$('.q').addEventListener('click',()=>{if(spinState)spinState.finish()});
+$('#cvWrap').addEventListener('pointerdown',e=>{if(spinState){e.stopPropagation();spinState.finish()}},true);
 function nextQ(){qi++;if(qi>=order.length)showSummary();else loadQ()}
 function showSummary(){
   const avg=Math.round(scores.reduce((a,b)=>a+b.s,0)/scores.length);
