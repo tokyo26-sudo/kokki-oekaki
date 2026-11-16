@@ -1,0 +1,1434 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>国旗お絵かき v0.25</title>
+<style>
+:root{--bg:#f4f1ea;--panel:#fff;--ink:#222;--sub:#777;--line:#ddd;--accent:#e0457b}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif}
+.wrap{max-width:720px;margin:0 auto;padding:10px 16px 110px}
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:5;background:rgba(244,241,234,.94);backdrop-filter:blur(6px);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom))}
+.bar .in{max-width:720px;margin:0 auto;display:flex;gap:8px}
+.bar .big{margin:0;flex:1}
+.bar #skip,.bar #undo2{flex:none;justify-content:center}
+details.note summary{cursor:pointer;font-weight:700;color:var(--ink)}
+@media (max-width:640px){
+  .wrap{padding:6px 10px 100px}
+  .q{padding:6px 10px;margin:4px 0}
+  .qname{font-size:22px}
+  .stage{position:sticky;top:0;z-index:4;background:var(--bg);margin:0;padding:6px 0 8px}
+  .tools{padding:8px;gap:6px}
+  .tools .row{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}
+  .tools .row::-webkit-scrollbar{display:none}
+  .tools .row>*{flex:none}
+  .lbl{width:auto;min-width:3em;font-size:11px}
+  button{padding:8px 11px}
+  .sw{width:34px;height:34px}
+}
+header{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+h1{font-size:15px;margin:0;color:var(--sub);font-weight:600}
+#prog{font-size:13px;color:var(--sub)}
+.q{background:var(--panel);border-radius:14px;padding:10px 14px;margin:8px 0;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.qname{font-size:28px;font-weight:800;letter-spacing:.03em}
+.qratio{font-size:14px;color:var(--sub)}
+.stage{display:flex;justify-content:center;margin:10px 0 12px;min-height:120px}
+canvas#c{touch-action:none;box-shadow:0 2px 12px rgba(0,0,0,.18);background:#fff;display:block}
+.tools{background:var(--panel);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:8px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.lbl{font-size:12px;color:var(--sub);width:4.6em;flex:none;display:flex;align-items:center;gap:4px}
+.eqn{width:3.6em;padding:6px 4px;border:1px solid var(--line);border-radius:8px;font:inherit;text-align:center}
+.lbl .ico{font-weight:700;color:var(--ink);font-size:13px;letter-spacing:-1px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fafafa;color:var(--ink);border-radius:10px;padding:7px 11px;cursor:pointer;touch-action:manipulation;display:inline-flex;align-items:center;gap:5px}
+button:active{transform:scale(.97)}
+button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+button svg{display:block}
+.sw{width:32px;height:32px;border-radius:50%;border:2px solid #bbb;padding:0}
+.sw.on{outline:3px solid var(--accent);outline-offset:2px}
+#colName{font-size:13px;color:var(--sub);margin-left:4px}
+.big{background:var(--accent);color:#fff;border:none;font-size:17px;font-weight:700;padding:12px 18px;width:100%;margin-top:12px;border-radius:12px;justify-content:center}
+.note{font-size:12px;color:var(--sub);margin-top:8px;line-height:1.7}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
+.hidden{display:none}
+.card{background:#fff;border-radius:18px;padding:18px;max-width:640px;width:100%;max-height:92vh;overflow:auto;text-align:center}
+.score{font-size:54px;font-weight:900;line-height:1}
+.score small{font-size:22px}
+.rank{font-size:18px;font-weight:700;margin:6px 0 12px}
+.pair{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+figure{margin:0}
+figure canvas{box-shadow:0 1px 6px rgba(0,0,0,.2);display:block}
+figcaption{font-size:12px;color:var(--sub);margin-top:4px}
+ul.hints{text-align:left;font-size:14px;line-height:1.7;margin:8px 0 0;padding-left:0;list-style:none}
+ul.hints li{padding-left:1.5em;text-indent:-1.5em}
+ul.hints li::before{content:'→ ';color:#c2410c;font-weight:700}
+ul.good{text-align:left;font-size:14px;line-height:1.7;margin:12px 0 0;padding-left:0;list-style:none}
+ul.good li{padding-left:1.5em;text-indent:-1.5em}
+ul.good li::before{content:'✓ ';color:#15803d;font-weight:900}
+.tip{text-align:left;font-size:13px;line-height:1.7;background:#f5f3ee;border-radius:10px;padding:8px 12px;margin-top:10px;color:#444}
+.tip b{color:var(--ink)}
+.hd{display:flex;align-items:center;gap:8px}
+button.mini{font-size:12px;padding:4px 9px;border-radius:8px}
+.stage{flex-direction:column;align-items:center}
+#stageTop{display:flex;align-items:center;gap:10px;margin-bottom:6px;min-height:0}
+#stageTop.hidden{display:none}
+#cvWrap{position:relative}
+#peek{position:absolute;inset:0;display:none;cursor:pointer}
+#peek.show{display:block}
+#peekCv{display:block}
+#peekLbl{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);background:rgba(0,0,0,.74);color:#fff;border-radius:999px;padding:5px 14px;font-weight:700;font-size:14px;white-space:nowrap;pointer-events:none}
+.peeking .tools,.peeking .bar,.peeking header button{pointer-events:none;opacity:.45}
+.hintbox{display:flex;align-items:center;gap:8px;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;cursor:zoom-in}
+.hintbox.hidden{display:none}
+#hintCv{display:block;border-radius:3px;box-shadow:0 1px 4px rgba(0,0,0,.28)}
+#hintLbl{font-size:12px;color:var(--sub);line-height:1.35}
+#hintLbl b{color:var(--ink);font-size:13px}
+.timer{margin-left:auto;font-variant-numeric:tabular-nums;font-weight:800;font-size:20px;background:#fff;border-radius:10px;padding:3px 12px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.timer.hidden{display:none}
+.timer.warn{color:#dc2626;animation:pulse 1s infinite}
+@keyframes pulse{50%{transform:scale(1.08)}}
+.timeup{font-size:16px;font-weight:800;color:#dc2626;margin-bottom:6px}
+.setup{text-align:left}
+.setup .rank{text-align:center}
+.sgroup{margin:14px 0 4px}
+.slbl{font-weight:800;font-size:15px;margin-bottom:6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.chips.sub{margin-top:6px;font-size:13px;color:var(--sub)}
+.chips.sub.hidden{display:none}
+.sdesc{font-size:13px;color:#555;line-height:1.6;background:#f5f3ee;border-radius:10px;padding:7px 11px;margin-top:8px}
+button.ghost{background:none;border:none;color:var(--sub);width:100%;justify-content:center;margin-top:6px;text-decoration:underline}
+.smode{font-size:13px;color:var(--sub);margin-top:4px}
+.hcard{max-height:88vh;display:flex;flex-direction:column}
+.pcard{max-height:88vh;display:flex;flex-direction:column;max-width:640px;width:calc(100% - 24px)}
+#pFilter{margin-top:10px;justify-content:center}
+#pFilter button{font-size:13px;padding:5px 10px}
+#pGrid{overflow-y:auto;flex:1;min-height:120px;margin:10px -4px;padding:4px;display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px}
+.pthumb{height:76px;padding:6px;justify-content:center;background:repeating-conic-gradient(#9b978f 0 25%,#b3afa7 0 50%) 0 0/14px 14px;border-color:#9b978f}
+.pthumb img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+.pthumb:hover{outline:2px solid var(--accent)}
+.pempty{grid-column:1/-1;color:var(--sub);font-size:14px;line-height:1.7;padding:20px 6px;text-align:center}
+#hList{overflow-y:auto;margin:10px -6px 0;padding:0 6px;flex:1;min-height:80px}
+.hrow{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #eee;text-align:left}
+.hrow img,.hrow canvas{display:block;border-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,.25);background:#fff}
+.hrow .vs{color:var(--sub);font-size:11px}
+.hrow .hi{flex:1;min-width:0;line-height:1.35}
+.hrow .hn{font-weight:800;font-size:15px}
+.hrow .hs{font-weight:900;font-size:20px;color:var(--accent)}
+.hrow .hd2{font-size:11px;color:var(--sub)}
+.hempty{color:var(--sub);font-size:14px;padding:24px 0}
+.hfoot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px}
+.hfoot .big{width:auto;flex:1}
+.eyebox{display:flex;align-items:center;gap:8px}
+.eyebox.hidden{display:none}
+#eyeBtn{font-size:16px;font-weight:800;padding:7px 14px;border-radius:999px;background:var(--accent);color:#fff;border:none;min-width:7em;justify-content:center}
+#eyeBtn:disabled{background:#ccc;cursor:default}
+#eyeBtn.showing{background:#222}
+.dots{display:flex;gap:4px}
+.dots i{width:9px;height:9px;border-radius:50%;background:var(--accent)}
+.dots i.used{background:#d6d2c8}
+#peekLbl:empty{display:none}
+.judging .tools,.judging .bar,.judging header button,.judging #stageTop{pointer-events:none;opacity:.45}
+/* 答え合わせの演出 */
+#fx{position:absolute;inset:0;display:none;overflow:hidden;cursor:pointer;z-index:3}
+#fx.show{display:block}
+#fxShade{position:absolute;left:0;right:0;top:0;height:0;background:linear-gradient(to bottom,rgba(90,200,255,.06),rgba(90,200,255,.2));pointer-events:none}
+#fxLine{position:absolute;left:-2%;right:-2%;height:4px;margin-top:-2px;background:#7fe8ff;box-shadow:0 0 6px 2px #39c6ff,0 0 22px 6px rgba(57,198,255,.55);pointer-events:none}
+#fxMarks{position:absolute;inset:0;pointer-events:none}
+.fxMaru{position:absolute;border-radius:50%;border:5px solid #ef2b4f;box-shadow:0 0 0 2px #fff,inset 0 0 0 2px #fff,0 2px 8px rgba(0,0,0,.25);transform:translate(-50%,-50%) scale(0);animation:maru .28s cubic-bezier(.3,1.6,.6,1) forwards}
+@keyframes maru{to{transform:translate(-50%,-50%) scale(1)}}
+#fxTag{position:absolute;left:10px;top:8px;background:rgba(0,0,0,.7);color:#fff;font-size:13px;font-weight:700;border-radius:999px;padding:3px 11px;pointer-events:none}
+#fxTag.warn{background:#dc2626}
+#fxBox{position:absolute;left:50%;bottom:6%;transform:translateX(-50%);background:rgba(20,20,24,.82);color:#fff;border-radius:18px;padding:12px 26px 14px;text-align:center;display:none;pointer-events:none;min-width:11em}
+#fxBox.show{display:block}
+#fxNum{font-size:60px;font-weight:900;line-height:1.05;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+#fxNum small{font-size:28px;margin-left:2px}
+#fxNum.stop{animation:numpop .35s cubic-bezier(.3,1.8,.6,1)}
+@keyframes numpop{0%{transform:scale(1.35)}100%{transform:scale(1)}}
+#fxWord{font-size:18px;font-weight:800;margin-top:4px;color:#ffe066;opacity:0;white-space:nowrap}
+#fxWord.show{animation:wordpop .4s cubic-bezier(.3,1.8,.6,1) forwards}
+@keyframes wordpop{0%{opacity:0;transform:translateY(8px) scale(.6)}100%{opacity:1;transform:none}}
+#fxSkip{position:absolute;right:10px;bottom:8px;color:#fff;background:rgba(0,0,0,.45);font-size:11px;border-radius:999px;padding:2px 9px;pointer-events:none}
+.main,.left{display:contents}
+/* PC：道具を絵の右にたてに並べる */
+@media (min-width:900px){
+  .wrap{max-width:1240px}
+  .bar .in{max-width:1240px}
+  .main{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:16px;align-items:start}
+  .left{display:block;min-width:0}
+  .main .tools{position:sticky;top:10px;max-height:calc(100vh - 140px);overflow-y:auto;overscroll-behavior:contain;gap:10px}
+  .main .tools .lbl{width:100%;font-weight:700}
+  .main .stage{margin-bottom:0}
+}
+table.sum{margin:10px auto;border-collapse:collapse;font-size:15px}
+table.sum td{padding:4px 12px;border-bottom:1px solid #eee}
+table.sum td:last-child{text-align:right;font-weight:700}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><h1>国旗お絵かき v0.25</h1><div class="hd"><div id="prog"></div><button id="histBtn" class="mini">📜 りれき</button><button id="setBtn" class="mini">⚙ 設定</button></div></header>
+  <div class="main"><div class="left">
+  <div class="q"><div class="qname" id="qname"></div><div class="qratio" id="qratio"></div></div>
+  <div class="stage" id="stage">
+    <div id="stageTop" class="hidden">
+      <div class="eyebox hidden" id="eyeBox"><button id="eyeBtn"></button><div class="dots" id="eyeDots"></div></div>
+      <div class="hintbox hidden" id="hintBox" title="押しているあいだ大きく見られる"><canvas id="hintCv"></canvas><div id="hintLbl"></div></div>
+      <div class="timer hidden" id="timer"></div>
+    </div>
+    <div id="cvWrap"><canvas id="c"></canvas><div id="peek"><canvas id="peekCv"></canvas><div id="peekLbl"></div></div><div id="fx"><div id="fxShade"></div><div id="fxMarks"></div><div id="fxLine"></div><div id="fxTag"></div><div id="fxBox"><div id="fxNum"></div><div id="fxWord"></div></div><div id="fxSkip">タップでとばす</div></div></div>
+  </div>
+  </div>
+
+  <div class="tools">
+    <div class="row"><span class="lbl">モード</span>
+      <button id="mPen" class="on">✏️ ペン</button>
+      <button id="mFill">🪣 塗る</button>
+      <button id="mMove">✋ 動かす</button>
+      <button id="mErase">🧽 消しゴム</button>
+    </div>
+    <div class="row" id="eraseRow" style="display:none"><span class="lbl">消しゴム</span>
+      <button data-ew="0.025">小</button>
+      <button data-ew="0.05" class="on">中</button>
+      <button data-ew="0.1">大</button>
+      <span class="help" style="font-size:12px;color:var(--sub)">こする＝ペンの線を消す／タップ＝図形や線を丸ごと消す</span>
+    </div>
+    <div class="row"><span class="lbl">太さ</span>
+      <button data-pw="0" class="on">細（仕切り）</button>
+      <button data-pw="0.02">中</button>
+      <button data-pw="0.045">太</button>
+      <button data-pw="0.09">極太</button>
+      <button id="linkBtn">⇧ 直線つなぎ</button>
+    </div>
+    <div class="row"><span class="lbl">色</span><div class="row" id="pal"></div><span id="colName"></span></div>
+    <div class="row"><span class="lbl">線</span>
+      <button id="addV">＋縦線</button>
+      <button id="addH">＋横線</button>
+      <button id="addD">＋斜め線</button>
+      <button id="addR" data-ico="ring">輪っか</button>
+    </div>
+    <div class="row" id="eqV"><span class="lbl">たて等分 <span class="ico">|||</span></span></div>
+    <div class="row" id="eqH"><span class="lbl">よこ等分 <span class="ico">三</span></span></div>
+    <div class="row"><span class="lbl">図形</span>
+      <button id="addC" data-ico="circle">丸</button>
+      <button id="addHf" data-ico="half">半円</button>
+      <button id="addB" data-ico="rect">四角</button>
+      <button id="addT" data-ico="tri">三角</button>
+      <button id="addS" data-ico="star">星</button>
+    </div>
+    <div class="row"><span class="lbl">部品</span>
+      <button id="partBtn">🧩 部品をえらぶ</button>
+    </div>
+    <div class="row"><span class="lbl">えらぶ</span>
+      <button id="multiBtn">☐ 複数えらび</button>
+      <button id="dup">複製</button>
+      <button id="fwd">前へ</button>
+      <button id="bwd">後ろへ</button>
+    </div>
+    <div class="row"><span class="lbl">編集</span>
+      <button id="undo">↶ もどす</button>
+      <button id="del">選んだのを消す</button>
+      <button id="clear">ぜんぶ消す</button>
+      <button id="snap" class="on">吸着</button>
+    </div>
+  </div>
+  </div>
+  <div class="bar"><div class="in">
+    <button id="undo2">↶</button>
+    <button id="skip">とばす</button>
+    <button class="big" id="judge">こたえあわせ</button>
+  </div></div>
+  <details class="note"><summary>使い方</summary>
+    <b>ヒント</b>（⚙設定で選ぶ）：なし／ちら見せ（👀を押すと本物がちょっとだけ見える。1秒 → 0.5秒 → 0.25秒 → 0.125秒 と短くなって4回でおしまい。見ているあいだは時計が止まる）／見本あり（小窓にずっと本物。押しているあいだ大きく見られる）。<br>
+    <b>おしまいの合図</b>：なし（自分で「こたえあわせ」）／1枚30・60・90秒（時間切れになったら、その時点の絵で答え合わせ）。点数は一致率だけで、早さは関係ない。<br>
+    <b>部品</b>：「🧩 部品をえらぶ」で紋章・星・月などを置ける（工房で書き出した kobo/flags-data.js を読む）。置いたら図形と同じく、動かす・4すみで大きさ・上の○で回す。答え合わせでは、部品の色もいちばん近いパレットの色として数える。<br>
+    <b>消しゴム</b>：こすったところだけ、ペンの線（色ペン・仕切り線）が切れて消える。図形・直線・輪っかはタップで丸ごと消える。大きさは小・中・大。<br>
+    <b>ペン</b>：「細」は黒い仕切り線。「中・太・極太」は今選んでいる色で描ける（色ペンで塗りたくってもOK）。<br>
+    <b>直線でつなぐ</b>：点をタップ（またはひと筆描く）→ Shiftを押しながら次の場所をクリックすると、直線でつながる。続けると折れ線、最初の点の近くでつなぐと閉じる。スマホは「⇧直線つなぎ」をオンにするとタップでつながる。<br>
+    <b>直線</b>：まん中の●で平行移動、はしの■で枠のふちを滑って角度が変わる。<br>
+    <b>輪っか・ペンの細線</b>：黒い仕切り線。囲まれた部屋を「塗る」でタップすると、その部屋だけ塗れる。線のはしが他の線・輪っか・枠に近いと自動でくっつく。はじめと終わりを近づけると閉じる。答え合わせでは、となりを塗った線は仕切りとして消え、塗ってない線は黒インクとして残る。「太」は太いペン（卦の棒などに）。<br>
+    <b>図形</b>：中をドラッグで移動（枠のふちに近づくとピタッと吸い付く）、ふちで大きさ。半円・星・四角・三角は上の○で回転（15°と枠の対角線に吸い付く）。四角は上下左右の■を引っぱると、その側だけ伸び縮みする（反対側はそのまま）。伸ばした辺は枠のふちや1/3などに吸い付く。すみに四角を4つ置いて伸ばせば十字も作れる。<br>
+    <b>角をいじる</b>：四角・三角を選ぶと角に●が出る。つかんで動かすと台形やゆがんだ形になる（枠のふち・角・1/3などの目盛りに吸い付く）。三角は旗ざお側にくっついて出てくる。<br>
+    <b>複数えらび</b>：Shiftを押しながらタップ、または何もないところからドラッグで四角く囲む（すまほは「複数えらび」をオン）。まとめてドラッグで移動、色をタップでまとめて色変え、「選んだのを消す」でまとめて消す。<br>
+    <b>複製のくり返し</b>：「複製」したコピーをずらしてから、もう一回「複製」すると、同じだけずれた位置に次のコピーが出る（星をどんどん並べる用）。<br>
+    <b>等分</b>：2〜4はボタン、5以上は数字を入れて「分ける」。<br>
+    塗るモードでもドラッグすれば動かせる（タップ＝塗る）。<br>
+    <b>重なってつかめないとき</b>：「動かす」で同じ場所をもう一回タップすると、下にあるものに順番に切り替わる。「前へ」「後ろへ」で重なり順を変えられる。
+  </details>
+</div>
+
+<div class="modal hidden" id="res"><div class="card">
+  <div class="timeup hidden" id="rTimeUp">⏰ 時間切れ！ ここまでの絵で答え合わせ</div>
+  <div class="score" id="rScore"></div>
+  <div class="rank" id="rRank"></div>
+  <div class="pair">
+    <figure><canvas id="rA"></canvas><figcaption>あなたの絵</figcaption></figure>
+    <figure><canvas id="rB"></canvas><figcaption>本物</figcaption></figure>
+  </div>
+  <ul class="good" id="rGood"></ul>
+  <ul class="hints" id="rHints"></ul>
+  <div class="tip" id="rTip"></div>
+  <button class="big" id="next">次へ</button>
+</div></div>
+
+<div class="modal hidden" id="sum"><div class="card">
+  <div class="rank">おつかれさま！</div>
+  <div class="score" id="sAvg"></div>
+  <div class="smode" id="sMode"></div>
+  <table class="sum" id="sTable"></table>
+  <button class="big" id="again">もう一回</button>
+</div></div>
+
+<div class="modal hidden" id="partsM"><div class="card pcard">
+  <div class="rank">🧩 部品をえらぶ</div>
+  <div class="smode">紋章や星などを置ける。置いたら、動かす・大きさ・回すは図形と同じ</div>
+  <div class="chips" id="pFilter"></div>
+  <div id="pGrid"></div>
+  <button class="big" id="pClose">とじる</button>
+</div></div>
+
+<div class="modal hidden" id="hist"><div class="card hcard">
+  <div class="rank">📜 りれき</div>
+  <div class="smode">答え合わせした絵が、新しいほうから100枚まで残る（このブラウザの中だけ）</div>
+  <div id="hList"></div>
+  <div class="hfoot"><button id="hClear" class="mini">ぜんぶ消す</button><button class="big" id="hClose">とじる</button></div>
+</div></div>
+
+<div class="modal hidden" id="setup"><div class="card setup">
+  <div class="rank">あそびかた設定</div>
+  <div class="sgroup"><div class="slbl">ヒント</div>
+    <div class="chips" data-k="hint"><button data-v="none">なし</button><button data-v="peek">ちら見せ</button><button data-v="sample">見本あり</button></div>
+    <div class="sdesc" id="hintDesc"></div>
+  </div>
+  <div class="sgroup"><div class="slbl">おしまいの合図</div>
+    <div class="chips" data-k="end"><button data-v="none">なし</button><button data-v="limit">1枚◯秒</button></div>
+    <div class="chips sub" data-k="limitSec" id="limitRow"><span>1枚</span><button data-v="30">30秒</button><button data-v="60">60秒</button><button data-v="90">90秒</button></div>
+    <div class="sdesc" id="endDesc"></div>
+  </div>
+  <button class="big" id="go">はじめる</button>
+  <button class="ghost hidden" id="setClose">とじる（いまの問題のつづき）</button>
+</div></div>
+
+<script src="kobo/flags-data.js"></script>
+<script>
+const ACC='#e0457b',INK='#111111';
+const PAL={
+  w:{n:'白',c:'#ffffff',g:'w'}, k:{n:'黒',c:'#111111',g:'k'},
+  r:{n:'赤',c:'#d7263d',g:'r'}, m:{n:'えんじ',c:'#8d1b3d',g:'r'},
+  o:{n:'オレンジ',c:'#f28a1d',g:'o'}, y:{n:'黄',c:'#ffcc00',g:'y'},
+  g:{n:'緑',c:'#1d9a50',g:'g'}, d:{n:'深緑',c:'#0b5e3c',g:'g'},
+  s:{n:'水色',c:'#5ab4e5',g:'b'}, b:{n:'青',c:'#1f55b5',g:'b'}, n:{n:'紺',c:'#14286e',g:'b'},
+};
+const KEYS=Object.keys(PAL),KIDX={};KEYS.forEach((k,i)=>KIDX[k]=i);
+const hex2rgb=h=>[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];
+const PRGB=KEYS.map(k=>hex2rgb(PAL[k].c));
+
+// ---- geometry ----
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+function starPts(cx,cy,R,rot=0){const p=[];for(let i=0;i<10;i++){const r=i%2?R*0.381966:R,t=-Math.PI/2+rot+i*Math.PI/5;p.push([cx+r*Math.cos(t),cy+r*Math.sin(t)])}return p}
+function inPoly(x,y,pts){let c=false;for(let i=0,j=pts.length-1;i<pts.length;j=i++){const[xi,yi]=pts[i],[xj,yj]=pts[j];if((yi>y)!==(yj>y)&&x<(xj-xi)*(y-yi)/(yj-yi)+xi)c=!c}return c}
+function inCircle(u,v,a,c){const dx=(u-c.u)*a,dy=v-c.v;return dx*dx+dy*dy<=c.rh*c.rh}
+function nearSeg(px,py,ax,ay,bx,by){const dx=bx-ax,dy=by-ay,L=dx*dx+dy*dy;let t=L?((px-ax)*dx+(py-ay)*dy)/L:0;t=clamp(t,0,1);const x=ax+t*dx,y=ay+t*dy;return{x,y,d:Math.hypot(px-x,py-y)}}
+const segDist=(...a)=>nearSeg(...a).d;
+function rotInv(X,Y,th){const c=Math.cos(th),s=Math.sin(th);return[X*c+Y*s,-X*s+Y*c]}
+
+// ---- flags ----
+function stripes(dir,parts){const tot=parts.reduce((s,p)=>s+p[1],0);return(u,v)=>{const t=dir==='v'?u:v;let acc=0;for(const[k,w]of parts){acc+=w/tot;if(t<=acc+1e-12)return k}return parts[parts.length-1][0]}}
+function circ(bg,c,k){return(u,v,a)=>inCircle(u,v,a,c)?k:bg}
+const SEY=[Math.atan2(1,1/3),Math.atan2(1,2/3),Math.atan2(2/3,1),Math.atan2(1/3,1)];
+function seychelles(u,v){const t=Math.atan2(1-v,u);return t>SEY[0]?'b':t>SEY[1]?'y':t>SEY[2]?'r':t>SEY[3]?'w':'g'}
+const BOS=[];for(let i=0;i<9;i++)BOS.push(starPts(2.8+i,i,.85));
+function bosnia(u,v){const X=u*16,Y=v*8;for(const p of BOS)if(inPoly(X,Y,p))return'w';return(X<=12.24&&X>=4.24+Y)?'y':'n'}
+// 韓国：横72×縦48、中心原点。太極は-56.31°回転した座標で、縦軸上に赤青
+const KA=Math.atan2(3,2);
+function kBars(lx,ly,brk){if(Math.abs(lx)>6)return false;const ys=[-25,-22,-19,19,22,25];for(let i=0;i<6;i++)if(Math.abs(ly-ys[i])<=1)return!(brk[i]&&Math.abs(lx)<0.5);return false}
+function korea(u,v){
+  const X=(u-.5)*72,Y=(v-.5)*48;
+  const[lx,ly]=rotInv(X,Y,-KA);
+  if(kBars(lx,ly,[0,0,0,1,1,1]))return'k';         // 左上=乾、右下=坤
+  const[mx,my]=rotInv(X,Y,-(Math.PI-KA));
+  if(kBars(mx,my,[0,1,0,1,0,1]))return'k';         // 左下=離、右上=坎
+  if(lx*lx+ly*ly<=144){if(lx*lx+(ly+6)**2<=36)return'r';if(lx*lx+(ly-6)**2<=36)return'b';return lx<0?'b':'r'}
+  return'w';
+}
+// カナダ：192×96の作図シートのかえで頂点（角の丸みは省略）
+const CAN=(()=>{
+  const P={A:[-1.8,-40.6],B:[-20.3,-24.4],C:[-37.2,-1.3],D:[-36,13.7],E:[-21.6,17.1],F:[-15,30.2],G:[0,40],H:[15,30.2],I:[21.6,17.1],J:[36,13.7],K:[37.2,-1.3],L:[20.3,-24.4],M:[1.8,-40.6]};
+  const T=[['A','B',87,10],['B','C',70,321],['C','D',25,288],['D','E',348,247],['E','F',313,281],['F','G',330,243],['G','H',297,210],['H','I',259,227],['I','J',293,192],['J','K',252,155],['K','L',219,110],['L','M',170,93]];
+  const rad=d=>d*Math.PI/180,out=[];
+  for(const[p,q,tp,tq]of T){const a=P[p],b=P[q];out.push(a);const d1=[Math.cos(rad(tp)),Math.sin(rad(tp))],d2=[Math.cos(rad(tq)),Math.sin(rad(tq))];
+    const det=d1[0]*(-d2[1])+d2[0]*d1[1],rx=b[0]-a[0],ry=b[1]-a[1],s=(rx*(-d2[1])+d2[0]*ry)/det;out.push([a[0]+s*d1[0],a[1]+s*d1[1]])}
+  out.push(P.M);return out.map(([x,y])=>[(x+96)/96,(48-y)/96]);
+})();
+function canada(u,v){if(u<.25||u>.75)return'r';return inPoly(u*2,v,CAN)?'r':'w'}
+// イギリス：横50×縦30（3:5、SVGデータと同じ）。赤い斜めは白い斜めの片側にずれる（風車状）
+function uk(u,v){
+  const X=u*50,Y=v*30,L=Math.hypot(50,30);
+  if(Math.abs(X-25)<=3||Math.abs(Y-15)<=3)return'r';
+  if(Math.abs(X-25)<=5||Math.abs(Y-15)<=5)return'w';
+  const d1=(30*X-50*Y)/L,d2=(30*X+50*Y-1500)/L,left=X<25,top=Y<15;
+  if(left&&top&&d1<0&&d1>=-2)return'r';
+  if(!left&&!top&&d1>0&&d1<=2)return'r';
+  if(!left&&top&&d2<0&&d2>=-2)return'r';
+  if(left&&!top&&d2>0&&d2<=2)return'r';
+  if(Math.abs(d1)<=3||Math.abs(d2)<=3)return'w';
+  return'n';
+}
+const F=(name,ratio,real,cls,meta={})=>({name,ratio,real,cls,...meta});
+const FLAGS=[
+ F('フランス',[2,3],{b:'#0055A4',w:'#ffffff',r:'#EF4135'},stripes('v',[['b',1],['w',1],['r',1]]),{dir:'v',tip:'青・白・赤のトリコロール。実は海軍の旗は、風ではためいたときに同じ幅に見えるように、帯の幅を 30:33:37 と少しずつ変えてあるんです。こだわりがすごいネ。',bands:[['b',1],['w',1],['r',1]]}),
+ F('イタリア',[2,3],{g:'#009246',w:'#ffffff',r:'#CE2B37'},stripes('v',[['g',1],['w',1],['r',1]]),{dir:'v',tip:'緑・白・赤の縦3本。メキシコの旗も同じ色の並びなので要注意です。メキシコはまん中に鷲の紋章があって、比率も4:7でもっと横長なんだヨ。',bands:[['g',1],['w',1],['r',1]]}),
+ F('ドイツ',[3,5],{k:'#000000',r:'#DD0000',y:'#FFCE00'},stripes('h',[['k',1],['r',1],['y',1]]),{dir:'h',tip:'黒・赤・金。いちばん下は「黄色」ではなく、正式には「金」なんです。ベルギーは同じ3色を縦に並べた旗。お隣さん同士、似た色づかいだネ。',bands:[['k',1],['r',1],['y',1]]}),
+ F('ロシア',[2,3],{w:'#ffffff',b:'#0039A6',r:'#D52B1E'},stripes('h',[['w',1],['b',1],['r',1]]),{dir:'h',tip:'白・青・赤の横じま。スロバキアやスロベニアも同じ並びで、紋章で見分けるしかありません。セルビアは逆の赤・青・白。ヨーロッパは似た旗が多いヨ。',bands:[['w',1],['b',1],['r',1]]}),
+ F('オランダ',[2,3],{r:'#AE1C28',w:'#ffffff',b:'#21468B'},stripes('h',[['r',1],['w',1],['b',1]]),{dir:'h',tip:'赤・白・青。ルクセンブルクの旗とそっくりですが、ルクセンブルクは青が水色っぽくて、形も少し横長なんです。双子というより、いとこくらいだネ。',bands:[['r',1],['w',1],['b',1]]}),
+ F('ルーマニア',[2,3],{n:'#002B7F',y:'#FCD116',r:'#CE1126'},stripes('v',[['n',1],['y',1],['r',1]]),{dir:'v',twin:'チャド',tip:'チャドの旗とほとんど同じで、青の濃さがほんの少しちがうだけなんです。アンドラやモルドバも同じ3色で、まん中に紋章がついているヨ。',bands:[['n',1],['y',1],['r',1]]}),
+ F('チャド',[2,3],{n:'#002664',y:'#FECB00',r:'#C60C30'},stripes('v',[['n',1],['y',1],['r',1]]),{dir:'v',twin:'ルーマニア',tip:'ルーマニアだと思った？それ、ほぼ正解。並べても見分けがつかないくらいそっくりで、ちがいは青の濃さだけなんです。遠く離れた国なのに、ふしぎだヨ。',bands:[['n',1],['y',1],['r',1]]}),
+ F('日本',[2,3],{w:'#ffffff',r:'#BC002D'},circ('w',{u:.5,v:.5,rh:.3},'r'),{circle:{u:.5,v:.5,rh:.3},tip:'丸の直径は縦の5分の3、中心は旗のどまん中と、法律で決まっています。シンプルだけど、ちゃんと計算された旗なんだネ。'}),
+ F('バングラデシュ',[3,5],{d:'#006A4E',r:'#F42A41'},circ('d',{u:.45,v:.5,rh:1/3},'r'),{circle:{u:.45,v:.5,rh:1/3},tip:'赤い丸は、少しだけ旗ざお側に寄っています。風になびいたときにまん中に見えるように、と言われているヨ。かしこいデザイン！'}),
+ F('パラオ',[5,8],{s:'#4AADD6',y:'#FFDE00'},circ('s',{u:.4375,v:.5,rh:.3},'y'),{circle:{u:.4375,v:.5,rh:.3},tip:'青は海、黄色い丸は満月を表しています。丸はバングラデシュと同じく、少しだけ旗ざお側寄り。南の島の満月、きれいだろうネ。'}),
+ F('セーシェル',[1,2],{b:'#003F87',y:'#FCD856',r:'#D62828',w:'#ffffff',g:'#007A3D'},seychelles,{tip:'左下の角から5色の帯が広がるデザイン。新しい国が未来に向かって進んでいく様子を表すと言われています。元気が出る旗だヨ。'}),
+ F('ボスニア・ヘルツェゴビナ',[1,2],{n:'#002395',y:'#FECB00',w:'#ffffff'},bosnia,{stars:9,tip:'黄色い三角は国の形、星はヨーロッパを表すと言われています。星は9個で、はしっこの2つは半分で切れているんです。ちゃんと数えた？'}),
+ F('韓国',[2,3],{w:'#ffffff',r:'#CD2E3A',b:'#0047A0',k:'#000000'},korea,{curvy:true,tip:'太極旗（テグッキ）。まん中は陰と陽、四すみの「卦」は天・地・水・火を表しています。宇宙ぜんぶが入っている、スケールの大きい旗だネ。'}),
+ F('カナダ',[1,2],{r:'#EF3340',w:'#ffffff'},canada,{curvy:true,dir:'v',bandRows:[.01,.025,.04,.96,.975,.99],tip:'メープルリーフの旗は1965年から。意外と新しいんです。葉っぱのとがった先は11か所。数えながら描けたら、もう立派なカナダ通だヨ。',bands:[['r',1],['w',2],['r',1]]}),
+ F('イギリス',[3,5],{n:'#012169',w:'#ffffff',r:'#C8102E'},uk,{tip:'イングランド・スコットランド・アイルランドの十字を重ねた旗。でもウェールズの印は入っていないんです。赤いドラゴン、ちょっとさみしそうだネ。'}),
+];
+
+const $=s=>document.querySelector(s);
+const cv=$('#c');let ctx=cv.getContext('2d');
+let flag,order,qi,scores;
+let st,hist=[],sel=null,mode='move',color='r',snapOn=true;
+let TR=1,W=0,H=0,drag=null,dragSnap=null,snapLabel=null,down=null,pen=null;
+const ar=()=>flag.ratio[1]/flag.ratio[0];
+
+const gcd=(a,b)=>b?gcd(b,a%b):a;
+const FR=[];for(const d of [2,3,4,5,6,8])for(let n=1;n<d;n++)if(gcd(n,d)===1)FR.push({v:n/d,t:`${n}/${d}`,d});
+FR.sort((a,b)=>a.v-b.v);
+const FRE=[{v:0,t:'角',d:1},...FR,{v:1,t:'角',d:1}];
+function snapTo(list,x,th){if(!snapOn)return{v:x,t:null};let best=null;for(const f of list){const d=Math.abs(f.v-x);if(d<th&&(!best||d<best.dd))best={dd:d,v:f.v,t:f.t}}return best||{v:x,t:null}}
+const pct=x=>Math.round(x*100)+'%';
+// 画面の点（px）で吸着の強さを決める。枠のふち（0と1）は強め
+function snapPx(list,x,size){if(!snapOn)return{v:x,t:null};let best=null;
+  for(const f of list){const th=(f.v===0||f.v===1?16:11)*TR/size,d=Math.abs(f.v-x);if(d<th&&(!best||d/th<best.r))best={r:d/th,v:f.v,t:f.t}}return best||{v:x,t:null}}
+const edgeName=(x,axis)=>x.t==='角'?(axis==='u'?(x.v?'右はし':'左はし'):(x.v?'下はし':'上はし')):(x.t||pct(x.v));
+// 図形の囲みが枠のふちに近ければ、ピタッと寄せる（一瞬吸着）
+function frameSnap(sh){
+  // 内側14px〜外側30pxの間なら、ふちにピタッ（行きすぎても少しの間はくっついている）
+  if(!snapOn)return null;const b=shapeBox(sh),IN=14*TR,OUT=30*TR,near=d=>d>-OUT&&d<IN,lab=[];let dx=0,dy=0;
+  if(near(b.x0)){dx=-b.x0;lab.push('左はし')}else if(near(W-b.x1)){dx=W-b.x1;lab.push('右はし')}
+  if(near(b.y0)){dy=-b.y0;lab.push('上はし')}else if(near(H-b.y1)){dy=H-b.y1;lab.push('下はし')}
+  if(!lab.length)return null;moveObj(sh,dx/W,dy/H);return lab.join('・')+'にピタッ';
+}
+const clone=o=>JSON.parse(JSON.stringify(o));
+
+// ---- model ----
+const newState=()=>({lines:[],colors:{'':'w'},shapes:[],strokes:[],fills:[]});
+const side=(L,u,v)=>(L.b.u-L.a.u)*(v-L.a.v)-(L.b.v-L.a.v)*(u-L.a.u);
+function keyOf(s,u,v){let k='';for(const L of s.lines)k+=side(L,u,v)>=0?'+':'-';return k}
+const cellColor=(s,u,v)=>s.colors[keyOf(s,u,v)]||'w';
+const EPS=1e-9;
+const isV=L=>Math.abs(L.a.u-L.b.u)<EPS,isH=L=>Math.abs(L.a.v-L.b.v)<EPS;
+function clipHalf(pts,L,sg){const out=[],f=p=>sg*side(L,p[0],p[1]);for(let i=0;i<pts.length;i++){const P=pts[i],Q=pts[(i+1)%pts.length],fp=f(P),fq=f(Q);if(fp>=0)out.push(P);if((fp>=0)!==(fq>=0)){const t=fp/(fp-fq);out.push([P[0]+(Q[0]-P[0])*t,P[1]+(Q[1]-P[1])*t])}}return out}
+function area(p){let s=0;for(let i=0;i<p.length;i++){const a=p[i],b=p[(i+1)%p.length];s+=a[0]*b[1]-b[0]*a[1]}return Math.abs(s)/2}
+function polys(s){
+  let list=[[[0,0],[1,0],[1,1],[0,1]]];
+  for(const L of s.lines){const nl=[];for(const p of list)for(const sg of[1,-1]){const q=clipHalf(p,L,sg);if(q.length>=3&&area(q)>1e-7)nl.push(q)}list=nl}
+  return list.map(pts=>{let cx=0,cy=0;for(const q of pts){cx+=q[0];cy+=q[1]}cx/=pts.length;cy/=pts.length;return{pts,c:[cx,cy],key:keyOf(s,cx,cy)}});
+}
+function resample(old,lines){const n={...old,lines,colors:{}};for(const p of polys(n))n.colors[p.key]=cellColor(old,p.c[0],p.c[1]);return n}
+function fillMissing(s,snap){for(const p of polys(s))if(!(p.key in s.colors))s.colors[p.key]=cellColor(snap,p.c[0],p.c[1])}
+function prune(s){const c={};for(const p of polys(s))c[p.key]=s.colors[p.key]||'w';s.colors=c}
+function local(sh,u,v,a){const dx=(u-sh.u)*a,dy=v-sh.v,c=Math.cos(sh.rot||0),s=Math.sin(sh.rot||0);return[dx*c+dy*s,-dx*s+dy*c]}
+function inShape(sh,u,v,a){
+  if(sh.type==='ring')return false;
+  if(sh.type==='part')return partKey(sh,u,v,a)>=0;
+  if(sh.type==='poly')return inPoly(u,v,sh.pts);
+  if(sh.type==='star')return inPoly(u*a,v,starPts(sh.u*a,sh.v,sh.rh,sh.rot||0));
+  const[lx,ly]=local(sh,u,v,a);
+  if(sh.type==='rect')return Math.abs(lx)<=sh.hw&&Math.abs(ly)<=sh.hh;
+  if(lx*lx+ly*ly>sh.rh*sh.rh)return false;return sh.type!=='half'||ly>=0;
+}
+function shapeHit(s,u,v,a){for(let i=s.shapes.length-1;i>=0;i--)if(inShape(s.shapes[i],u,v,a))return i;return -1}
+function clipLine(P,d){let t0=-1e9,t1=1e9;for(const[p,q]of[[-d[0],P[0]],[d[0],1-P[0]],[-d[1],P[1]],[d[1],1-P[1]]]){if(Math.abs(p)<1e-12){if(q<0)return null}else{const r=q/p;if(p<0){if(r>t0)t0=r}else if(r<t1)t1=r}}if(t0>t1-1e-9)return null;return[{u:P[0]+d[0]*t0,v:P[1]+d[1]*t0},{u:P[0]+d[0]*t1,v:P[1]+d[1]*t1}]}
+const EDGE={t:'上',b:'下',l:'左',r:'右'};
+function toBoundary(u,v){
+  u=clamp(u,0,1);v=clamp(v,0,1);
+  const m={l:u*W,r:(1-u)*W,t:v*H,b:(1-v)*H};let e='t';for(const k in m)if(m[k]<m[e])e=k;
+  if(e==='t'||e==='b'){const s=snapPx(FRE,u,W);return{q:{u:s.v,v:e==='t'?0:1},e,lab:s.t,f:s.v}}
+  const s=snapPx(FRE,v,H);return{q:{u:e==='l'?0:1,v:s.v},e,lab:s.t,f:s.v};
+}
+const sameEdge=(q,o)=>(Math.abs(q.u)<EPS&&Math.abs(o.u)<EPS)||(Math.abs(q.u-1)<EPS&&Math.abs(o.u-1)<EPS)||(Math.abs(q.v)<EPS&&Math.abs(o.v)<EPS)||(Math.abs(q.v-1)<EPS&&Math.abs(o.v-1)<EPS);
+function pushHist(){hist.push(JSON.stringify(st));if(hist.length>60)hist.shift()}
+const hasBounds=()=>st.strokes.length>0||st.shapes.some(s=>s.type==='ring');
+
+// ---- raster（仕切り線で塗る用）----
+let rcache=null;
+function flood(s,id,mask,RW,RH,useId){
+  const vis=new Uint8Array(RW*RH),stack=[s],I=id[s];vis[s]=1;
+  while(stack.length){const p=stack.pop(),x=p%RW,y=(p-x)/RW;
+    const tr=q=>{if(!vis[q]&&!mask[q]&&(!useId||id[q]===I)){vis[q]=1;stack.push(q)}};
+    if(x>0)tr(p-1);if(x<RW-1)tr(p+1);if(y>0)tr(p-RW);if(y<RH-1)tr(p+RW)}
+  return vis;
+}
+function seedPix(u,v,mask,RW,RH){
+  const x0=clamp(Math.floor(u*RW),0,RW-1),y0=clamp(Math.floor(v*RH),0,RH-1);
+  for(let r=0;r<=5;r++)for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){const x=x0+dx,y=y0+dy;if(x<0||y<0||x>=RW||y>=RH)continue;const p=y*RW+x;if(!mask[p])return p}
+  return -1;
+}
+function raster(){
+  const sig=JSON.stringify([W,H,st]);if(rcache&&rcache.sig===sig)return rcache;
+  const RW=W,RH=H,n=RW*RH,a=ar(),id=new Int32Array(n),base=new Uint8Array(n);
+  const sh=[];st.shapes.forEach((x,i)=>{if(x.type!=='ring')sh.push({x,i,pts:x.type==='star'?starPts(x.u*a,x.v,x.rh,x.rot||0):null})});
+  const L=st.lines,kc=new Map();
+  for(let j=0;j<RH;j++){const v=(j+.5)/RH;for(let i=0;i<RW;i++){const u=(i+.5)/RW,p=j*RW+i;let I=-1,col;
+    for(let q=sh.length-1;q>=0;q--){const o=sh[q];if(o.x.type==='part'){const kk=partKey(o.x,u,v,a);if(kk>=0){I=1e6+o.i;col=KEYS[kk];break}continue}
+      if(o.pts?inPoly(u*a,v,o.pts):inShape(o.x,u,v,a)){I=1e6+o.i;col=o.x.k;break}}
+    if(I<0){let bits=0;for(let t=0;t<L.length;t++)if(side(L[t],u,v)>=0)bits|=1<<t;I=bits;col=kc.get(bits);
+      if(col===undefined){let k='';for(let t=0;t<L.length;t++)k+=(bits>>t)&1?'+':'-';col=st.colors[k]||'w';kc.set(bits,col)}}
+    id[p]=I;base[p]=KIDX[col]}}
+  const mc=document.createElement('canvas');mc.width=RW;mc.height=RH;const mx=mc.getContext('2d',{willReadFrequently:true});
+  mx.strokeStyle='#000';mx.lineCap='round';mx.lineJoin='round';
+  const bnds=[],grab=()=>{const d=mx.getImageData(0,0,RW,RH).data,px=[];for(let p=0;p<n;p++)if(d[p*4+3]>60)px.push(p);mx.clearRect(0,0,RW,RH);return px};
+  for(const s of st.shapes)if(s.type==='ring'){mx.lineWidth=3;mx.beginPath();mx.arc(s.u*RW,s.v*RH,s.rh*RH,0,7);mx.stroke();bnds.push(grab())}
+  const bcol=bnds.map(()=>-1);
+  for(const k of st.strokes){mx.lineWidth=k.w?k.w*RH:3;mx.beginPath();k.pts.forEach((q,i)=>i?mx.lineTo(q[0]*RW,q[1]*RH):mx.moveTo(q[0]*RW,q[1]*RH));if(k.pts.length===1)mx.lineTo(k.pts[0][0]*RW+.1,k.pts[0][1]*RH);mx.stroke();bnds.push(grab());bcol.push(k.k?KIDX[k.k]:-1)}
+  const mask=new Uint8Array(n);for(const b of bnds)for(const p of b)mask[p]=1;
+  const K=base.slice(),filled=new Uint8Array(n);
+  for(const f of st.fills){const s=seedPix(f.u,f.v,mask,RW,RH);if(s<0)continue;const reg=flood(s,id,mask,RW,RH,true),ki=KIDX[f.k];for(let p=0;p<n;p++)if(reg[p]){K[p]=ki;filled[p]=1}}
+  // 答え合わせ用：となりを塗った線＝仕切り（消して周りの色で埋める）、塗ってない線＝黒インク（残す）
+  const J=K.slice(),hole=new Uint8Array(n),inkI=KIDX.k;
+  const isInk=bnds.map((b,i)=>{if(bcol[i]>=0)return true;for(const p of b){const x=p%RW;if((x>0&&filled[p-1])||(x<RW-1&&filled[p+1])||(p>=RW&&filled[p-RW])||(p<n-RW&&filled[p+RW]))return false}return true});
+  bnds.forEach((b,i)=>{if(!isInk[i])for(const p of b)hole[p]=1});
+  bnds.forEach((b,i)=>{if(isInk[i]){const c=bcol[i]>=0?bcol[i]:inkI;for(const p of b){hole[p]=0;J[p]=c}}});
+  for(let it=0;it<40;it++){let left=0;const nh=hole.slice();
+    for(let p=0;p<n;p++)if(hole[p]){const x=p%RW,y=(p-x)/RW;let q=-1;
+      if(x>0&&!hole[p-1])q=p-1;else if(x<RW-1&&!hole[p+1])q=p+1;else if(y>0&&!hole[p-RW])q=p-RW;else if(y<RH-1&&!hole[p+RW])q=p+RW;
+      if(q>=0){J[p]=J[q];nh[p]=0}else left++}
+    hole.set(nh);if(!left)break}
+  const oc=document.createElement('canvas');oc.width=RW;oc.height=RH;const ox=oc.getContext('2d'),img=ox.createImageData(RW,RH);
+  for(let p=0;p<n;p++)if(filled[p]){const c=PRGB[K[p]];img.data[p*4]=c[0];img.data[p*4+1]=c[1];img.data[p*4+2]=c[2];img.data[p*4+3]=255}
+  ox.putImageData(img,0,0);
+  rcache={sig,RW,RH,id,mask,J,overlay:oc};return rcache;
+}
+
+// ---- 部品（kobo/flags-data.js の部品を絵に置く） ----
+// 形は {type:'part',pid,u,v,rh,asp,rot}。rh＝対角線の半分（旗の高さを1とした長さ）、asp＝部品の横÷縦
+const PDATA=(window.FLAG_DATA&&Array.isArray(window.FLAG_DATA.flags))?window.FLAG_DATA.flags:[];
+const NAME2CODE={};for(const f of PDATA)NAME2CODE[f.ja]=f.code;
+const PARTS=[];for(const f of PDATA){if(f.enabled===false)continue;for(const p of f.parts||[])if(p&&p.svg&&p.id)PARTS.push({...p,code:f.code})}
+const PART_BY_ID={};for(const p of PARTS)PART_BY_ID[p.id]=p;
+const PTYPES=['紋章','星','月','太陽','模様','文字','十字','その他'];
+const PIMG={};  // id → {img,KW,KH,keys}（keys：小さい絵にしたときの各点の色番号。255＝すきま）
+function partHalf(sh){const d=Math.sqrt(1+sh.asp*sh.asp);return{hh:sh.rh/d,hw:sh.rh/d*sh.asp}}
+function partCorners(sh,w,h){const{hw,hh}=partHalf(sh),c=Math.cos(sh.rot||0),s=Math.sin(sh.rot||0),cx=sh.u*w,cy=sh.v*h,X=hw*h,Y=hh*h;
+  return[[-X,-Y],[X,-Y],[X,Y],[-X,Y]].map(([x,y])=>[cx+x*c-y*s,cy+x*s+y*c])}
+function partKey(sh,u,v,a){const P=PIMG[sh.pid];const[lx,ly]=local(sh,u,v,a),{hw,hh}=partHalf(sh);
+  if(Math.abs(lx)>hw||Math.abs(ly)>hh)return -1;if(!P)return -1;
+  const px=Math.min(P.KW-1,Math.max(0,Math.floor((lx/hw+1)/2*P.KW))),py=Math.min(P.KH-1,Math.max(0,Math.floor((ly/hh+1)/2*P.KH)));
+  const k=P.keys[py*P.KW+px];return k===255?-1:k}
+function drawPart(x,sh,w,h){const P=PIMG[sh.pid];if(!P)return;const{hw,hh}=partHalf(sh);
+  x.save();x.translate(sh.u*w,sh.v*h);x.rotate(sh.rot||0);x.drawImage(P.img,-hw*h,-hh*h,2*hw*h,2*hh*h);x.restore()}
+function nearestKey(r,g,b){let bi=0,bd=1e9;PRGB.forEach((c,i)=>{const d=.3*(c[0]-r)**2+.59*(c[1]-g)**2+.11*(c[2]-b)**2;if(d<bd){bd=d;bi=i}});return bi}
+function partSvg(p){  // 幅と高さを書きこんでおく（ブラウザによっては、ないと描けない）
+  const m=p.svg.match(/viewBox="\s*([-\d.eE]+)[\s,]+([-\d.eE]+)[\s,]+([\d.eE]+)[\s,]+([\d.eE]+)/);const vw=m?+m[3]:100,vh=m?+m[4]:100;
+  let svg=p.svg;if(!/<svg[^>]*\swidth=/.test(svg.slice(0,svg.indexOf('>')+1)))svg=svg.replace('<svg',`<svg width="${vw}" height="${vh}"`);
+  return{url:'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg),asp:vw/vh}}
+function loadPart(p){
+  if(PIMG[p.id])return Promise.resolve(PIMG[p.id]);
+  return new Promise((res,rej)=>{const{url,asp}=partSvg(p),img=new Image();
+    img.onload=()=>{const KW=Math.max(8,Math.round(asp>=1?256:256*asp)),KH=Math.max(8,Math.round(asp>=1?256/asp:256));
+      const c=document.createElement('canvas');c.width=KW;c.height=KH;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(img,0,0,KW,KH);
+      const d=x.getImageData(0,0,KW,KH).data,keys=new Uint8Array(KW*KH),memo=new Map();
+      for(let q=0;q<KW*KH;q++){if(d[q*4+3]<128){keys[q]=255;continue}const key=(d[q*4]>>3)<<10|(d[q*4+1]>>3)<<5|(d[q*4+2]>>3);
+        let k=memo.get(key);if(k===undefined){k=nearestKey(d[q*4],d[q*4+1],d[q*4+2]);memo.set(key,k)}keys[q]=k}
+      PIMG[p.id]={img,KW,KH,keys,asp};res(PIMG[p.id])};
+    img.onerror=rej;img.src=url})}
+async function addPart(p){
+  let P;try{P=await loadPart(p)}catch(e){return}
+  pushHist();const a=ar();let hh=.2,hw=hh*P.asp;if(hw>.42*a){hw=.42*a;hh=hw/P.asp}
+  st.shapes.push({type:'part',pid:p.id,u:.5,v:.5,rh:Math.hypot(hw,hh),asp:P.asp,rot:0,k:'w'});
+  sel={t:'s',i:st.shapes.length-1};clearMulti();setMode('move');
+}
+// この問題で出してよい部品（「この国の問題だけ」「ほかの国の問題だけ」をみる）
+let partOrder=[],partFilter='すべて';
+function partsForQ(){const code=flag&&NAME2CODE[flag.name];
+  return PARTS.filter(p=>p.use==='own'?p.code===code:p.use==='others'?p.code!==code:true)}
+function openParts(){
+  const list=partsForQ(),F=$('#pFilter'),G=$('#pGrid');
+  if(!partOrder.length||partOrder.qi!==qi){partOrder=shuffle(list.map(p=>p.id));partOrder.qi=qi}
+  const cnt={};for(const p of list)cnt[p.type]=(cnt[p.type]||0)+1;
+  const types=['すべて',...PTYPES.filter(t=>cnt[t]),...Object.keys(cnt).filter(t=>!PTYPES.includes(t))];
+  if(!types.includes(partFilter))partFilter='すべて';
+  F.innerHTML=list.length?types.map(t=>`<button data-t="${t}" class="${t===partFilter?'on':''}">${t} ${t==='すべて'?list.length:cnt[t]}</button>`).join(''):'';
+  F.querySelectorAll('button').forEach(b=>b.onclick=()=>{partFilter=b.dataset.t;openParts()});
+  G.innerHTML='';
+  if(!PARTS.length){G.innerHTML='<div class="pempty">部品のデータが見つからない。<br>工房で「flags-data.js を書き出す」をして、ゲームと同じところの <b>kobo</b> フォルダに置いてね。</div>'}
+  for(const id of partOrder){const p=PART_BY_ID[id];if(!p||(partFilter!=='すべて'&&p.type!==partFilter))continue;
+    const b=document.createElement('button');b.className='pthumb';b.title=p.type+((p.tags||[]).length?'（'+p.tags.join('・')+'）':'');
+    const im=document.createElement('img');im.loading='lazy';im.alt=p.type;im.src=partSvg(p).url;b.appendChild(im);
+    b.onclick=()=>{$('#partsM').classList.add('hidden');addPart(p)};G.appendChild(b)}
+  $('#partsM').classList.remove('hidden');
+}
+$('#partBtn').onclick=openParts;$('#pClose').onclick=()=>$('#partsM').classList.add('hidden');
+
+// ---- drawing ----
+function setupCanvas(c,w,h){const d=window.devicePixelRatio||1;c.width=Math.round(w*d);c.height=Math.round(h*d);c.style.width=w+'px';c.style.height=h+'px';const x=c.getContext('2d');x.setTransform(d,0,0,d,0,0);return x}
+function rectCorners(sh,w,h){const c=Math.cos(sh.rot||0),s=Math.sin(sh.rot||0),cx=sh.u*w,cy=sh.v*h,X=sh.hw*h,Y=sh.hh*h;return[[-X,-Y],[X,-Y],[X,Y],[-X,Y]].map(([x,y])=>[cx+x*c-y*s,cy+x*s+y*c])}
+function shapePath(x,sh,w,h){
+  const cx=sh.u*w,cy=sh.v*h,R=(sh.rh||0)*h,r=sh.rot||0;
+  if(sh.type==='circle'||sh.type==='ring')x.arc(cx,cy,R,0,Math.PI*2);
+  else if(sh.type==='half'){x.arc(cx,cy,R,r,r+Math.PI);x.closePath()}
+  else if(sh.type==='poly'){sh.pts.forEach((q,i)=>i?x.lineTo(q[0]*w,q[1]*h):x.moveTo(q[0]*w,q[1]*h));x.closePath()}
+  else if(sh.type==='rect'){rectCorners(sh,w,h).forEach((q,i)=>i?x.lineTo(q[0],q[1]):x.moveTo(q[0],q[1]));x.closePath()}
+  else if(sh.type==='part'){partCorners(sh,w,h).forEach((q,i)=>i?x.lineTo(q[0],q[1]):x.moveTo(q[0],q[1]));x.closePath()}
+  else{starPts(cx,cy,R,r).forEach((q,i)=>i?x.lineTo(q[0],q[1]):x.moveTo(q[0],q[1]));x.closePath()}
+}
+const reach=sh=>sh.type==='rect'?sh.hh:sh.rh;
+const polyCenter=sh=>{let x=0,y=0;for(const q of sh.pts){x+=q[0];y+=q[1]}return[x/sh.pts.length*W,y/sh.pts.length*H]};
+const rotHandle=sh=>{if(sh.type==='poly'){const b=shapeBox(sh),c=polyCenter(sh);return[c[0],b.y0-22]}const R=reach(sh)*H+22,r=sh.rot||0;return[sh.u*W+R*Math.sin(r),sh.v*H-R*Math.cos(r)]};
+// 画面上の囲み（px）
+function shapeBox(sh){
+  let xs,ys;
+  if(sh.type==='poly'){xs=sh.pts.map(q=>q[0]*W);ys=sh.pts.map(q=>q[1]*H)}
+  else if(sh.type==='rect'){const c=rectCorners(sh,W,H);xs=c.map(q=>q[0]);ys=c.map(q=>q[1])}
+  else if(sh.type==='part'){const c=partCorners(sh,W,H);xs=c.map(q=>q[0]);ys=c.map(q=>q[1])}
+  else{const R=sh.rh*H;xs=[sh.u*W-R,sh.u*W+R];ys=[sh.v*H-R,sh.v*H+R]}
+  return{x0:Math.min(...xs),y0:Math.min(...ys),x1:Math.max(...xs),y1:Math.max(...ys)};
+}
+function strokeBox(k){const pad=k.w?k.w*H/2:2,xs=k.pts.map(q=>q[0]*W),ys=k.pts.map(q=>q[1]*H);return{x0:Math.min(...xs)-pad,y0:Math.min(...ys)-pad,x1:Math.max(...xs)+pad,y1:Math.max(...ys)+pad}}
+const objOf=m=>m.t==='s'?st.shapes[m.i]:st.strokes[m.i];
+const boxOf=m=>m.t==='s'?shapeBox(st.shapes[m.i]):strokeBox(st.strokes[m.i]);
+function anchorOf(o){return o.pts?o.pts[0].slice():[o.u,o.v]}
+function moveObj(o,du,dv){if(o.pts)o.pts=o.pts.map(q=>[q[0]+du,q[1]+dv]);else{o.u+=du;o.v+=dv}}
+const rectHandles=sh=>{const c=Math.cos(sh.rot||0),s=Math.sin(sh.rot||0),cx=sh.u*W,cy=sh.v*H,X=sh.hw*H,Y=sh.hh*H;
+  return[{t:'rw',side:1,p:[cx+X*c,cy+X*s]},{t:'rw',side:-1,p:[cx-X*c,cy-X*s]},{t:'rh',side:1,p:[cx-Y*s,cy+Y*c]},{t:'rh',side:-1,p:[cx+Y*s,cy-Y*c]}]};
+function drawModel(x,s,w,h){
+  for(const p of polys(s)){const col=PAL[s.colors[p.key]||'w'].c;x.fillStyle=col;x.strokeStyle=col;x.lineWidth=1;x.beginPath();p.pts.forEach((q,i)=>i?x.lineTo(q[0]*w,q[1]*h):x.moveTo(q[0]*w,q[1]*h));x.closePath();x.fill();x.stroke()}
+  for(const sh of s.shapes){if(sh.type==='ring')continue;if(sh.type==='part'){drawPart(x,sh,w,h);continue}x.fillStyle=PAL[sh.k].c;x.beginPath();shapePath(x,sh,w,h);x.fill()}
+}
+function drawBounds(){
+  ctx.save();ctx.lineCap='round';ctx.lineJoin='round';ctx.setLineDash([]);
+  st.shapes.forEach((s,i)=>{if(s.type!=='ring')return;ctx.strokeStyle=sel&&sel.t==='s'&&sel.i===i?ACC:INK;ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(s.u*W,s.v*H,s.rh*H,0,7);ctx.stroke()});
+  st.strokes.forEach((k,i)=>{const on=sel&&sel.t==='k'&&sel.i===i;ctx.lineWidth=k.w?k.w*H:2.5;
+    const path=()=>{ctx.beginPath();k.pts.forEach((q,j)=>j?ctx.lineTo(q[0]*W,q[1]*H):ctx.moveTo(q[0]*W,q[1]*H));if(k.pts.length===1)ctx.lineTo(k.pts[0][0]*W+.1,k.pts[0][1]*H)};
+    ctx.strokeStyle=k.k?PAL[k.k].c:(on?ACC:INK);path();ctx.stroke();
+    if(on&&k.k){ctx.lineWidth=2;ctx.setLineDash([5,4]);ctx.strokeStyle=ACC;path();ctx.stroke();ctx.setLineDash([])}});
+  ctx.restore();
+}
+function rasterToCanvas(c,R,w,h){
+  const oc=document.createElement('canvas');oc.width=R.RW;oc.height=R.RH;const ox=oc.getContext('2d'),img=ox.createImageData(R.RW,R.RH);
+  for(let p=0;p<R.J.length;p++){const q=PRGB[R.J[p]];img.data[p*4]=q[0];img.data[p*4+1]=q[1];img.data[p*4+2]=q[2];img.data[p*4+3]=255}
+  ox.putImageData(img,0,0);const x=setupCanvas(c,w,h);x.drawImage(oc,0,0,w,h);
+}
+function renderReal(c,f,w,h){
+  setupCanvas(c,w,h);const x=c.getContext('2d'),PW=c.width,PH=c.height,img=x.createImageData(PW,PH),a=f.ratio[1]/f.ratio[0],cache={};
+  const rgb=k=>cache[k]||(cache[k]=hex2rgb(f.real[k]||PAL[k].c));const SS=[[.25,.25],[.75,.25],[.25,.75],[.75,.75]];
+  for(let j=0;j<PH;j++)for(let i=0;i<PW;i++){let R=0,G=0,B=0;for(const[ox,oy]of SS){const q=rgb(f.cls((i+ox)/PW,(j+oy)/PH,a));R+=q[0];G+=q[1];B+=q[2]}
+    const o=(j*PW+i)*4;img.data[o]=R/4;img.data[o+1]=G/4;img.data[o+2]=B/4;img.data[o+3]=255}
+  x.putImageData(img,0,0);
+}
+function render(){
+  ctx.clearRect(0,0,W,H);drawModel(ctx,st,W,H);
+  if(st.fills.length&&hasBounds())ctx.drawImage(raster().overlay,0,0,W,H);
+  drawBounds();
+  ctx.save();const showHandle=mode!=='pen';
+  st.lines.forEach((L,i)=>{
+    const on=sel&&sel.t==='l'&&sel.i===i,ax=L.a.u*W,ay=L.a.v*H,bx=L.b.u*W,by=L.b.v*H;
+    ctx.setLineDash([]);
+    if(!on){ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(bx,by);ctx.stroke()}
+    ctx.strokeStyle=on?ACC:'rgba(0,0,0,.8)';ctx.lineWidth=on?3:1;
+    ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(bx,by);ctx.stroke();
+    if(showHandle){ctx.setLineDash([]);ctx.fillStyle=on?ACC:'#fff';ctx.strokeStyle=on?ACC:'rgba(0,0,0,.6)';ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.arc((ax+bx)/2,(ay+by)/2,7,0,7);ctx.fill();ctx.stroke();
+      if(on)for(const[px,py]of[[ax,ay],[bx,by]]){ctx.beginPath();ctx.rect(px-6,py-6,12,12);ctx.fill();ctx.stroke()}}
+  });
+  st.shapes.forEach((sh,i)=>{
+    if(!(sel&&sel.t==='s'&&sel.i===i))return;
+    if(sh.type==='poly'){
+      ctx.setLineDash([5,4]);ctx.strokeStyle=ACC;ctx.lineWidth=2;ctx.beginPath();shapePath(ctx,sh,W,H);ctx.stroke();ctx.setLineDash([]);
+      for(const q of sh.pts){ctx.fillStyle='#fff';ctx.strokeStyle=ACC;ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(q[0]*W,q[1]*H,7,0,7);ctx.fill();ctx.stroke()}
+      const[hx,hy]=rotHandle(sh),c=polyCenter(sh);ctx.strokeStyle=ACC;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(c[0],c[1]);ctx.lineTo(hx,hy);ctx.stroke();
+      ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(hx,hy,8,0,7);ctx.fill();ctx.stroke();return}
+    ctx.setLineDash([5,4]);ctx.strokeStyle=ACC;ctx.lineWidth=2;ctx.beginPath();
+    if(sh.type==='rect'||sh.type==='part')shapePath(ctx,sh,W,H);else ctx.arc(sh.u*W,sh.v*H,sh.rh*H,0,7);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle=ACC;ctx.beginPath();ctx.arc(sh.u*W,sh.v*H,4,0,7);ctx.fill();
+    if(sh.type==='rect'){for(const{p:q}of rectHandles(sh)){ctx.beginPath();ctx.rect(q[0]-6,q[1]-6,12,12);ctx.fill()}
+      for(const q of rectCorners(sh,W,H)){ctx.fillStyle='#fff';ctx.strokeStyle=ACC;ctx.lineWidth=2;ctx.beginPath();ctx.arc(q[0],q[1],6,0,7);ctx.fill();ctx.stroke()}ctx.fillStyle=ACC}
+    else if(sh.type==='part'){for(const q of partCorners(sh,W,H)){ctx.beginPath();ctx.rect(q[0]-6,q[1]-6,12,12);ctx.fill()}}  // 部品：4すみ（どれをつかんでも大きさ）
+    else{ctx.beginPath();ctx.arc(sh.u*W+sh.rh*H,sh.v*H,8,0,7);ctx.fill()}
+    if(sh.type!=='circle'&&sh.type!=='ring'){const[hx,hy]=rotHandle(sh);ctx.strokeStyle=ACC;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(sh.u*W,sh.v*H);ctx.lineTo(hx,hy);ctx.stroke();
+      ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(hx,hy,8,0,7);ctx.fill();ctx.stroke()}
+  });
+  if(drag&&snapOn&&(drag.t==='le'||drag.t==='lm'||drag.t==='sm')){
+    ctx.setLineDash([]);ctx.strokeStyle='rgba(0,0,0,.55)';ctx.lineWidth=1;
+    for(const f of FR){const L=f.d<=2?14:f.d<=4?9:5;ctx.beginPath();
+      ctx.moveTo(f.v*W,0);ctx.lineTo(f.v*W,L);ctx.moveTo(f.v*W,H);ctx.lineTo(f.v*W,H-L);
+      ctx.moveTo(0,f.v*H);ctx.lineTo(L,f.v*H);ctx.moveTo(W,f.v*H);ctx.lineTo(W-L,f.v*H);ctx.stroke()}
+  }
+  if(multi.length){
+    ctx.setLineDash([5,4]);ctx.strokeStyle=ACC;ctx.lineWidth=1.5;let g=null;
+    for(const m of multi){const b=boxOf(m);ctx.strokeRect(b.x0-2,b.y0-2,b.x1-b.x0+4,b.y1-b.y0+4);g=g?{x0:Math.min(g.x0,b.x0),y0:Math.min(g.y0,b.y0),x1:Math.max(g.x1,b.x1),y1:Math.max(g.y1,b.y1)}:{...b}}
+    ctx.setLineDash([]);ctx.lineWidth=2;ctx.strokeRect(g.x0-6,g.y0-6,g.x1-g.x0+12,g.y1-g.y0+12);
+    ctx.font='bold 12px system-ui,sans-serif';const t=`${multi.length}個えらび中`,tw=ctx.measureText(t).width+12;ctx.fillStyle=ACC;ctx.fillRect(clamp(g.x0-6,0,W-tw),clamp(g.y0-26,0,H-20),tw,20);ctx.fillStyle='#fff';ctx.fillText(t,clamp(g.x0-6,0,W-tw)+6,clamp(g.y0-26,0,H-20)+14)}
+  if(boxSel){ctx.setLineDash([6,4]);ctx.strokeStyle='#16a34a';ctx.lineWidth=1.5;ctx.fillStyle='rgba(22,163,74,.08)';const x=Math.min(boxSel.x0,boxSel.x1),y=Math.min(boxSel.y0,boxSel.y1),w=Math.abs(boxSel.x1-boxSel.x0),h=Math.abs(boxSel.y1-boxSel.y0);ctx.fillRect(x,y,w,h);ctx.strokeRect(x,y,w,h);ctx.setLineDash([])}
+  if(mode==='erase'&&eraseCur){const R=eraseR();ctx.setLineDash([]);ctx.fillStyle='rgba(255,255,255,.35)';ctx.strokeStyle='rgba(0,0,0,.7)';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(eraseCur.x,eraseCur.y,R,0,7);ctx.fill();ctx.stroke();
+    ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(eraseCur.x,eraseCur.y,R-1.5,0,7);ctx.stroke()}
+  if(mode==='pen'&&lastPen){const[x,y]=[lastPen.end[0]*W,lastPen.end[1]*H];ctx.setLineDash([]);ctx.fillStyle='#fff';ctx.strokeStyle=ACC;ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,5,0,7);ctx.fill();ctx.stroke()}
+  if(snapLabel){
+    ctx.font='bold 14px system-ui,sans-serif';const tw=ctx.measureText(snapLabel.text).width+14;
+    const lx=clamp(snapLabel.x+12,2,W-tw-2),ly=clamp(snapLabel.y-34,2,H-26);
+    ctx.fillStyle='rgba(0,0,0,.78)';ctx.fillRect(lx,ly,tw,24);ctx.fillStyle='#fff';ctx.fillText(snapLabel.text,lx+7,ly+17);
+  }
+  ctx.restore();
+}
+function fit(){
+  const desk=window.innerWidth>=900,stage=$('#stage'),maxW=Math.min(stage.clientWidth,desk?900:640),maxH=Math.max(160,desk?window.innerHeight-250:window.innerHeight*0.45);
+  let w=maxW,h=w/ar();if(h>maxH){h=maxH;w=h*ar()}
+  W=Math.floor(w);H=Math.floor(h);ctx=setupCanvas(cv,W,H);render();
+  $('#stageTop').style.width=W+'px';
+  if(typeof hintImgs!=='undefined'){drawThumb();if(ovShown)redrawOverlay()}
+}
+
+// ---- snaps ----
+const norm=x=>Math.atan2(Math.sin(x),Math.cos(x));
+const degOf=x=>Math.round(((x*180/Math.PI)%360+360)%360);
+function snapAng(r){
+  if(snapOn){
+    const dg=Math.atan2(H,W);
+    for(const[c,t]of[[dg,'対角線 ＼'],[dg+Math.PI,'対角線 ＼'],[-dg,'対角線 ／'],[Math.PI-dg,'対角線 ／']])if(Math.abs(norm(r-c))<0.05)return{v:c,t};
+    const q=Math.round(r/(Math.PI/12))*(Math.PI/12);if(Math.abs(r-q)<0.06)return{v:q,t:degOf(q)+'°'};
+  }
+  return{v:r,t:degOf(r)+'°'};
+}
+function shapeSnap(i,u,v){
+  if(!snapOn)return null;const a=ar();let best=null;
+  st.shapes.forEach((o,j)=>{if(j===i||o.type==='poly')return;const c=Math.cos(o.rot||0),s=Math.sin(o.rot||0),h=reach(o)/2;
+    for(const[lx,ly,t]of[[0,0,'中心にピタッ'],[h,0,'半径の半分'],[-h,0,'半径の半分'],[0,h,'半径の半分'],[0,-h,'半径の半分']]){
+      const pu=o.u+(lx*c-ly*s)/a,pv=o.v+(lx*s+ly*c),d=Math.hypot((pu-u)*W,(pv-v)*H);if(d<10&&(!best||d<best.d))best={d,u:pu,v:pv,t}}});
+  return best;
+}
+function sizeSnap(i,rh){
+  if(!snapOn)return null;let best=null;
+  st.shapes.forEach((o,j)=>{if(j===i||o.type==='rect'||o.type==='poly')return;for(const[c,t]of[[o.rh,'同じ大きさ'],[o.rh/2,'半分の大きさ']]){const d=Math.abs(c-rh)*H;if(d<6&&(!best||d<best.d))best={d,rh:c,t}}});
+  return best;
+}
+function snapEnd(pt,skip=-1){
+  const px=pt[0]*W,py=pt[1]*H;let best=null;const cand=(x,y)=>{const d=Math.hypot(x-px,y-py);if(d<18&&(!best||d<best.d))best={d,x,y}};
+  cand(0,py);cand(W,py);cand(px,0);cand(px,H);
+  for(const s of st.shapes)if(s.type==='ring'){const cx=s.u*W,cy=s.v*H,R=s.rh*H,d=Math.hypot(px-cx,py-cy)||1;cand(cx+(px-cx)/d*R,cy+(py-cy)/d*R)}
+  for(const[oi,o]of st.strokes.entries())if(oi!==skip&&!o.k)for(let i=0;i<o.pts.length-1;i++){const q=nearSeg(px,py,o.pts[i][0]*W,o.pts[i][1]*H,o.pts[i+1][0]*W,o.pts[i+1][1]*H);cand(q.x,q.y)}
+  for(const L of st.lines){const q=nearSeg(px,py,L.a.u*W,L.a.v*H,L.b.u*W,L.b.v*H);cand(q.x,q.y)}
+  return best?[clamp(best.x/W,0,1),clamp(best.y/H,0,1)]:null;
+}
+function finishStroke(pts){
+  let len=0;for(let i=1;i<pts.length;i++)len+=Math.hypot((pts[i][0]-pts[i-1][0])*W,(pts[i][1]-pts[i-1][1])*H);
+  const s=pts[0],e=pts[pts.length-1];
+  if(Math.hypot((s[0]-e[0])*W,(s[1]-e[1])*H)<20&&len>60)return{pts:[...pts,s]};
+  const a=snapEnd(s),b=snapEnd(e);if(a)pts.unshift(a);if(b)pts.push(b);return{pts};
+}
+
+// ---- input ----
+function pos(e){const r=cv.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;return{x,y,u:x/W,v:y/H}}
+function paint(p){
+  const a=ar();
+  {const si=shapeHit(st,p.u,p.v,a);if(si>=0&&st.shapes[si].type==='part')return}
+  if(!hasBounds()){pushHist();st.fills=[];const si=shapeHit(st,p.u,p.v,a);if(si>=0)st.shapes[si].k=color;else st.colors[keyOf(st,p.u,p.v)]=color;render();return}
+  const R=raster(),s=seedPix(p.u,p.v,R.mask,R.RW,R.RH);if(s<0)return;
+  const I=R.id[s],free=flood(s,R.id,R.mask,R.RW,R.RH,false);
+  let whole=true;for(let q=0;q<R.id.length;q++)if(R.id[q]===I&&!R.mask[q]&&!free[q]){whole=false;break}
+  pushHist();
+  const su=(s%R.RW+.5)/R.RW,sv=(Math.floor(s/R.RW)+.5)/R.RH;
+  if(whole){
+    if(I>=1e6)st.shapes[I-1e6].k=color;else st.colors[keyOf(st,su,sv)]=color;
+    st.fills=st.fills.filter(f=>{const q=seedPix(f.u,f.v,R.mask,R.RW,R.RH);return q<0||R.id[q]!==I});
+  }else{
+    const reg=flood(s,R.id,R.mask,R.RW,R.RH,true);
+    st.fills=st.fills.filter(f=>{const q=seedPix(f.u,f.v,R.mask,R.RW,R.RH);return q<0||!reg[q]});
+    st.fills.push({u:su,v:sv,k:color});
+  }
+  render();
+}
+// その場所でつかめるもの全部を、つかみやすい順に並べる（選択中の取っ手 → 直線のはし → 直線 → フリーハンド → 図形の上から順）
+function hitList(p){
+  const a=ar(),out=[];
+  if(sel&&sel.t==='s'){const sh=st.shapes[sel.i];
+    if(sh&&sh.type==='poly')sh.pts.forEach((q,vi)=>{if(Math.hypot(p.x-q[0]*W,p.y-q[1]*H)<12*TR)out.push({t:'pv',i:sel.i,vi})});
+    if(sh&&sh.type==='rect')rectCorners(sh,W,H).forEach((q,vi)=>{if(Math.hypot(p.x-q[0],p.y-q[1])<11*TR)out.push({t:'rc',i:sel.i,vi})});
+    if(sh&&sh.type!=='circle'&&sh.type!=='ring'){const[hx,hy]=rotHandle(sh);if(Math.hypot(p.x-hx,p.y-hy)<14*TR)out.push({t:'sr',i:sel.i})}
+    if(sh&&sh.type==='rect')for(const h of rectHandles(sh))if(Math.hypot(p.x-h.p[0],p.y-h.p[1])<12*TR)out.push({t:h.t,side:h.side,i:sel.i});}
+  const idx=st.lines.map((_,i)=>i);if(sel&&sel.t==='l'){idx.splice(idx.indexOf(sel.i),1);idx.unshift(sel.i)}
+  for(const i of idx){const L=st.lines[i];for(const end of['a','b'])if(Math.hypot(p.x-L[end].u*W,p.y-L[end].v*H)<14*TR)out.push({t:'le',i,end})}
+  st.lines.map((L,i)=>({i,d:segDist(p.x,p.y,L.a.u*W,L.a.v*H,L.b.u*W,L.b.v*H)})).filter(x=>x.d<12*TR).sort((x,y)=>x.d-y.d)
+    .forEach(({i})=>out.push({t:'lm',i,p0:{u:p.u,v:p.v},L0:clone(st.lines[i])}));
+  const ks=[];st.strokes.forEach((k,i)=>{const th=Math.max(9*TR,(k.w||0)*H/2+4);let best=1e9;for(let j=0;j<k.pts.length-1;j++)best=Math.min(best,segDist(p.x,p.y,k.pts[j][0]*W,k.pts[j][1]*H,k.pts[j+1][0]*W,k.pts[j+1][1]*H));if(best<th)ks.push({i,d:best})});
+  ks.sort((x,y)=>x.d-y.d).forEach(({i})=>out.push({t:'km',i,p0:{u:p.u,v:p.v},K0:clone(st.strokes[i].pts)}));
+  for(let i=st.shapes.length-1;i>=0;i--){const sh=st.shapes[i];
+    if(sh.type==='poly'){if(inShape(sh,p.u,p.v,a))out.push({t:'sm',i,du:0,dv:0,p0:{u:p.u,v:p.v},P0:clone(sh.pts)});continue}
+    if(sh.type==='rect'){if(inShape(sh,p.u,p.v,a))out.push({t:'sm',i,du:p.u-sh.u,dv:p.v-sh.v});continue}
+    const cx=sh.u*W,cy=sh.v*H,R=sh.rh*H,d=Math.hypot(p.x-cx,p.y-cy);
+    if(Math.abs(d-R)<12*TR)out.push({t:'ss',i});
+    else if(d<R&&(sh.type==='circle'||sh.type==='ring'||d<R*.5||inShape(sh,p.u,p.v,a)))out.push({t:'sm',i,du:p.u-sh.u,dv:p.v-sh.v})}
+  return out;
+}
+const selOf=h=>h?{t:h.t==='km'?'k':(h.t[0]==='s'||h.t[0]==='r'||h.t[0]==='p')?'s':'l',i:h.i}:null;
+// ---- 複数えらび ----
+let multi=[],multiOn=false,boxSel=null,lastDup=null;
+// ---- 消しゴム ----
+let eraseW=0.05,erasing=null,eraseCur=null,rafId=0;
+const eraseR=()=>Math.max(6,eraseW*H);
+function rafRender(){if(rafId)return;rafId=requestAnimationFrame(()=>{rafId=0;render()})}
+// 線分 (ax,ay)-(bx,by) の消しゴムで、フリーハンド線をけずる。けずれたら true
+function eraseAlong(ax,ay,bx,by){
+  const R=eraseR();let hit=false;const out=[];
+  for(const k of st.strokes){
+    const rr=R+(k.w?k.w*H/2:1.25),bb=strokeBox(k);
+    if(bb.x1<Math.min(ax,bx)-rr||bb.x0>Math.max(ax,bx)+rr||bb.y1<Math.min(ay,by)-rr||bb.y0>Math.max(ay,by)+rr){out.push(k);continue}
+    // 点を細かくしてから、消しゴムに入った点を抜いて分ける
+    const pts=[];k.pts.forEach((q,i)=>{if(i){const pq=k.pts[i-1],d=Math.hypot((q[0]-pq[0])*W,(q[1]-pq[1])*H),n=Math.ceil(d/2);for(let j=1;j<n;j++)pts.push([pq[0]+(q[0]-pq[0])*j/n,pq[1]+(q[1]-pq[1])*j/n])}pts.push(q)});
+    const runs=[];let cur=[],cut=false;
+    for(const q of pts){if(segDist(q[0]*W,q[1]*H,ax,ay,bx,by)<=rr){cut=true;if(cur.length)runs.push(cur);cur=[]}else cur.push(q)}
+    if(cur.length)runs.push(cur);
+    if(!cut){out.push(k);continue}
+    hit=true;
+    for(const r of runs){if(r.length<2&&!(k.k&&r.length===1))continue;const nk={...k,pts:simplify(r)};out.push(nk)}
+  }
+  if(hit)st.strokes=out;return hit;
+}
+// 細かくした点を、まっすぐな所はまびく
+function simplify(pts){if(pts.length<3)return pts;const o=[pts[0]];for(let i=1;i<pts.length-1;i++){const a=o[o.length-1],b=pts[i],c=pts[i+1];
+  const cross=Math.abs((b[0]-a[0])*W*(c[1]-a[1])*H-(b[1]-a[1])*H*(c[0]-a[0])*W);if(cross>0.5*Math.hypot((c[0]-a[0])*W,(c[1]-a[1])*H)||Math.hypot((b[0]-a[0])*W,(b[1]-a[1])*H)>40)o.push(b)}o.push(pts[pts.length-1]);return o}
+// タップした所の図形・直線・輪っかを丸ごと消す
+function eraseTap(p){
+  for(let i=st.shapes.length-1;i>=0;i--){const sh=st.shapes[i];
+    if(sh.type==='ring'){if(Math.abs(Math.hypot(p.x-sh.u*W,p.y-sh.v*H)-sh.rh*H)<10*TR){st.shapes.splice(i,1);return true}continue}
+    if(inShape(sh,p.u,p.v,ar())){st.shapes.splice(i,1);return true}}
+  let bi=-1,bd=10*TR;st.lines.forEach((L,i)=>{const d=segDist(p.x,p.y,L.a.u*W,L.a.v*H,L.b.u*W,L.b.v*H);if(d<bd){bd=d;bi=i}});
+  if(bi>=0){st=resample(st,st.lines.filter((_,i)=>i!==bi));return true}
+  return false;
+}
+const inMulti=m=>multi.some(x=>x.t===m.t&&x.i===m.i);
+function toggleMulti(m){if(!m||(m.t!=='s'&&m.t!=='k'))return;if(sel&&(sel.t==='s'||sel.t==='k')&&!inMulti(sel)&&!(sel.t===m.t&&sel.i===m.i))multi.push(sel);sel=null;
+  if(inMulti(m))multi=multi.filter(x=>!(x.t===m.t&&x.i===m.i));else multi.push(m)}
+function clearMulti(){multi=[]}
+const sameObj=(a,b)=>!!(a&&b&&a.t===b.t&&a.i===b.i);
+cv.addEventListener('pointerdown',e=>{
+  const p=pos(e);cv.setPointerCapture(e.pointerId);TR=e.pointerType==='touch'?1.7:1;
+  if(mode==='erase'){pushHist();sel=null;multi=[];lastDup=null;erasing={p0:p,last:p,did:eraseAlong(p.x,p.y,p.x,p.y)};eraseCur=p;rafRender();return}
+  if(mode==='pen'){if((e.shiftKey||lineLink)&&lastPen){sel=null;penLine(p);return}pen=[[p.u,p.v]];sel=null;return}
+  if(mode==='move')cv.style.cursor='grabbing';
+  const cands=hitList(p);
+  const addMode=mode==='move'&&(e.shiftKey||multiOn);
+  // 複数えらび：Shift（または「複数えらび」オン）でタップした物を足したり外したり
+  if(addMode){const m=cands.length?selOf(cands.find(c=>c.t==='sm'||c.t==='km'||c.t==='ss')||cands[0]):null;
+    if(m&&(m.t==='s'||m.t==='k')&&!inMulti(m)&&!(sel&&sameObj(sel,m))){toggleMulti(m);down={p0:p,hit:null,cands:[],wasSel:false,box:false,added:true};render();return}
+    if(m&&(inMulti(m)||(sel&&sameObj(sel,m)))){down={p0:p,hit:{t:'mm'},cands:[],wasSel:false,toggle:m};if(sel&&(sel.t==='s'||sel.t==='k')){multi.push(sel);sel=null}render();return}
+    if(!m){down={p0:p,hit:null,cands:[],wasSel:false,box:true,keep:true};boxSel={x0:p.x,y0:p.y,x1:p.x,y1:p.y};return}}
+  // まとめて選んだものをつかんだら、まとめて動かす
+  if(multi.length){const m=cands.map(selOf).find(x=>x&&inMulti(x));
+    if(m){down={p0:p,hit:{t:'mm'},cands,wasSel:false};return}
+    if(mode==='move'){clearMulti()}}
+  // いま選んでいるものがここにあれば、それを優先（そのままドラッグできる）
+  let h=sel?cands.find(c=>sameObj(selOf(c),sel)):null;const wasSel=!!h;
+  if(!h)h=cands[0]||null;
+  down={p0:p,hit:h,cands,wasSel};
+  if(mode==='move'){sel=selOf(h);if(!h){down.box=true;boxSel={x0:p.x,y0:p.y,x1:p.x,y1:p.y}}render()}
+});
+// 選んでいるものをもう一回タップしたら、その下にあるものへ順番に切り替え
+function cycleSel(){
+  const objs=[];for(const c of down.cands){const o=selOf(c);if(!objs.some(x=>sameObj(x,o)))objs.push(o)}
+  if(objs.length<2)return;const k=objs.findIndex(o=>sameObj(o,sel));sel=objs[(k+1)%objs.length];render();
+}
+cv.addEventListener('pointermove',e=>{
+  const p=pos(e),a=ar();
+  if(mode==='erase'){eraseCur=p;
+    if(erasing){if(eraseAlong(erasing.last.x,erasing.last.y,p.x,p.y))erasing.did=true;erasing.last=p}
+    rafRender();return}
+  if(pen){const l=pen[pen.length-1];if(Math.hypot((p.u-l[0])*W,(p.v-l[1])*H)>2){pen.push([p.u,p.v]);ctx.save();ctx.strokeStyle=penW?PAL[color].c:INK;ctx.lineWidth=penW?penW*H:2.5;ctx.lineJoin='round';ctx.lineCap='round';ctx.beginPath();ctx.moveTo(l[0]*W,l[1]*H);ctx.lineTo(p.x,p.y);ctx.stroke();ctx.restore()}return}
+  if(!down)return;
+  if(down.box&&boxSel){boxSel.x1=p.x;boxSel.y1=p.y;render();return}
+  if(!drag){
+    if(down.hit&&Math.hypot(p.x-down.p0.x,p.y-down.p0.y)>5){pushHist();dragSnap=clone(st);drag=down.hit;
+      if(drag.t==='mm'){drag.M0=multi.map(m=>({m,a:clone(objOf(m))}));const bs=multi.map(boxOf);drag.G0={x0:Math.min(...bs.map(b=>b.x0)),y0:Math.min(...bs.map(b=>b.y0)),x1:Math.max(...bs.map(b=>b.x1)),y1:Math.max(...bs.map(b=>b.y1))}}
+      else{sel=selOf(drag);
+        if(drag.t==='rc'){const sh=st.shapes[drag.i],pts=rectCorners(sh,W,H).map(q=>[q[0]/W,q[1]/H]);st.shapes[drag.i]={type:'poly',pts,k:sh.k};drag={t:'pv',i:drag.i,vi:drag.vi}}
+        if(drag.t==='sr'&&st.shapes[drag.i].type==='poly'){const sh=st.shapes[drag.i],c=polyCenter(sh);drag={t:'pr',i:drag.i,c,a0:Math.atan2(down.p0.y-c[1],down.p0.x-c[0]),P0:clone(sh.pts)}}}}
+    else return;
+  }
+  if(drag.t==='mm'){
+    let du=p.u-down.p0.u,dv=p.v-down.p0.v;const a0=anchorOf(drag.M0[0].a),su=snapTo(FR,a0[0]+du,.012),sv=snapTo(FR,a0[1]+dv,.012);
+    if(su.t)du=su.v-a0[0];if(sv.t)dv=sv.v-a0[1];
+    let lab=`${multi.length}個いっしょに移動`;
+    if(snapOn&&drag.G0){const g=drag.G0,near=d=>d>-30*TR&&d<14*TR,x0=g.x0+du*W,x1=g.x1+du*W,y0=g.y0+dv*H,y1=g.y1+dv*H,l=[];
+      if(near(x0)){du-=x0/W;l.push('左はし')}else if(near(W-x1)){du+=(W-x1)/W;l.push('右はし')}
+      if(near(y0)){dv-=y0/H;l.push('上はし')}else if(near(H-y1)){dv+=(H-y1)/H;l.push('下はし')}
+      if(l.length)lab=l.join('・')+'にピタッ'}
+    for(const{m,a}of drag.M0){const o=objOf(m),b=clone(a);moveObj(b,du,dv);if(b.pts)o.pts=b.pts;else{o.u=b.u;o.v=b.v}}
+    snapLabel={x:p.x,y:p.y,text:lab};render();return}
+  if(drag.t==='pv'){
+    const sh=st.shapes[drag.i];let su=snapPx(FRE,p.u,W),sv=snapPx(FRE,p.v,H);
+    // 枠の角の近くなら、角にまとめて吸い付く
+    if(snapOn)for(const[cu,cv2]of[[0,0],[1,0],[0,1],[1,1]])if(Math.hypot((p.u-cu)*W,(p.v-cv2)*H)<22*TR){su={v:cu,t:'角'};sv={v:cv2,t:'角'}}
+    sh.pts[drag.vi]=[clamp(su.v,-.2,1.2),clamp(sv.v,-.2,1.2)];
+    snapLabel={x:p.x,y:p.y,text:su.t==='角'&&sv.t==='角'?'角にピタッ':`よこ ${edgeName(su,'u')}・たて ${edgeName(sv,'v')}`};render();return}
+  if(drag.t==='pr'){
+    const sh=st.shapes[drag.i];let d=Math.atan2(p.y-drag.c[1],p.x-drag.c[0])-drag.a0;const q=Math.round(d/(Math.PI/12))*(Math.PI/12);if(snapOn&&Math.abs(d-q)<0.06)d=q;
+    const c=Math.cos(d),s2=Math.sin(d);sh.pts=drag.P0.map(([u,v])=>{const x=u*W-drag.c[0],y=v*H-drag.c[1];return[(drag.c[0]+x*c-y*s2)/W,(drag.c[1]+x*s2+y*c)/H]});
+    snapLabel={x:p.x,y:p.y,text:degOf(d)+'°'};render();return}
+  if(drag.t==='sm'&&st.shapes[drag.i].type==='poly'){
+    const sh=st.shapes[drag.i];let du=p.u-drag.p0.u,dv=p.v-drag.p0.v;
+    // いちばん近い角を、枠のふちや目盛りに吸い付ける
+    let bu=null,bv=null;for(const q of drag.P0){const su=snapPx(FRE,q[0]+du,W),sv=snapPx(FRE,q[1]+dv,H);
+      if(su.t&&(!bu||Math.abs(su.v-q[0]-du)<Math.abs(bu)))bu=su.v-q[0]-du;if(sv.t&&(!bv||Math.abs(sv.v-q[1]-dv)<Math.abs(bv)))bv=sv.v-q[1]-dv}
+    if(bu!=null)du+=bu;if(bv!=null)dv+=bv;sh.pts=drag.P0.map(q=>[q[0]+du,q[1]+dv]);snapLabel=null;render();return}
+  if(drag.t==='le'){
+    const L=st.lines[drag.i],o=drag.end==='a'?L.b:L.a,r=toBoundary(p.u,p.v);
+    if(!sameEdge(r.q,o)&&Math.hypot((r.q.u-o.u)*W,(r.q.v-o.v)*H)>10)L[drag.end]=r.q;
+    snapLabel={x:p.x,y:p.y,text:r.lab==='角'?'角':`${EDGE[r.e]} ${r.lab||pct(r.f)}`};fillMissing(st,dragSnap);
+  }else if(drag.t==='lm'){
+    const L0=drag.L0,d=[L0.b.u-L0.a.u,L0.b.v-L0.a.v],P=[(L0.a.u+L0.b.u)/2+p.u-drag.p0.u,(L0.a.v+L0.b.v)/2+p.v-drag.p0.v];let lab=null;
+    if(isV(L0)){const s=snapTo(FR,P[0],.015);P[0]=s.v;lab=s.t||pct(P[0])}else if(isH(L0)){const s=snapTo(FR,P[1],.015);P[1]=s.v;lab=s.t||pct(P[1])}
+    const c=clipLine(P,d);if(c&&Math.hypot((c[0].u-c[1].u)*W,(c[0].v-c[1].v)*H)>10){st.lines[drag.i].a=c[0];st.lines[drag.i].b=c[1]}
+    snapLabel=lab?{x:p.x,y:p.y,text:lab}:null;fillMissing(st,dragSnap);
+  }else if(drag.t==='km'){
+    const du=p.u-drag.p0.u,dv=p.v-drag.p0.v;st.strokes[drag.i].pts=drag.K0.map(q=>[q[0]+du,q[1]+dv]);
+  }else if(drag.t==='sm'){
+    const sh=st.shapes[drag.i],nu=p.u-drag.du,nv=p.v-drag.dv,ss=shapeSnap(drag.i,nu,nv);
+    if(ss){sh.u=ss.u;sh.v=ss.v;snapLabel={x:p.x,y:p.y,text:ss.t}}
+    else{const su=snapTo(FR,nu,.015),sv=snapTo(FR,nv,.015);sh.u=clamp(su.v,-.2,1.2);sh.v=clamp(sv.v,-.2,1.2);snapLabel={x:p.x,y:p.y,text:`よこ ${su.t||pct(sh.u)}・たて ${sv.t||pct(sh.v)}`}}
+    const fs=frameSnap(sh);if(fs)snapLabel={x:p.x,y:p.y,text:fs};
+  }else if(drag.t==='ss'){
+    const sh=st.shapes[drag.i],raw=Math.hypot((p.u-sh.u)*a,p.v-sh.v),zs=sh.type==='part'?null:sizeSnap(drag.i,raw);
+    if(sh.type==='part'){sh.rh=clamp(raw,.03,2);const{hh}=partHalf(sh);snapLabel={x:p.x,y:p.y,text:`部品の高さ＝旗の高さの ${Math.round(hh*200)}%`}}else
+    if(zs){sh.rh=zs.rh;snapLabel={x:p.x,y:p.y,text:zs.t}}
+    else{const s=snapTo(FR,2*raw,.02);sh.rh=clamp(s.v,0.03,2)/2;snapLabel={x:p.x,y:p.y,text:`${sh.type==='star'?'星の幅':'直径'}＝高さの ${s.t||(Math.round(sh.rh*200)/100)}`}}
+  }else if(drag.t==='sr'){
+    const sh=st.shapes[drag.i],s=snapAng(Math.atan2(p.x-sh.u*W,-(p.y-sh.v*H)));sh.rot=s.v;snapLabel={x:p.x,y:p.y,text:s.t};
+  }else if(drag.t==='rw'||drag.t==='rh'){
+    // 反対側の辺は動かさず、引っぱった側だけ伸び縮み
+    const sh=st.shapes[drag.i];if(!drag.R0)drag.R0={u:sh.u,v:sh.v,hw:sh.hw,hh:sh.hh,rot:sh.rot||0};
+    const R0=drag.R0,sd=drag.side||1,[lx,ly]=local(R0,p.u,p.v,a),c=Math.cos(R0.rot),sn=Math.sin(R0.rot),flat=Math.abs(Math.sin(R0.rot))<1e-6&&Math.cos(R0.rot)>0;
+    let lab='';
+    if(drag.t==='rw'){
+      const fixed=-sd*R0.hw;let m=sd>0?Math.max(lx,fixed+.01):Math.min(lx,fixed-.01);let cl=(m+fixed)/2;
+      sh.hw=Math.abs(m-fixed)/2;sh.u=R0.u+cl*c/a;sh.v=R0.v+cl*sn;
+      if(flat){const eu=sh.u+sd*sh.hw/a,fu=sh.u-sd*sh.hw/a,sv=snapPx(FRE,eu,W);if(sv.t){sh.hw=Math.abs(sv.v-fu)*a/2;sh.u=(sv.v+fu)/2;lab=edgeName(sv,'u')+'にピタッ'}}
+      snapLabel={x:p.x,y:p.y,text:lab||`幅＝高さの ${Math.round(sh.hw*200)/100}`};
+    }else{
+      const fixed=-sd*R0.hh;let m=sd>0?Math.max(ly,fixed+.01):Math.min(ly,fixed-.01);let cl=(m+fixed)/2;
+      sh.hh=Math.abs(m-fixed)/2;sh.u=R0.u-cl*sn/a;sh.v=R0.v+cl*c;
+      if(flat){const ev=sh.v+sd*sh.hh,fv=sh.v-sd*sh.hh,sv=snapPx(FRE,ev,H);if(sv.t){sh.hh=Math.abs(sv.v-fv)/2;sh.v=(sv.v+fv)/2;lab=edgeName(sv,'v')+'にピタッ'}}
+      snapLabel={x:p.x,y:p.y,text:lab||`太さ＝高さの ${Math.round(sh.hh*200)/100}`};
+    }
+  }
+  render();
+});
+// Shiftクリック（または直線つなぎON）で、前の点から直線でつなぐ
+let lastPen=null,lineLink=false;
+function penLine(p){
+  pushHist();let q=[p.u,p.v];
+  let k=lastPen.i!=null?st.strokes[lastPen.i]:null;
+  if(k&&((k.w||null)!==penW||(penW&&k.k!==color)))k=null;
+  if(!penW){const s0=k?k.pts[0]:lastPen.end;
+    if(Math.hypot((q[0]-s0[0])*W,(q[1]-s0[1])*H)<18)q=s0.slice();else{const s=snapEnd(q,k?lastPen.i:-1);if(s)q=s}}
+  if(k)k.pts.push(q);
+  else{k={pts:[lastPen.end.slice(),q]};if(penW){k.w=penW;k.k=color}st.strokes.push(k);lastPen.i=st.strokes.length-1}
+  lastPen.end=q;render();
+}
+function up(){
+  if(erasing){const e0=erasing;erasing=null;
+    const moved=Math.hypot(e0.last.x-e0.p0.x,e0.last.y-e0.p0.y)>5;
+    if(!moved&&!e0.did){if(!eraseTap(e0.p0))hist.pop()}
+    else if(!e0.did)hist.pop();
+    prune(st);render();return}
+  if(pen){const pts=pen;pen=null;if(!penW&&pts.length<3){lastPen={i:null,end:pts[0]};render();return}
+    if(pts.length>=3||penW){pushHist();const k=penW?{pts}:finishStroke(pts);if(penW){k.w=penW;k.k=color}st.strokes.push(k);lastPen={i:st.strokes.length-1,end:k.pts[k.pts.length-1].slice()};sel={t:'k',i:st.strokes.length-1}}render();return}
+  if(down&&down.box&&boxSel){
+    const x0=Math.min(boxSel.x0,boxSel.x1),x1=Math.max(boxSel.x0,boxSel.x1),y0=Math.min(boxSel.y0,boxSel.y1),y1=Math.max(boxSel.y0,boxSel.y1);boxSel=null;
+    if(x1-x0>6||y1-y0>6){const got=[];st.shapes.forEach((sh,i)=>{const b=shapeBox(sh);if(b.x0>=x0&&b.y0>=y0&&b.x1<=x1&&b.y1<=y1)got.push({t:'s',i})});
+      st.strokes.forEach((k,i)=>{const b=strokeBox(k);if(b.x0>=x0&&b.y0>=y0&&b.x1<=x1&&b.y1<=y1)got.push({t:'k',i})});
+      if(!down.keep)multi=[];for(const g of got)if(!inMulti(g))multi.push(g);sel=null;if(multi.length===1){sel=multi[0];multi=[]}}
+    down=null;render();return}
+  if(drag){drag=null;snapLabel=null;prune(st);render()}
+  else if(down&&down.toggle){toggleMulti(down.toggle);render()}
+  else if(down&&mode==='fill')paint(down.p0);
+  else if(down&&mode==='move'&&down.wasSel)cycleSel();
+  down=null;
+}
+cv.addEventListener('pointerup',e=>{up(e);if(mode==='move')cv.style.cursor='grab'});
+cv.addEventListener('pointerleave',()=>{if(mode==='erase'&&!erasing){eraseCur=null;rafRender()}});
+cv.addEventListener('pointercancel',()=>{if(mode==='move')cv.style.cursor='grab';down=null;pen=null;boxSel=null;erasing=null;if(drag){drag=null;snapLabel=null;prune(st)}render()});
+
+// ---- tools ----
+// 塗りつぶしのときのカーソル：かたむけたバケツから、いまの色のインクがたれる（たれた先が塗る場所）
+function bucketCursor(k){const c=PAL[k].c,e=k==='w'?'#888':'#222';
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<g transform="rotate(-35 16 12)"><path d="M9 6h14l-2 14H11z" fill="#fff" stroke="#222" stroke-width="1.6" stroke-linejoin="round"/>
+<ellipse cx="16" cy="6" rx="7" ry="2.2" fill="${c}" stroke="#222" stroke-width="1.4"/><path d="M10 6q6-9 12 0" fill="none" stroke="#222" stroke-width="1.4"/></g>
+<path d="M9.5 7.5q-3 3-3 8v6" fill="none" stroke="${e}" stroke-width="3.8" stroke-linecap="round"/><path d="M9.5 7.5q-3 3-3 8v6" fill="none" stroke="${c}" stroke-width="2.2" stroke-linecap="round"/>
+<path d="M6.5 24c-1.6 2.2-2.4 3.4-2.4 4.4a2.4 2.4 0 0 0 4.8 0c0-1-.8-2.2-2.4-4.4z" fill="${c}" stroke="${e}" stroke-width="1"/></svg>`;
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}") 6 30, crosshair`}
+function penCursor(){const k=penW?color:'k',c=PAL[k].c,e=k==='w'?'#888':'#222';
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<path d="M8.5 23.5 L25 7 L29 11 L12.5 27.5 Z" fill="#ffd36b" stroke="#222" stroke-width="1.5" stroke-linejoin="round"/>
+<path d="M25 7 L27 5 a1.4 1.4 0 0 1 2 0 L31 7 a1.4 1.4 0 0 1 0 2 L29 11 Z" fill="#f29bb0" stroke="#222" stroke-width="1.5" stroke-linejoin="round"/>
+<path d="M8.5 23.5 L12.5 27.5 L3 31 Z" fill="#f3dcb4" stroke="#222" stroke-width="1.5" stroke-linejoin="round"/>
+<path d="M5 26 L7 28 L3 31 Z" fill="${c}" stroke="${e}" stroke-width="1"/></svg>`;
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}") 3 31, crosshair`}
+function updCursor(){if(mode==='fill')cv.style.cursor=bucketCursor(color);else if(mode==='pen')cv.style.cursor=penCursor();else if(mode==='move')cv.style.cursor='grab';else if(mode!=='erase')cv.style.cursor=''}
+function setMode(m){mode=m;$('#mMove').classList.toggle('on',m==='move');$('#mFill').classList.toggle('on',m==='fill');$('#mPen').classList.toggle('on',m==='pen');
+  $('#mErase').classList.toggle('on',m==='erase');$('#eraseRow').style.display=m==='erase'?'':'none';if(m!=='erase')eraseCur=null;cv.style.cursor=m==='erase'?'none':'';updCursor();render()}
+$('#mErase').onclick=()=>setMode('erase');
+const ewBtns=[...document.querySelectorAll('[data-ew]')];ewBtns.forEach(b=>b.onclick=()=>{eraseW=+b.dataset.ew;ewBtns.forEach(x=>x.classList.toggle('on',x===b));setMode('erase')});
+$('#mMove').onclick=()=>setMode('move');$('#mFill').onclick=()=>setMode('fill');$('#mPen').onclick=()=>setMode('pen');
+let penW=null;
+const pwBtns=[...document.querySelectorAll('[data-pw]')];
+function setPen(w){penW=w||null;pwBtns.forEach(b=>b.classList.toggle('on',(+b.dataset.pw||null)===penW));setMode('pen');updCursor()}
+pwBtns.forEach(b=>b.onclick=()=>setPen(+b.dataset.pw));
+$('#undo2').onclick=()=>$('#undo').click();
+$('#linkBtn').onclick=()=>{lineLink=!lineLink;$('#linkBtn').classList.toggle('on',lineLink);setMode('pen')};
+const palEl=$('#pal');
+function setColor(k){color=k;[...palEl.children].forEach(x=>x.classList.toggle('on',x.dataset.k===k));$('#colName').textContent=PAL[k].n;if(typeof cv!=='undefined')updCursor()}
+for(const k in PAL){const b=document.createElement('button');b.className='sw';b.style.background=PAL[k].c;b.title=PAL[k].n;b.dataset.k=k;b.onclick=()=>{setColor(k);
+  if(multi.length){pushHist();for(const m of multi){const o=objOf(m);if(m.t==='s'&&o.type!=='ring')o.k=k;else if(m.t==='k'&&o.k)o.k=k}render();return}
+  if(!(mode==='pen'&&penW))setMode('fill')};palEl.appendChild(b)}
+setColor(color);
+function addLine(t){
+  pushHist();let L;
+  if(t==='d'){L={a:{u:0,v:1},b:{u:1,v:0}};if(st.lines.some(x=>Math.abs(x.a.u)<EPS&&Math.abs(x.a.v-1)<EPS&&Math.abs(x.b.u-1)<EPS&&Math.abs(x.b.v)<EPS))L={a:{u:0,v:0},b:{u:1,v:1}}}
+  else{const vals=st.lines.filter(t==='v'?isV:isH).map(x=>t==='v'?x.a.u:x.a.v),pts=[0,...vals.sort((a,b)=>a-b),1];let bi=0;
+    for(let i=1;i<pts.length-1;i++)if(pts[i+1]-pts[i]>pts[bi+1]-pts[bi])bi=i;const m=(pts[bi]+pts[bi+1])/2;
+    L=t==='v'?{a:{u:m,v:0},b:{u:m,v:1}}:{a:{u:0,v:m},b:{u:1,v:m}}}
+  st=resample(st,[...st.lines,L]);sel={t:'l',i:st.lines.length-1};setMode('move');
+}
+$('#addV').onclick=()=>addLine('v');$('#addH').onclick=()=>addLine('h');$('#addD').onclick=()=>addLine('d');
+function stripeIcon(dir,n){let r='';const w=22,h=16;for(let i=0;i<n;i++){const f=i%2?'#bbb':'#333';r+=dir==='v'?`<rect x="${i*w/n}" y="0" width="${w/n}" height="${h}" fill="${f}"/>`:`<rect x="0" y="${i*h/n}" width="${w}" height="${h/n}" fill="${f}"/>`}return`<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${r}</svg>`}
+function eqSplit(dir,n){n=Math.round(n);if(!(n>=2&&n<=30))return;pushHist();const keep=st.lines.filter(x=>!(dir==='v'?isV(x):isH(x)));for(let i=1;i<n;i++){const m=i/n;keep.push(dir==='v'?{a:{u:m,v:0},b:{u:m,v:1}}:{a:{u:0,v:m},b:{u:1,v:m}})}st=resample(st,keep);sel=null;clearMulti();setMode('move')}
+for(const[dir,el]of[['v','#eqV'],['h','#eqH']]){
+  for(const n of[2,3,4]){const b=document.createElement('button');b.innerHTML=stripeIcon(dir,n)+n;b.title=(dir==='v'?'たて':'よこ')+n+'等分';b.onclick=()=>eqSplit(dir,n);$(el).appendChild(b)}
+  const inp=document.createElement('input');inp.type='number';inp.min=2;inp.max=30;inp.value=dir==='v'?5:13;inp.className='eqn';inp.title='5以上はここに数字';
+  const go=document.createElement('button');go.textContent='分ける';go.onclick=()=>eqSplit(dir,+inp.value);inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();eqSplit(dir,+inp.value)}};
+  $(el).append(inp,go)}
+function addShape(type){
+  if(type==='tri'){pushHist();st.shapes.push({type:'poly',pts:[[0,0],[.5,.5],[0,1]],k:color});sel={t:'s',i:st.shapes.length-1};clearMulti();setMode('move');return}
+  pushHist();const s={type,u:.5,v:.5,rot:0,k:type==='star'?'w':color};
+  if(type==='rect'){s.hw=.2;s.hh=.04}else s.rh=type==='star'?.12:.25;
+  st.shapes.push(s);sel={t:'s',i:st.shapes.length-1};setMode('move');
+}
+$('#addC').onclick=()=>addShape('circle');$('#addHf').onclick=()=>addShape('half');$('#addS').onclick=()=>addShape('star');
+$('#addB').onclick=()=>addShape('rect');$('#addR').onclick=()=>addShape('ring');$('#addT').onclick=()=>addShape('tri');
+const ICON={circle:'<circle cx="9" cy="9" r="7"/>',half:'<path d="M2 6h14a7 7 0 0 1-14 0z"/>',rect:'<rect x="2" y="4" width="14" height="10"/>',tri:'<path d="M3 2l13 7-13 7z"/>',
+  star:'<path d="M9 1.5l2.1 5.1 5.4.4-4.1 3.5 1.3 5.3L9 13 4.3 15.8l1.3-5.3L1.5 7l5.4-.4z"/>',ring:'<circle cx="9" cy="9" r="6" fill="none" stroke="#333" stroke-width="2.2"/>'};
+document.querySelectorAll('[data-ico]').forEach(b=>{b.innerHTML=`<svg width="18" height="18" viewBox="0 0 18 18" fill="#333">${ICON[b.dataset.ico]}</svg>`+b.innerHTML});
+$('#multiBtn').onclick=()=>{multiOn=!multiOn;$('#multiBtn').classList.toggle('on',multiOn);$('#multiBtn').textContent=(multiOn?'☑':'☐')+' 複数えらび';if(!multiOn&&!multi.length)render();setMode('move')};
+$('#dup').onclick=()=>{
+  const items=multi.length?multi.slice():(sel&&(sel.t==='s'||sel.t==='k')?[sel]:[]);if(!items.length)return;
+  const objs=items.map(objOf),a=ar();
+  // くり返し：前に複製したコピーを選んだまま、ずらしてから押したら、同じだけずらす
+  let du=null,dv=null;
+  if(lastDup&&lastDup.copies.length===objs.length&&objs.every(o=>lastDup.copies.includes(o))){
+    const i0=lastDup.copies.indexOf(objs[0]),c=anchorOf(objs[0]),s0=lastDup.src[i0];du=c[0]-s0[0];dv=c[1]-s0[1];
+    if(Math.hypot(du*W,dv*H)<2){du=null;dv=null}}
+  if(du==null){
+    if(objs.length===1&&objs[0].type==='rect'){const o=objs[0],off=3*o.hh,r=o.rot||0;du=(-Math.sin(r)*off)/a;dv=Math.cos(r)*off}
+    else{du=.04;dv=.04}}
+  pushHist();const src=objs.map(anchorOf),copies=[],nsel=[];
+  items.forEach((m,j)=>{const c=clone(objs[j]);moveObj(c,du,dv);if(m.t==='s'){st.shapes.push(c);nsel.push({t:'s',i:st.shapes.length-1})}else{st.strokes.push(c);nsel.push({t:'k',i:st.strokes.length-1})}copies.push(c)});
+  lastDup={src,copies};
+  if(nsel.length>1){multi=nsel;sel=null}else{multi=[];sel=nsel[0]}
+  render();
+};
+function delSel(){
+  if(multi.length){pushHist();const sh=multi.filter(m=>m.t==='s').map(m=>m.i).sort((a,b)=>b-a),ks=multi.filter(m=>m.t==='k').map(m=>m.i).sort((a,b)=>b-a);
+    sh.forEach(i=>st.shapes.splice(i,1));ks.forEach(i=>st.strokes.splice(i,1));multi=[];sel=null;lastDup=null;render();return}
+  if(!sel)return;pushHist();
+  if(sel.t==='s')st.shapes.splice(sel.i,1);else if(sel.t==='k')st.strokes.splice(sel.i,1);else st=resample(st,st.lines.filter((_,i)=>i!==sel.i));
+  sel=null;render();
+}
+$('#del').onclick=delSel;
+function reorder(dir){
+  if(multi.length)return;
+  if(!sel||(sel.t!=='s'&&sel.t!=='k'))return;const arr=sel.t==='s'?st.shapes:st.strokes,j=sel.i+dir;
+  if(j<0||j>=arr.length)return;pushHist();[arr[sel.i],arr[j]]=[arr[j],arr[sel.i]];sel={t:sel.t,i:j};render();
+}
+$('#fwd').onclick=()=>reorder(1);$('#bwd').onclick=()=>reorder(-1);
+$('#clear').onclick=()=>{pushHist();st=newState();sel=null;multi=[];lastDup=null;lastPen=null;render()};
+$('#undo').onclick=()=>{if(hist.length){st=JSON.parse(hist.pop());sel=null;multi=[];lastDup=null;lastPen=null;render()}};
+$('#snap').onclick=()=>{snapOn=!snapOn;$('#snap').classList.toggle('on',snapOn)};
+document.addEventListener('keydown',e=>{
+  if(e.target.matches&&e.target.matches('input'))return;
+  if(e.key==='Delete'||e.key==='Backspace'){if(sel||multi.length){e.preventDefault();delSel()}}
+  if(e.key==='Escape'){multi=[];sel=null;render()}
+  if((e.ctrlKey||e.metaKey)&&e.key==='z'){e.preventDefault();$('#undo').click()}
+});
+
+// ---- judge ----
+function grid(fn,N,M){const g=new Array(N*M);for(let j=0;j<M;j++)for(let i=0;i<N;i++)g[j*N+i]=fn((i+.5)/N,(j+.5)/M);return g}
+// 色ごとに「本物のその色の部分をどれだけ描けたか（再現率）」と「描いたその色がどれだけ正しい場所か（適合率）」を出し、
+// そのF値を色ごとに平均。本物にない色を塗った面積の分だけ減点。ちょっとのズレ（±2マス）と、同系色（半分点）は許す。
+function cmp(D,T,N,M){
+  const R=2,n=N*M,tset=[...new Set(T)];
+  const asg={};const assign=d=>{if(d in asg)return asg[d];return asg[d]=tset.includes(d)?d:(tset.find(t=>PAL[t].g===PAL[d].g)||null)};
+  const tC={},tH={},pC={},pH={};for(const t of tset){tC[t]=tH[t]=pC[t]=pH[t]=0}
+  let extra=0,sib=0;const exC={};
+  for(let j=0;j<M;j++)for(let i=0;i<N;i++){
+    const idx=j*N+i,t=T[idx],d=D[idx];
+    let bt=d===t?1:0;
+    if(bt<1)search1:for(let dj=-R;dj<=R;dj++){const jj=j+dj;if(jj<0||jj>=M)continue;for(let di=-R;di<=R;di++){const ii=i+di;if(ii<0||ii>=N)continue;const q=D[jj*N+ii];if(q===t){bt=1;break search1}if(PAL[q].g===PAL[t].g)bt=.5}}
+    tC[t]++;tH[t]+=bt;if(bt===.5)sib++;
+    const c=assign(d);if(c===null){extra++;exC[d]=(exC[d]||0)+1;continue}
+    const full=d===c?1:.5;let bd=t===c?full:0;
+    if(!bd)search2:for(let dj=-R;dj<=R;dj++){const jj=j+dj;if(jj<0||jj>=M)continue;for(let di=-R;di<=R;di++){const ii=i+di;if(ii<0||ii>=N)continue;if(T[jj*N+ii]===c){bd=full;break search2}}}
+    pC[c]++;pH[c]+=bd;
+  }
+  let f=0;const miss=[],per={};
+  for(const t of tset){const r=tH[t]/tC[t],p=pC[t]?pH[t]/pC[t]:0;f+=r+p?2*r*p/(r+p):0;per[t]={r,p,share:tC[t]/n};if(r<.3&&tC[t]/n>.01)miss.push(t)}
+  const extraCols=Object.entries(exC).filter(([,c])=>c/n>.02).map(([k])=>k);
+  // 色がまるごと抜けている（卦がない、など）は大きな間違いなので、1色につき2割引き
+  return{s:f/tset.length*(1-extra/n)*Math.pow(0.8,miss.length)*100,sib:sib/n,miss,per,extraCols};
+}
+// しま模様の読み取り：しまの向きに沿って、各位置でいちばん多い色を並べ、短い切れはしはまとめる
+function readBands(fn,dir,rows){
+  const N=150,K=24,seq=[],O=rows||Array.from({length:K},(_,j)=>(j+.5)/K);
+  for(let i=0;i<N;i++){const t=(i+.5)/N,cnt={};for(const o of O){const c=dir==='v'?fn(t,o):fn(o,t);cnt[c]=(cnt[c]||0)+1}
+    seq.push(Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0][0])}
+  let runs=[];for(const c of seq){const l=runs[runs.length-1];if(l&&l.k===c)l.n++;else runs.push({k:c,n:1})}
+  let changed=true;while(changed&&runs.length>1){changed=false;const i=runs.findIndex(r=>r.n<N*.04);if(i>=0){const nb=i===0?1:i===runs.length-1?i-1:(runs[i-1].n>=runs[i+1].n?i-1:i+1);runs[nb].n+=runs[i].n;runs.splice(i,1);changed=true;
+    const m=[];for(const r of runs){const l=m[m.length-1];if(l&&l.k===r.k)l.n+=r.n;else m.push({...r})}runs=m}}
+  return runs.map(r=>({k:r.k,w:r.n/N}));
+}
+// しま度：列（縦じまなら）ごとに、いちばん多い色がしめる割合の平均。1に近いほど、その向きのしまになっている
+function stripePurity(fn,dir){const N=60,K=40;let s=0;for(let i=0;i<N;i++){const t=(i+.5)/N,cnt={};let mx=0;
+  for(let j=0;j<K;j++){const o=(j+.5)/K,c=dir==='v'?fn(t,o):fn(o,t);cnt[c]=(cnt[c]||0)+1;if(cnt[c]>mx)mx=cnt[c]}s+=mx/K}return s/N}
+const fracName=w=>{const c=[[1/2,'半分'],[1/3,'3分の1'],[1/4,'4分の1'],[2/3,'3分の2'],[1/5,'5分の1'],[3/5,'5分の3'],[2/5,'5分の2'],[3/4,'4分の3']];let b=c[0];for(const x of c)if(Math.abs(x[0]-w)<Math.abs(b[0]-w))b=x;return Math.abs(b[0]-w)<.02?b[1]:Math.round(w*100)+'%'};
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+function judge(){
+  const a=ar(),N=120,M=Math.round(N/a),R=raster();
+  const fn=(u,v)=>KEYS[R.J[clamp(Math.floor(v*R.RH),0,R.RH-1)*R.RW+clamp(Math.floor(u*R.RW),0,R.RW-1)]];
+  const D=grid(fn,N,M),T=grid((u,v)=>flag.cls(u,v,a),N,M),r=cmp(D,T,N,M),s=r.s,hints=[];
+  const good=[],nm=k=>`「${PAL[k].n}」`,tcols=Object.keys(r.per);
+  const sV=cmp(grid((u,v)=>fn(u,1-v),N,M),T,N,M).s,sH=cmp(grid((u,v)=>fn(1-u,v),N,M),T,N,M).s;
+  const flipped=(sV>s+15&&sV>85)||(sH>s+15&&sH>85);
+  if(sV>s+15&&sV>85)hints.push('上下が逆かも！ひっくり返すとかなり合ってます。');
+  else if(sH>s+15&&sH>85)hints.push('左右が逆かも！');
+  let other=null;
+  for(const f of FLAGS){if(f===flag||f.name===flag.twin)continue;const fa=f.ratio[1]/f.ratio[0],sc=cmp(D,grid((u,v)=>f.cls(u,v,fa),N,M),N,M).s;if(sc>s&&sc>=85&&(!other||sc>other.sc))other={f,sc}}
+  if(other)hints.push(`それは「${other.f.name}」の国旗っぽい！（${Math.round(other.sc)}%一致）`);
+
+  // --- 色 ---
+  const used=new Set(D),allCols=tcols.every(t=>!r.miss.includes(t)&&r.per[t].r>.5);
+  if(allCols&&!r.extraCols.length)good.push(`使う色（${tcols.map(k=>PAL[k].n).join('・')}）はぜんぶ合ってる！`);
+  const great=tcols.filter(t=>r.per[t].r>.92&&r.per[t].p>.92&&r.per[t].share>.03);
+  if(great.length&&great.length<tcols.length)good.push(`${great.map(nm).join('と')}の部分はばっちり！`);
+  // 入れかわった色（黄のところがオレンジ、など）を見つける
+  const swapped={},extraUsed=new Set();
+  for(const t of r.miss){const cnt={};for(let q=0;q<T.length;q++)if(T[q]===t)cnt[D[q]]=(cnt[D[q]]||0)+1;const top=Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0];
+    if(top&&top[0]!==t&&top[1]>.5*Object.values(cnt).reduce((x,y)=>x+y,0)){swapped[t]=top[0];if(r.extraCols.includes(top[0]))extraUsed.add(top[0])}}
+  // 近い色（青と紺など、同じ仲間）で塗ったところを見つける
+  const sibOf={};
+  for(const t of tcols){const cnt={};let tot=0;for(let q=0;q<T.length;q++)if(T[q]===t){tot++;const d=D[q];if(d!==t&&PAL[d].g===PAL[t].g)cnt[d]=(cnt[d]||0)+1}
+    const top=Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0];if(top&&top[1]>.25*tot&&top[1]>.02*T.length){sibOf[t]=top[0];delete swapped[t];extraUsed.add(top[0])}}
+  const covered=new Set(Object.keys(sibOf));let structural=false;
+
+  // --- しま ---
+  if(flag.bands&&!flipped){
+    const tb=flag.bands,tot=tb.reduce((x,y)=>x+y[1],0),ub=readBands(fn,flag.dir,flag.bandRows),side=flag.dir==='v'?'旗ざお側（左）から':'上から',dn=flag.dir==='v'?'縦じま':'横じま';
+    const od=flag.dir==='v'?'h':'v',otherDir=readBands(fn,od);
+    // しまの向き：縦と横の「しま度」をくらべて、はっきりしているときだけ言い切る
+    const pS=stripePurity(fn,flag.dir),pO=stripePurity(fn,od),clearS=pS>=.75&&pS>=pO+.1&&ub.length>=2,clearO=pO>=.75&&pO>pS+.1&&otherDir.length>=2;
+    let dirOK=false;
+    if(clearS){good.push(`しまの向き（${dn}）は合ってる！`);dirOK=true}
+    else if(clearO){hints.push(`しまの向きが違います。この旗は${dn}。`);structural=true;
+      if(otherDir.map(x=>x.k).join()===tb.map(x=>x[0]).join())good.push(`色の並び（${tb.map(x=>PAL[x[0]].n).join('・')}）は合ってる！向きだけおしい！`)}
+    else if(ub.length>=2&&pS>=.6&&pS>=pO){good.push(`${dn}になっているところもある！`);dirOK=true}
+    const tseq=tb.map(x=>x[0]),useq=ub.map(x=>x.k);
+    if(!dirOK){}
+    else if(useq.length===tseq.length&&useq.every((k,i)=>k===tseq[i])){
+      good.push(`色の並び順は完ぺき！（${side}${tseq.map(k=>PAL[k].n).join('・')}）`);
+      const bad=[];tb.forEach(([k,w],i)=>{const tw=w/tot,uw=ub[i].w;if(Math.abs(uw-tw)>.07)bad.push(`${i+1}本目の${nm(k)}の帯が${uw>tw?'太すぎ':'細すぎ'}（本物は全体の${fracName(tw)}）`)});
+      if(bad.length){hints.push(...bad);tseq.forEach(k=>covered.add(k))}else good.push('帯の太さもいい感じ！');
+    }else if(ub.length>=2){
+      if(useq.length!==tseq.length&&new Set(useq).size<=tseq.length){hints.push(`帯の数が${useq.length}本になっています（本物は${tseq.length}本）。`);structural=true}
+      else if(useq.length===tseq.length&&[...useq].sort().join()===[...tseq].sort().join()){hints.push(`色の並び順がちがいます。本物は${side}${tseq.map(k=>PAL[k].n).join('・')}。`);structural=true}
+    }
+  }
+  if(flag.name==='カナダ'&&!st.lines.some(isV)&&!(flag.bands&&good.some(g=>g.startsWith('色の並び'))))hints.push('カナダは「赤・白・赤」の縦3つ。まん中の白が両はしの倍の幅です。');
+
+  // --- 丸 ---
+  const tc=flag.circle,dc=st.shapes.find(x=>x.type==='circle');
+  if(tc&&!dc&&!hasBounds())hints.push('丸を忘れてます。');
+  if(!tc&&dc&&!flag.stars&&!flag.curvy)hints.push('この旗に丸はありません。');
+  if(tc&&dc){
+    const posOK=Math.abs(dc.u-tc.u)<.025&&Math.abs(dc.v-tc.v)<.03,sizeOK=Math.abs(dc.rh-tc.rh)<.04;
+    if(posOK)good.push(tc.u<.49?'丸を旗ざお側に少し寄せたの、正解！':'丸の位置ぴったり！');
+    else if(tc.u<0.49&&Math.abs(dc.u-0.5)<0.02)hints.push('この旗の丸は真ん中じゃなくて、少し旗ざお側（左）に寄っています。');
+    else if(Math.abs(dc.v-tc.v)>=.03)hints.push(`丸が${dc.v<tc.v?'上':'下'}にずれています。丸の中心は上下のまん中。`);
+    else if(Math.abs(dc.u-tc.u)>=.025&&tc.u>.49)hints.push('丸の中心は、旗のまん中です。');
+    if(!posOK||!sizeOK)covered.add(flag.cls(tc.u,tc.v,a));
+    if(sizeOK)good.push('丸の大きさもちょうどいい！');
+    else if(dc.rh>tc.rh)hints.push(`丸がちょっと大きすぎ（本物の直径は縦の${fracName(tc.rh*2)}くらい）。`);
+    else hints.push(`丸がちょっと小さすぎ（本物の直径は縦の${fracName(tc.rh*2)}くらい）。`);
+  }
+  // --- 星 ---
+  if(flag.stars){const n=st.shapes.filter(x=>x.type==='star').length;
+    if(n===flag.stars)good.push(`星の数（${n}個）も正解！`);
+    else if(n===0)hints.push('星を忘れてます。');else hints.push(`星の数は${flag.stars}個（はしっこの2つは半分切れてます）。いまは${n}個。`)}
+  // --- 色のこまかいところ（しまや向きで言ったことは、くり返さない） ---
+  for(const t of r.miss){if(sibOf[t])continue;if(swapped[t])hints.push(`${nm(t)}のところが${nm(swapped[t])}になっています。`);else if(!structural&&!flipped)hints.push(`${nm(t)}の部分がほとんど描けていません。`)}
+  for(const k of r.extraCols)if(!extraUsed.has(k))hints.push(`この旗に${nm(k)}はありません。`);
+  if(!structural&&!flipped)for(const t of tcols){if(r.miss.includes(t)||great.includes(t)||covered.has(t)||r.per[t].share<.04)continue;
+    if(r.per[t].r<.75)hints.push(`${nm(t)}が足りないところがあります。`);
+    else if(r.per[t].p<.75)hints.push(`${nm(t)}が本物より広がりすぎ（はみ出し）。`)}
+  for(const t in sibOf)hints.push(`${nm(sibOf[t])}で塗ったところ、本物は${nm(t)}。近い色なので半分だけ点をあげてます。`);
+  if(!Object.keys(sibOf).length&&r.sib>0.1)hints.push('本物とちょっとだけ濃さのちがう色で塗ったところがあります。半分だけ点をあげてます。');
+  if(flag.name==='韓国'&&r.miss.includes('k'))hints.push('卦の棒は「四角」か、✏️の「太」ペンで描けます。');
+  // --- 国ごと ---
+  if(flag.name==='韓国'&&s<90)hints.push('四すみの卦は、左上が「☰（3本つながり）」、右下が「☷（3本ぜんぶ切れ）」、右上が「☵」、左下が「☲」。');
+  if(flag.name==='イギリス'&&s<95)hints.push('赤い斜めの線は、白い斜めの真ん中じゃなくて片側にずれています。旗ざお側の上は下寄り、反対側の上は上寄り…と風車みたいに回っています。');
+  if(flag.twin&&s>=90)hints.push(`ちなみに「${flag.twin}」の国旗も、ほぼ同じ見た目です。青の濃さがほんのちょっと違うだけ。`);
+  // --- なにかしらほめる ---
+  if(!good.length){
+    if(s>=40)good.push(pick(['雰囲気はつかめてる！','方向性は合ってる！','ところどころ本物っぽい！']));
+    else if(used.size>1||st.shapes.length||st.strokes.length||st.lines.length)good.push(pick(['チャレンジしたのがえらい！','描いてみたのが大事！次はもっと近づける！']));
+    else good.push('まっしろでも、出したのがえらい！');
+  }
+  if(s>=98)good.unshift(pick(['もう言うことなし！','本物と見分けがつかない！','大使館に飾れるレベル！']));
+  // 演出用の⭕：「ここが合ってる！」と指さす印。本物の旗を同じ色でつながった部分（帯・丸・十字など）に分け、
+  // 7割以上合っている部分のまん中（いちばん内側）に1つずつ。大きい部分から順に、ぜんぶで4つまで
+  const n=N*M,comp=new Int32Array(n).fill(-1),parts=[];
+  for(let k=0;k<n;k++){if(comp[k]>=0)continue;const id=parts.length,col=T[k],q=[k];comp[k]=id;let size=0,hit=0;const cells=[];
+    while(q.length){const c=q.pop();cells.push(c);size++;if(D[c]===col)hit++;const ci=c%N,cj=(c-ci)/N;
+      if(ci>0&&comp[c-1]<0&&T[c-1]===col){comp[c-1]=id;q.push(c-1)}if(ci<N-1&&comp[c+1]<0&&T[c+1]===col){comp[c+1]=id;q.push(c+1)}
+      if(cj>0&&comp[c-N]<0&&T[c-N]===col){comp[c-N]=id;q.push(c-N)}if(cj<M-1&&comp[c+N]<0&&T[c+N]===col){comp[c+N]=id;q.push(c+N)}}
+    parts.push({size,hit,cells})}
+  // 部分のふち（となりが別の部分か、旗のはし）からの距離。いちばん遠いところがその部分の「まん中」
+  const dist=new Int32Array(n).fill(-1),bq=[];
+  for(let k=0;k<n;k++){const ci=k%N,cj=(k-ci)/N;if(ci===0||cj===0||ci===N-1||cj===M-1||comp[k-1]!==comp[k]||comp[k+1]!==comp[k]||comp[k-N]!==comp[k]||comp[k+N]!==comp[k]){dist[k]=0;bq.push(k)}}
+  for(let h=0;h<bq.length;h++){const c=bq[h],ci=c%N,cj=(c-ci)/N;for(const nb of [ci>0?c-1:-1,ci<N-1?c+1:-1,cj>0?c-N:-1,cj<M-1?c+N:-1])if(nb>=0&&dist[nb]<0&&comp[nb]===comp[c]){dist[nb]=dist[c]+1;bq.push(nb)}}
+  const marks=parts.filter(pt=>pt.size/n>=.02&&pt.hit/pt.size>=.7).sort((x,y)=>y.size-x.size).slice(0,4).map(pt=>{
+    // いちばん内側に近い（8割以上の深さの）マスのうち、その部分の重心にいちばん近いところ（帯ならたての真ん中あたり）
+    let mx=0,su=0,sv=0;for(const c of pt.cells){if(dist[c]>mx)mx=dist[c];su+=c%N;sv+=Math.floor(c/N)}su/=pt.size;sv/=pt.size;
+    let best=-1,bd=1e9;for(const c of pt.cells){if(dist[c]<mx*.8)continue;const dd=((c%N)-su)**2+(Math.floor(c/N)-sv)**2;if(dd<bd){bd=dd;best=c}}
+    const ci=best%N,cj=(best-ci)/N;
+    return{u:(ci+.5)/N,v:(cj+.5)/M,r:(dist[best]+.5)/M}});  // r：その部分の内側の広さ（縦に対する割合）
+  return{s:Math.round(s),hints:hints.slice(0,6),good:good.slice(0,5),R,marks};
+}
+// 点数の一言（{name}は国名に置きかわる）
+const RANK_LINES={
+  98:['パーフェクト！','国旗職人！','完ぺき！','大使館の人が二度見しました！','国連本部の前に並べても、まぎれこめます！','旗ざおが喜んでいます！',
+      '本物が「そっちのほうが本物っぽい」と言っています','{name}の人に見せても気づかれません！','国旗検定、一発合格！','表彰式でそのまま揚げられます！',
+      '外務省からスカウトが来ました！','今すぐ風にはためかせたい出来！','国旗の神様がうなずいています'],
+  90:['おみごと！','ほぼ本物！','あと一歩で完ぺき！','遠目なら完全に本物！','サッカーの応援席なら誰も気づきません！','大使館の門番も通してくれそう！',
+      '{name}の人が「ほぼウチの旗」とうなずいています','旗ざおのてっぺんまで、あと数センチ！','万国旗に混ぜてもバレません！','国旗博士の一歩手前！','入国審査、顔パスです'],
+  75:['おしい！','いい線いってる！','だいたい合ってる！','雰囲気はほぼ{name}！','親戚の国くらいには似てます！','地図帳の小さい国旗なら合格！',
+      '運動会の万国旗にギリギリまぎれこめます','目を細めて見ると本物！','国境はなんとか越えられそう！','{name}まで、あと少しの旅！','パスポートは発行されそうです'],
+  50:['がんばった！','雰囲気は出てる！','もうひと息！','{name}のいとこ…くらいの旗です','入国審査で呼び止められそう','方向性は合ってる！',
+      '遠い親戚の国の旗くらいには似てます','旗ざおが首をかしげています','風の強い日なら、こう見えるかも','地図のどこかに、こんな国がありそう','半分くらいは{name}！'],
+  0:['別の旗になってるかも…','新しい国ができました','これはこれで味がある…','独立おめでとうございます！','国連に加盟申請しますか？','ラクダが逃げ出しました！',
+     '国歌もつくりましょう','地図に新しい国が誕生！','旗ざおが困っています','{name}の大使館から問い合わせが来ました','建国記念日は今日です','芸術点は満点です',
+     'これは…前衛芸術？','国境線から引き直しましょう','{name}の人が「どこの国？」と聞いています'],
+};
+function rankText(s){const k=s>=98?98:s>=90?90:s>=75?75:s>=50?50:0;return pick(RANK_LINES[k]).replace(/\{name\}/g,flag.name)}
+function showResult(r){
+  $('#rScore').innerHTML=`${r.s}<small>%</small>`;$('#rRank').textContent=r.rank||rankText(r.s);
+  let w=Math.min(280,(window.innerWidth-90)/2),h=w/ar();if(h>200){h=200;w=h*ar()}
+  rasterToCanvas($('#rA'),r.R,w,h);renderReal($('#rB'),flag,w,h);
+  $('#rGood').innerHTML=r.good.map(t=>`<li>${t}</li>`).join('');
+  $('#rHints').innerHTML=r.hints.map(t=>`<li>${t}</li>`).join('');
+  $('#rTip').innerHTML=flag.tip?`<b>📘 豆知識</b>　${flag.tip}`:'';$('#rTip').style.display=flag.tip?'':'none';
+  $('#next').textContent=qi<order.length-1?'次の問題へ':'結果を見る';
+  $('#res').classList.remove('hidden');
+}
+// ---- 設定（ヒント・おしまいの合図） ----
+const SET_KEY='kokki-oekaki-settings';
+let setting={hint:'none',end:'none',limitSec:60},draft=null;
+try{const s=JSON.parse(localStorage.getItem(SET_KEY)||'null');if(s&&typeof s==='object')Object.assign(setting,s)}catch(e){}
+if(!['none','peek','sample'].includes(setting.hint))setting.hint='none';  // 「だんだん晴れる」はv0.21で外した
+delete setting.peekSec;
+function saveSet(){try{localStorage.setItem(SET_KEY,JSON.stringify(setting))}catch(e){}}
+const HINT_NAME={none:'ヒントなし',peek:'ちら見せ',sample:'見本あり'};
+function modeText(s=setting){const h=HINT_NAME[s.hint];return `${h}／${s.end==='limit'?`1枚${s.limitSec}秒`:'時間制限なし'}`}
+function updSetupUI(){
+  document.querySelectorAll('#setup .chips').forEach(row=>{const k=row.dataset.k;row.querySelectorAll('button').forEach(b=>b.classList.toggle('on',String(draft[k])===b.dataset.v))});
+  $('#limitRow').classList.toggle('hidden',draft.end!=='limit');
+  $('#hintDesc').innerHTML={
+    none:'国名と縦横比だけで描く。記憶だけがたより。',
+    peek:'描いているとちゅうで👀を押すと、本物がちょっとだけ見える。押すたびに <b>1秒 → 0.5秒 → 0.25秒 → 0.125秒</b> と短くなって、4回でおしまい。見ているあいだは時計が止まる。',
+    sample:'絵の上の小窓に、ずっと本物が出ている。写して練習する用。小窓は押しているあいだ大きく見られる。'
+  }[draft.hint];
+  $('#endDesc').innerHTML=draft.end==='limit'?`1枚<b>${draft.limitSec}秒</b>。時間切れになったら、その時点の絵で答え合わせ。点数は一致率だけで、早さは関係ない。`:'自分で「こたえあわせ」を押すまで、ゆっくり描ける。';
+}
+document.querySelectorAll('#setup .chips').forEach(row=>row.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const k=row.dataset.k;draft[k]=k==='limitSec'?+b.dataset.v:b.dataset.v;updSetupUI()}));
+function openSetup(canClose){draft={...setting};$('#setClose').classList.toggle('hidden',!canClose);if(canClose)clkPause();updSetupUI();$('#setup').classList.remove('hidden')}
+$('#go').onclick=()=>{setting={...draft};saveSet();['#setup','#res','#sum'].forEach(s=>$(s).classList.add('hidden'));start()};
+$('#setClose').onclick=()=>{$('#setup').classList.add('hidden');if(!qDone&&!peekState)clkStart()};
+$('#setBtn').onclick=()=>openSetup(!!flag&&!qDone);
+
+// ---- りれき（答え合わせした絵を、新しいほうから100枚まで。このブラウザの中だけ） ----
+const HIST_KEY='kokki-oekaki-history',HIST_MAX=100;
+function loadHist(){try{const a=JSON.parse(localStorage.getItem(HIST_KEY)||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
+function saveHist(a){for(;;){try{localStorage.setItem(HIST_KEY,JSON.stringify(a));return}catch(e){if(!a.length)return;a.pop()}}}  // 入りきらなければ古いのから消す
+function addHist(r){
+  try{const c=document.createElement('canvas'),tw=160;rasterToCanvas(c,r.R,tw,Math.round(tw/ar()));
+    const a=loadHist();a.unshift({name:flag.name,s:r.s,t:Date.now(),img:c.toDataURL('image/png'),mode:modeText()});
+    saveHist(a.slice(0,HIST_MAX))}catch(e){}
+}
+const pad2=n=>String(n).padStart(2,'0');
+function fmtDate(t){const d=new Date(t);return `${d.getMonth()+1}/${d.getDate()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`}
+function openHist(){
+  const was=!!flag&&!qDone&&!peekState;if(was)clkPause();$('#hist').dataset.resume=was?'1':'';
+  const a=loadHist(),L=$('#hList');L.innerHTML='';$('#hClear').textContent='ぜんぶ消す';$('#hClear').style.display=a.length?'':'none';
+  if(!a.length){L.innerHTML='<div class="hempty">まだないよ。答え合わせをすると、ここに残る。</div>'}
+  const th=window.innerWidth<520?44:54;
+  for(const h of a){const f=FLAGS.find(x=>x.name===h.name);const r=f?f.ratio[1]/f.ratio[0]:1.5,w=Math.round(th*r);
+    const row=document.createElement('div');row.className='hrow';
+    const im=new Image();im.src=h.img;im.style.width=w+'px';im.style.height=th+'px';im.alt='自分の絵';
+    const vs=document.createElement('span');vs.className='vs';vs.textContent='▶';
+    row.append(im,vs);
+    if(f){const c=document.createElement('canvas');renderReal(c,f,w,th);row.appendChild(c)}
+    const info=document.createElement('div');info.className='hi';
+    info.innerHTML=`<div class="hn">${h.name}</div><div class="hd2">${fmtDate(h.t)}${h.mode?'　'+h.mode:''}</div>`;
+    const sc=document.createElement('div');sc.className='hs';sc.innerHTML=`${h.s}<small style="font-size:12px">%</small>`;
+    row.append(info,sc);L.appendChild(row)}
+  $('#hist').classList.remove('hidden');
+}
+function closeHist(){$('#hist').classList.add('hidden');if($('#hist').dataset.resume==='1'&&!qDone)clkStart()}
+$('#histBtn').onclick=openHist;$('#hClose').onclick=closeHist;
+$('#hClear').onclick=()=>{const b=$('#hClear');if(b.textContent!=='ほんとに消す？'){b.textContent='ほんとに消す？';return}saveHist([]);openHist()};
+
+// ---- 時計（ちら見せ中・設定中・答え合わせ中は止まる） ----
+const clock={acc:0,t0:0,run:false},nowMs=()=>performance.now();
+function clkReset(){clock.acc=0;clock.run=false}
+function clkStart(){if(!clock.run){clock.t0=nowMs();clock.run=true}}
+function clkPause(){if(clock.run){clock.acc+=nowMs()-clock.t0;clock.run=false}}
+function elapsed(){return(clock.acc+(clock.run?nowMs()-clock.t0:0))/1000}
+let tick=null,qDone=false,peekState=null,hintIdx=-1,hintImgs=null,ovShown=null;
+setInterval(onTick,200);
+function onTick(){
+  if(!flag||qDone)return;
+  if(peekState)return;
+  const e=elapsed();
+  if(setting.end==='limit'){const left=Math.max(0,setting.limitSec-e);showTimer(left);if(left<=0&&clock.run){timeUp();return}}
+}
+function showTimer(left){const s=Math.ceil(left),el=$('#timer');el.textContent=`⏱ ${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;el.classList.toggle('warn',s<=10)}
+
+// ---- ヒント画像（本物から作る：ガビガビ・白黒・8色） ----
+function buildHintImgs(){
+  const bw=300,bh=Math.max(40,Math.round(bw/ar())),base=document.createElement('canvas');renderReal(base,flag,bw,bh);
+  const PW=base.width,PH=base.height,src=base.getContext('2d').getImageData(0,0,PW,PH).data;
+  const lum=(r,g,b)=>Math.round(.299*r+.587*g+.114*b);
+  const mk=fn=>{const c=document.createElement('canvas');c.width=PW;c.height=PH;const x=c.getContext('2d'),im=x.createImageData(PW,PH),d=im.data;
+    for(let i=0;i<d.length;i+=4){const o=fn(src[i],src[i+1],src[i+2]);d[i]=o[0];d[i+1]=o[1];d[i+2]=o[2];d[i+3]=255}x.putImageData(im,0,0);return c};
+  const gray=mk((r,g,b)=>{const l=lum(r,g,b);return[l,l,l]});
+  // 8色：RGBそれぞれを「ある／ない」の2段階に（紺→青、オレンジ→黄 のようにズレる）
+  const eight=mk((r,g,b)=>[r>96?255:0,g>96?255:0,b>96?255:0]);
+  // ガビガビ：横14マスに平均して白黒
+  const bx=14,by=Math.max(4,Math.round(bx/ar())),coarse=document.createElement('canvas');coarse.width=bx;coarse.height=by;
+  const cx=coarse.getContext('2d'),ci=cx.createImageData(bx,by);
+  for(let j=0;j<by;j++)for(let i=0;i<bx;i++){let s=0,n=0;const x0=Math.floor(i*PW/bx),x1=Math.floor((i+1)*PW/bx),y0=Math.floor(j*PH/by),y1=Math.floor((j+1)*PH/by);
+    for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){const p=(y*PW+x)*4;s+=lum(src[p],src[p+1],src[p+2]);n++}
+    const l=n?Math.round(s/n):255,p=(j*bx+i)*4;ci.data[p]=ci.data[p+1]=ci.data[p+2]=l;ci.data[p+3]=255}
+  cx.putImageData(ci,0,0);
+  return{coarse,gray,eight,real:base};
+}
+function curHint(){if(hintImgs&&setting.hint==='sample')return{img:hintImgs.real,smooth:true};return null}
+function paintImg(c,h,w,hh){const x=setupCanvas(c,w,hh);if(!h){x.fillStyle='#e7e3da';x.fillRect(0,0,w,hh);x.fillStyle='#9a958a';x.font=`700 ${Math.round(hh*.55)}px system-ui`;x.textAlign='center';x.textBaseline='middle';x.fillText('？',w/2,hh/2);return}
+  x.imageSmoothingEnabled=h.smooth;x.drawImage(h.img,0,0,w,hh)}
+function drawThumb(){if(setting.hint!=='sample')return;const th=window.innerWidth<640?48:60;paintImg($('#hintCv'),curHint(),Math.round(th*ar()),th)}
+// 大きく見せる（ちら見せ／小窓を押しているあいだ）
+function showOverlay(h,label,hold){if(!h)return;ovShown={h,label,hold};redrawOverlay();$('#peek').classList.add('show')}
+function redrawOverlay(){paintImg($('#peekCv'),ovShown.h,W,H);$('#peekLbl').textContent=ovShown.label}
+function hideOverlay(){ovShown=null;$('#peek').classList.remove('show')}
+// ちら見せ：👀を押すたびに見える時間が半分になる（1 → 0.5 → 0.25 → 0.125秒、4回でおしまい）。見ているあいだは時計が止まる
+const PEEK_DUR=[1,.5,.25,.125];let peekUsed=0;
+const fmtSec=s=>`${s}秒`;
+function updEye(){const b=$('#eyeBtn');if(!b)return;
+  $('#eyeDots').innerHTML=PEEK_DUR.map((_,i)=>`<i class="${i<peekUsed?'used':''}"></i>`).join('');
+  b.classList.toggle('showing',!!peekState);
+  if(peekState){b.disabled=true;b.textContent='👀 見てる…'}
+  else if(peekUsed>=PEEK_DUR.length){b.disabled=true;b.textContent='👀 おしまい'}
+  else{b.disabled=!!qDone;b.textContent=`👀 ${fmtSec(PEEK_DUR[peekUsed])}`}}
+function doPeek(){
+  if(qDone||peekState||!hintImgs||peekUsed>=PEEK_DUR.length)return;
+  const d=PEEK_DUR[peekUsed++];clkPause();peekState={d};
+  if(pen)up();down=null;boxSel=null;erasing=null;if(drag){drag=null;snapLabel=null;prune(st)}
+  document.body.classList.add('peeking');updEye();
+  requestAnimationFrame(t0=>{if(peekState===null)return;showOverlay({img:hintImgs.real,smooth:true},'',false);
+    const loop=t=>{if(!peekState)return;if(t-t0>=d*1000-4)endPeek();else requestAnimationFrame(loop)};requestAnimationFrame(loop)});
+}
+function endPeek(){peekState=null;hideOverlay();document.body.classList.remove('peeking');if(!qDone)clkStart();updEye()}
+$('#eyeBtn').onclick=doPeek;
+$('#hintBox').addEventListener('pointerdown',e=>{e.preventDefault();if(peekState||qDone)return;const h=curHint();if(h)showOverlay(h,'（はなすと消える）',true)});
+window.addEventListener('pointerup',()=>{if(ovShown&&ovShown.hold)hideOverlay()});
+window.addEventListener('pointercancel',()=>{if(ovShown&&ovShown.hold)hideOverlay()});
+$('#hintBox').addEventListener('contextmenu',e=>e.preventDefault());
+
+function stopQ(){qDone=true;clkPause();peekState=null;hideOverlay();document.body.classList.remove('peeking');updEye()}
+function doJudge(isTimeUp){if(qDone)return;stopQ();const r=judge();r.rank=rankText(r.s);scores.push({name:flag.name,s:r.s});addHist(r);$('#rTimeUp').classList.toggle('hidden',!isTimeUp);playFx(r,isTimeUp,()=>showResult(r))}
+// 答え合わせの演出（ぜんぶで3秒くらい）：走査線が上からおりる → 合っているところに⭕ → ％がルーレット → 一言がポン。タップでとばせる
+const FX_SCAN=1500,FX_ROLL=1000,FX_HOLD=750;
+function playFx(r,isTimeUp,done){
+  const fx=$('#fx'),marks=$('#fxMarks'),line=$('#fxLine'),shade=$('#fxShade'),box=$('#fxBox'),num=$('#fxNum'),word=$('#fxWord'),tag=$('#fxTag');
+  let finished=false,raf=0;
+  const finish=()=>{if(finished)return;finished=true;cancelAnimationFrame(raf);fx.classList.remove('show');fx.onclick=null;document.body.classList.remove('judging');done()};
+  if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches){done();return}
+  marks.innerHTML='';box.classList.remove('show');word.classList.remove('show');word.textContent=r.rank;num.classList.remove('stop');
+  tag.textContent=isTimeUp?'⏰ 時間切れ！ スキャン中…':'スキャン中…';tag.classList.toggle('warn',!!isTimeUp);tag.style.display='';
+  line.style.display='';line.style.top='0px';shade.style.height='0px';
+  document.body.classList.add('judging');fx.classList.add('show');fx.onclick=finish;
+  const msz=m=>clamp(m.r*H*1.3,30,Math.min(90,H*.38)),todo=r.marks.slice().sort((a,b)=>a.v-b.v);let mi=0;
+  let t0=null,lastNum=0,shown=-1,stopped=false;
+  const step=t=>{
+    if(finished)return;if(t0===null)t0=t;const e=t-t0;
+    if(e<FX_SCAN){const y=H*e/FX_SCAN;line.style.top=y+'px';shade.style.height=y+'px';
+      while(mi<todo.length&&todo[mi].v*H<=y){const m=todo[mi++],el=document.createElement('div');el.className='fxMaru';
+        el.style.left=m.u*W+'px';el.style.top=m.v*H+'px';el.style.width=el.style.height=msz(m)+'px';marks.appendChild(el)}}
+    else{
+      if(line.style.display!=='none'){while(mi<todo.length){const m=todo[mi++],el=document.createElement('div');el.className='fxMaru';el.style.left=m.u*W+'px';el.style.top=m.v*H+'px';el.style.width=el.style.height=msz(m)+'px';marks.appendChild(el)}
+        line.style.display='none';shade.style.height=H+'px';tag.style.display='none';box.classList.add('show')}
+      const p=Math.min(1,(e-FX_SCAN)/FX_ROLL);
+      if(p<1){const gap=35+260*p*p;  // だんだんゆっくり
+        if(t-lastNum>=gap){lastNum=t;let v;do{v=Math.round(r.s+(Math.random()*2-1)*(8+60*(1-p)*(1-p)))}while(v===shown&&p<.95);v=clamp(v,0,100);shown=v;num.innerHTML=`${v}<small>%</small>`}}
+      else if(!stopped){stopped=true;num.innerHTML=`${r.s}<small>%</small>`;num.classList.add('stop');word.classList.add('show')}
+      if(e>=FX_SCAN+FX_ROLL+FX_HOLD){finish();return}
+    }
+    raf=requestAnimationFrame(step)};
+  num.innerHTML=`0<small>%</small>`;raf=requestAnimationFrame(step);
+}
+function timeUp(){
+  if(pen)up();  // 描きかけの線は確定してから
+  down=null;boxSel=null;erasing=null;if(drag){drag=null;snapLabel=null;prune(st)}render();
+  doJudge(true);
+}
+$('#judge').onclick=()=>doJudge(false);
+$('#skip').onclick=()=>{if(qDone)return;stopQ();scores.push({name:flag.name,s:0});nextQ()};
+$('#next').onclick=()=>{$('#res').classList.add('hidden');nextQ()};
+$('#again').onclick=()=>{$('#sum').classList.add('hidden');openSetup(false)};
+
+// ---- flow ----
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function loadQ(){
+  flag=order[qi];st=newState();hist=[];sel=null;rcache=null;lastPen=null;multi=[];lastDup=null;boxSel=null;
+  $('#qname').textContent=flag.name;$('#qratio').textContent=`たて：よこ ＝ ${flag.ratio[0]}：${flag.ratio[1]}`;
+  $('#prog').textContent=`第${qi+1}問 / ${order.length}`;setPen(0);  // さいしょはペンの細（仕切り線）
+  $('#fx').classList.remove('show');document.body.classList.remove('judging');
+  qDone=false;peekState=null;peekUsed=0;hintIdx=-1;clkReset();hideOverlay();document.body.classList.remove('peeking');
+  const useBox=setting.hint==='sample',useEye=setting.hint==='peek',useTimer=setting.end==='limit';
+  $('#stageTop').classList.toggle('hidden',!(useBox||useEye||useTimer));$('#hintBox').classList.toggle('hidden',!useBox);$('#eyeBox').classList.toggle('hidden',!useEye);$('#timer').classList.toggle('hidden',!useTimer);
+  hintImgs=setting.hint==='none'?null:buildHintImgs();
+  if(useTimer)showTimer(setting.limitSec);
+  if(setting.hint==='sample')$('#hintLbl').innerHTML='<b>見本</b><br>押すと大きく';
+  updEye();
+  fit();
+  clkStart();
+}
+function nextQ(){qi++;if(qi>=order.length)showSummary();else loadQ()}
+function showSummary(){
+  const avg=Math.round(scores.reduce((a,b)=>a+b.s,0)/scores.length);
+  $('#sAvg').innerHTML=`${avg}<small>% 平均</small>`;$('#sMode').textContent=modeText();
+  $('#sTable').innerHTML=scores.map(x=>`<tr><td>${x.name}</td><td>${x.s}%</td></tr>`).join('');
+  $('#sum').classList.remove('hidden');
+}
+function start(){order=shuffle([...FLAGS]);qi=0;scores=[];loadQ()}
+window.addEventListener('resize',()=>{if(flag)fit()});
+openSetup(false);
+</script>
+</body>
+</html>
