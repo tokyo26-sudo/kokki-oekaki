@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>国旗お絵かき v0.31</title>
+<title>国旗お絵かき v0.32</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPHJlY3QgeD0iNSIgeT0iNCIgd2lkdGg9IjQuNSIgaGVpZ2h0PSI1NyIgcng9IjIuMiIgZmlsbD0iIzZiNWE0NSIvPgogIDxwYXRoIGQ9Ik05LjUgN2g1MHYzNmgtNTB6IiBmaWxsPSIjZmZmIiBzdHJva2U9IiMyMjIiIHN0cm9rZS13aWR0aD0iMi44IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCAzLjc1KSByb3RhdGUoNDUgMzQuNSAyMS4yNSkiPgogICAgPHJlY3QgeD0iMzAuNSIgeT0iOCIgd2lkdGg9IjgiIGhlaWdodD0iMjIiIHJ4PSIxLjIiIGZpbGw9IiNmZmM4M2QiIHN0cm9rZT0iIzIyMiIgc3Ryb2tlLXdpZHRoPSIyLjIiLz4KICAgIDxwYXRoIGQ9Ik0zMC41IDMwaDhsLTQgOC41eiIgZmlsbD0iI2YzZDliMSIgc3Ryb2tlPSIjMjIyIiBzdHJva2Utd2lkdGg9IjIuMiIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgogICAgPHBhdGggZD0iTTMzLjEgMzUuNmgyLjhMMzQuNSAzOC41eiIgZmlsbD0iIzIyMiIvPgogICAgPHJlY3QgeD0iMzAuNSIgeT0iNCIgd2lkdGg9IjgiIGhlaWdodD0iNSIgcng9IjEuMiIgZmlsbD0iI2YwOGFhNiIgc3Ryb2tlPSIjMjIyIiBzdHJva2Utd2lkdGg9IjIuMiIvPgogIDwvZz4KPC9zdmc+">
 <style>
 :root{--bg:#f4f1ea;--panel:#fff;--ink:#222;--sub:#777;--line:#ddd;--accent:#e0457b}
@@ -219,7 +219,7 @@ table.sum td:last-child{text-align:right;font-weight:700}
 </head>
 <body>
 <div class="wrap">
-  <header><h1>国旗お絵かき v0.31</h1><div class="hd"><div id="prog"></div><button id="histBtn" class="mini">📜 りれき</button><button id="setBtn" class="mini">⚙ 設定</button></div></header>
+  <header><h1>国旗お絵かき v0.32</h1><div class="hd"><div id="prog"></div><button id="histBtn" class="mini">📜 りれき</button><button id="setBtn" class="mini">⚙ 設定</button></div></header>
   <div class="main"><div class="left">
   <div class="q"><div class="qname" id="qname"></div><div class="qratio" id="qratio"></div></div>
   <div class="stage" id="stage">
@@ -356,7 +356,7 @@ table.sum td:last-child{text-align:right;font-weight:700}
   <div class="tdata" id="tData">国旗データを読みこみ中…</div>
   <div class="tlinks"><button id="tSet" class="mini">⚙ あそびかた設定</button><button id="tHist" class="mini">📜 りれき</button></div>
   <div class="tmode" id="tMode"></div>
-  <div class="tver">v0.31</div>
+  <div class="tver">v0.32</div>
 </div></div>
 
 <div class="modal hidden" id="freeM"><div class="card setup">
@@ -581,12 +581,14 @@ function raster(){
   const RW=W,RH=H,n=RW*RH,a=ar(),id=new Int32Array(n),base=new Uint8Array(n);
   const sh=[];st.shapes.forEach((x,i)=>{if(x.type!=='ring')sh.push({x,i,pts:x.type==='star'?starPts(x.u*a,x.v,x.rh,x.rot||0):null})});
   const L=st.lines,kc=new Map();
-  for(let j=0;j<RH;j++){const v=(j+.5)/RH;for(let i=0;i<RW;i++){const u=(i+.5)/RW,p=j*RW+i;let I=-1,col;
-    for(let q=sh.length-1;q>=0;q--){const o=sh[q];if(o.x.type==='part'){const kk=partKey(o.x,u,v,a);if(kk>=0){I=1e6+o.i;col=KEYS[kk];break}continue}
+  // 部品は部屋の仕切りにしない（下の帯はつながったまま）。部品の色は最後に上からかぶせる
+  const pov=new Uint8Array(n).fill(255);
+  for(let j=0;j<RH;j++){const v=(j+.5)/RH;for(let i=0;i<RW;i++){const u=(i+.5)/RW,p=j*RW+i;let I=-1,col,pc=-1;
+    for(let q=sh.length-1;q>=0;q--){const o=sh[q];if(o.x.type==='part'){if(pc<0){const kk=partKey(o.x,u,v,a);if(kk>=0)pc=KIDX[KEYS[kk]]}continue}
       if(o.pts?inPoly(u*a,v,o.pts):inShape(o.x,u,v,a)){I=1e6+o.i;col=o.x.k;break}}
     if(I<0){let bits=0;for(let t=0;t<L.length;t++)if(side(L[t],u,v)>=0)bits|=1<<t;I=bits;col=kc.get(bits);
       if(col===undefined){let k='';for(let t=0;t<L.length;t++)k+=(bits>>t)&1?'+':'-';col=st.colors[k]||'x';kc.set(bits,col)}}
-    id[p]=I;base[p]=KIDX[col]}}
+    id[p]=I;base[p]=KIDX[col];if(pc>=0)pov[p]=pc}}
   const mc=document.createElement('canvas');mc.width=RW;mc.height=RH;const mx=mc.getContext('2d',{willReadFrequently:true});
   mx.strokeStyle='#000';mx.lineCap='round';mx.lineJoin='round';
   const bnds=[],grab=()=>{const d=mx.getImageData(0,0,RW,RH).data,px=[];for(let p=0;p<n;p++)if(d[p*4+3]>60)px.push(p);mx.clearRect(0,0,RW,RH);return px};
@@ -597,7 +599,7 @@ function raster(){
   const K=base.slice(),filled=new Uint8Array(n);
   for(const f of st.fills){const s=seedPix(f.u,f.v,mask,RW,RH);if(s<0)continue;const reg=flood(s,id,mask,RW,RH,true),ki=KIDX[f.k];for(let p=0;p<n;p++)if(reg[p]){K[p]=ki;filled[p]=1}}
   // 答え合わせ用：となりを塗った線＝仕切り（消して周りの色で埋める）、塗ってない線＝黒インク（残す）
-  const J=K.slice(),hole=new Uint8Array(n),inkI=KIDX.k;
+  const J=K.slice(),hole=new Uint8Array(n),inkI=KIDX.k;for(let p=0;p<n;p++)if(pov[p]!==255)J[p]=pov[p];
   const isInk=bnds.map((b,i)=>{if(bcol[i]>=0)return true;for(const p of b){const x=p%RW;if((x>0&&filled[p-1])||(x<RW-1&&filled[p+1])||(p>=RW&&filled[p-RW])||(p<n-RW&&filled[p+RW]))return false}return true});
   bnds.forEach((b,i)=>{if(!isInk[i])for(const p of b)hole[p]=1});
   bnds.forEach((b,i)=>{if(isInk[i]){const c=bcol[i]>=0?bcol[i]:inkI;for(const p of b){hole[p]=0;J[p]=c}}});
