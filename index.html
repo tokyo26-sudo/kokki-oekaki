@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>国旗お絵かき v0.30</title>
+<title>国旗お絵かき v0.31</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPHJlY3QgeD0iNSIgeT0iNCIgd2lkdGg9IjQuNSIgaGVpZ2h0PSI1NyIgcng9IjIuMiIgZmlsbD0iIzZiNWE0NSIvPgogIDxwYXRoIGQ9Ik05LjUgN2g1MHYzNmgtNTB6IiBmaWxsPSIjZmZmIiBzdHJva2U9IiMyMjIiIHN0cm9rZS13aWR0aD0iMi44IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCAzLjc1KSByb3RhdGUoNDUgMzQuNSAyMS4yNSkiPgogICAgPHJlY3QgeD0iMzAuNSIgeT0iOCIgd2lkdGg9IjgiIGhlaWdodD0iMjIiIHJ4PSIxLjIiIGZpbGw9IiNmZmM4M2QiIHN0cm9rZT0iIzIyMiIgc3Ryb2tlLXdpZHRoPSIyLjIiLz4KICAgIDxwYXRoIGQ9Ik0zMC41IDMwaDhsLTQgOC41eiIgZmlsbD0iI2YzZDliMSIgc3Ryb2tlPSIjMjIyIiBzdHJva2Utd2lkdGg9IjIuMiIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgogICAgPHBhdGggZD0iTTMzLjEgMzUuNmgyLjhMMzQuNSAzOC41eiIgZmlsbD0iIzIyMiIvPgogICAgPHJlY3QgeD0iMzAuNSIgeT0iNCIgd2lkdGg9IjgiIGhlaWdodD0iNSIgcng9IjEuMiIgZmlsbD0iI2YwOGFhNiIgc3Ryb2tlPSIjMjIyIiBzdHJva2Utd2lkdGg9IjIuMiIvPgogIDwvZz4KPC9zdmc+">
 <style>
 :root{--bg:#f4f1ea;--panel:#fff;--ink:#222;--sub:#777;--line:#ddd;--accent:#e0457b}
@@ -219,7 +219,7 @@ table.sum td:last-child{text-align:right;font-weight:700}
 </head>
 <body>
 <div class="wrap">
-  <header><h1>国旗お絵かき v0.30</h1><div class="hd"><div id="prog"></div><button id="histBtn" class="mini">📜 りれき</button><button id="setBtn" class="mini">⚙ 設定</button></div></header>
+  <header><h1>国旗お絵かき v0.31</h1><div class="hd"><div id="prog"></div><button id="histBtn" class="mini">📜 りれき</button><button id="setBtn" class="mini">⚙ 設定</button></div></header>
   <div class="main"><div class="left">
   <div class="q"><div class="qname" id="qname"></div><div class="qratio" id="qratio"></div></div>
   <div class="stage" id="stage">
@@ -356,7 +356,7 @@ table.sum td:last-child{text-align:right;font-weight:700}
   <div class="tdata" id="tData">国旗データを読みこみ中…</div>
   <div class="tlinks"><button id="tSet" class="mini">⚙ あそびかた設定</button><button id="tHist" class="mini">📜 りれき</button></div>
   <div class="tmode" id="tMode"></div>
-  <div class="tver">v0.30</div>
+  <div class="tver">v0.31</div>
 </div></div>
 
 <div class="modal hidden" id="freeM"><div class="card setup">
@@ -772,7 +772,9 @@ function renderReal(c,f,w,h){
 }
 function render(){
   ctx.clearRect(0,0,W,H);drawModel(ctx,st,W,H);
-  if(st.fills.length&&hasBounds())ctx.drawImage(raster().overlay,0,0,W,H);
+  if(st.fills.length&&hasBounds()){ctx.drawImage(raster().overlay,0,0,W,H);
+    // 塗りの層は部品の上にかぶせない：いちばん下の部品から上にある形を、もう一度上に描く（細い葉っぱなどが白くあせないように）
+    const k=st.shapes.findIndex(x=>x.type==='part');if(k>=0)for(const sh of st.shapes.slice(k)){if(sh.type==='ring')continue;if(sh.type==='part'){drawPart(ctx,sh,W,H);continue}ctx.fillStyle=PAL[sh.k].c;ctx.beginPath();shapePath(ctx,sh,W,H);ctx.fill()}}
   drawBounds();
   ctx.save();const showHandle=mode!=='pen';
   st.lines.forEach((L,i)=>{
