@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>国旗お絵かき v0.29</title>
+<title>国旗お絵かき v0.30</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPHJlY3QgeD0iNSIgeT0iNCIgd2lkdGg9IjQuNSIgaGVpZ2h0PSI1NyIgcng9IjIuMiIgZmlsbD0iIzZiNWE0NSIvPgogIDxwYXRoIGQ9Ik05LjUgN2g1MHYzNmgtNTB6IiBmaWxsPSIjZmZmIiBzdHJva2U9IiMyMjIiIHN0cm9rZS13aWR0aD0iMi44IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCAzLjc1KSByb3RhdGUoNDUgMzQuNSAyMS4yNSkiPgogICAgPHJlY3QgeD0iMzAuNSIgeT0iOCIgd2lkdGg9IjgiIGhlaWdodD0iMjIiIHJ4PSIxLjIiIGZpbGw9IiNmZmM4M2QiIHN0cm9rZT0iIzIyMiIgc3Ryb2tlLXdpZHRoPSIyLjIiLz4KICAgIDxwYXRoIGQ9Ik0zMC41IDMwaDhsLTQgOC41eiIgZmlsbD0iI2YzZDliMSIgc3Ryb2tlPSIjMjIyIiBzdHJva2Utd2lkdGg9IjIuMiIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgogICAgPHBhdGggZD0iTTMzLjEgMzUuNmgyLjhMMzQuNSAzOC41eiIgZmlsbD0iIzIyMiIvPgogICAgPHJlY3QgeD0iMzAuNSIgeT0iNCIgd2lkdGg9IjgiIGhlaWdodD0iNSIgcng9IjEuMiIgZmlsbD0iI2YwOGFhNiIgc3Ryb2tlPSIjMjIyIiBzdHJva2Utd2lkdGg9IjIuMiIvPgogIDwvZz4KPC9zdmc+">
 <style>
 :root{--bg:#f4f1ea;--panel:#fff;--ink:#222;--sub:#777;--line:#ddd;--accent:#e0457b}
@@ -219,7 +219,7 @@ table.sum td:last-child{text-align:right;font-weight:700}
 </head>
 <body>
 <div class="wrap">
-  <header><h1>国旗お絵かき v0.29</h1><div class="hd"><div id="prog"></div><button id="histBtn" class="mini">📜 りれき</button><button id="setBtn" class="mini">⚙ 設定</button></div></header>
+  <header><h1>国旗お絵かき v0.30</h1><div class="hd"><div id="prog"></div><button id="histBtn" class="mini">📜 りれき</button><button id="setBtn" class="mini">⚙ 設定</button></div></header>
   <div class="main"><div class="left">
   <div class="q"><div class="qname" id="qname"></div><div class="qratio" id="qratio"></div></div>
   <div class="stage" id="stage">
@@ -356,7 +356,7 @@ table.sum td:last-child{text-align:right;font-weight:700}
   <div class="tdata" id="tData">国旗データを読みこみ中…</div>
   <div class="tlinks"><button id="tSet" class="mini">⚙ あそびかた設定</button><button id="tHist" class="mini">📜 りれき</button></div>
   <div class="tmode" id="tMode"></div>
-  <div class="tver">v0.29</div>
+  <div class="tver">v0.30</div>
 </div></div>
 
 <div class="modal hidden" id="freeM"><div class="card setup">
@@ -653,17 +653,21 @@ function partSvg(p){  // 幅と高さを書きこんでおく（ブラウザに�
   const m=p.svg.match(/viewBox="\s*([-\d.eE]+)[\s,]+([-\d.eE]+)[\s,]+([\d.eE]+)[\s,]+([\d.eE]+)/);const vw=m?+m[3]:100,vh=m?+m[4]:100;
   let svg=p.svg;if(!/<svg[^>]*\swidth=/.test(svg.slice(0,svg.indexOf('>')+1)))svg=svg.replace('<svg',`<svg width="${vw}" height="${vh}"`);
   return{url:'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg),asp:vw/vh}}
+// 色の当てはめ（本物の旗と部品で同じやり方）：その国の色の対応（colorMap）に近ければそれ、なければパレットでいちばん近い色
+function makeMapper(colorMap){const cm=Object.entries(colorMap||{}).map(([hx,k])=>[hex2rgb(hx),k]).filter(([,k])=>KIDX[k]!==undefined),memo=new Map();
+  return(r,g,b)=>{const key=(r>>3)<<10|(g>>3)<<5|(b>>3);let k=memo.get(key);if(k!==undefined)return k;
+    let bi=-1,bd=60*60*3;for(const[c3,kk]of cm){const dd=(c3[0]-r)**2+(c3[1]-g)**2+(c3[2]-b)**2;if(dd<bd){bd=dd;bi=KIDX[kk]}}
+    k=bi>=0?bi:nearestKey(r,g,b);memo.set(key,k);return k}}
 function loadPart(p){
   if(PIMG[p.id])return Promise.resolve(PIMG[p.id]);
   return new Promise((res,rej)=>{const{url,asp}=partSvg(p),img=new Image();
     img.onload=()=>{const S=512,KW=Math.max(8,Math.round(asp>=1?S:S*asp)),KH=Math.max(8,Math.round(asp>=1?S/asp:S));
       const c=document.createElement('canvas');c.width=KW;c.height=KH;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(img,0,0,KW,KH);
-      const id=x.getImageData(0,0,KW,KH),d=id.data,keys=new Uint8Array(KW*KH),memo=new Map();let bx0=KW,by0=KH,bx1=-1,by1=-1;
-      for(let q=0;q<KW*KH;q++){if(d[q*4+3]<128){keys[q]=255}else{const key=(d[q*4]>>3)<<10|(d[q*4+1]>>3)<<5|(d[q*4+2]>>3);
-          let k=memo.get(key);if(k===undefined){k=nearestKey(d[q*4],d[q*4+1],d[q*4+2]);memo.set(key,k)}keys[q]=k;
+      const id=x.getImageData(0,0,KW,KH),d=id.data,keys=new Uint8Array(KW*KH),pf=PDATA.find(f=>f.code===p.code),mp=makeMapper(pf&&pf.colorMap);let bx0=KW,by0=KH,bx1=-1,by1=-1;
+      for(let q=0;q<KW*KH;q++){if(d[q*4+3]<128){keys[q]=255}else{const k=mp(d[q*4],d[q*4+1],d[q*4+2]);keys[q]=k;
           const i=q%KW,j=(q-i)/KW;if(i<bx0)bx0=i;if(i>bx1)bx1=i;if(j<by0)by0=j;if(j>by1)by1=j}
         // 見た目もパレットの色に（ふちのなめらかさは元の透明度をそのまま使う）
-        if(d[q*4+3]>8){let k=keys[q];if(k===255){const key=(d[q*4]>>3)<<10|(d[q*4+1]>>3)<<5|(d[q*4+2]>>3);k=memo.get(key);if(k===undefined){k=nearestKey(d[q*4],d[q*4+1],d[q*4+2]);memo.set(key,k)}}
+        if(d[q*4+3]>8){let k=keys[q];if(k===255)k=mp(d[q*4],d[q*4+1],d[q*4+2]);
           const c3=PRGB[k];d[q*4]=c3[0];d[q*4+1]=c3[1];d[q*4+2]=c3[2]}}
       x.putImageData(id,0,0);
       PIMG[p.id]={img:c,KW,KH,keys,asp,box:bx1<0?null:{x0:bx0,y0:by0,x1:bx1+1,y1:by1+1}};res(PIMG[p.id])};
@@ -1265,12 +1269,21 @@ function partScoreOf(D,T,N,M){const n=N*M,comp=new Int32Array(n).fill(-1),parts=
       bh+=Math.max(0,Math.min(1,1-(best-1)/K))}
     const iou=hit/(pt.cells.length+ex),bf=be?bh/be:1,psc=be>8?.65*iou+.35*bf:iou,w=Math.sqrt(pt.cells.length/n);sw+=w;ss+=w*psc}
   return sw?100*ss/sw:0}
+// 正しい部品を置いたときは、本物の旗でその部品があるところ（部品の形の中）は、色ではなく部品の置き方で採点する
+// → そのマスは「描いた絵＝本物」としてあつかう（紋章の中のこまかい色で点が上下しないように）
+function maskPlacedParts(D,T,N,M){
+  const placed=st.shapes.filter(x=>x.type==='part');if(!placed.length)return;
+  const code=NAME2CODE[flag.name]||flag.code,fd=PDATA.find(f=>f.code===code);if(!fd)return;
+  for(const p of (fd.parts||[])){if(p.use==='others'||!p.bbox||!placed.some(x=>x.pid===p.id))continue;const P=PIMG[p.id];if(!P)continue;const b=p.bbox;
+    for(let j=0;j<M;j++){const v=(j+.5)/M,lv=(v-b.y)/b.h;if(lv<0||lv>=1)continue;
+      for(let i=0;i<N;i++){const u=(i+.5)/N,lu=(u-b.x)/b.w;if(lu<0||lu>=1)continue;
+        if(P.keys[Math.floor(lv*P.KH)*P.KW+Math.floor(lu*P.KW)]!==255)D[j*N+i]=T[j*N+i]}}}}
 const fracName=w=>{const c=[[1/2,'半分'],[1/3,'3分の1'],[1/4,'4分の1'],[2/3,'3分の2'],[1/5,'5分の1'],[3/5,'5分の3'],[2/5,'5分の2'],[3/4,'4分の3']];let b=c[0];for(const x of c)if(Math.abs(x[0]-w)<Math.abs(b[0]-w))b=x;return Math.abs(b[0]-w)<.02?b[1]:Math.round(w*100)+'%'};
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 function judge(){
   const a=ar(),N=120,M=Math.round(N/a),R=raster();
   const fn=(u,v)=>KEYS[R.J[clamp(Math.floor(v*R.RH),0,R.RH-1)*R.RW+clamp(Math.floor(u*R.RW),0,R.RW-1)]];
-  const D=grid(fn,N,M),T=grid((u,v)=>flag.cls(u,v,a),N,M),r=cmp(D,T,N,M),hints=[];let s=partScoreOf(D,T,N,M);  // 点は部分ごとの採点（色ごとの集計 r はコメント用）
+  const D=grid(fn,N,M),T=grid((u,v)=>flag.cls(u,v,a),N,M);maskPlacedParts(D,T,N,M);const r=cmp(D,T,N,M),hints=[];let s=partScoreOf(D,T,N,M);  // 点は部分ごとの採点（色ごとの集計 r はコメント用）
   const good=[],nm=k=>`「${PAL[k].n}」`,tcols=Object.keys(r.per);
   const sV=cmp(grid((u,v)=>fn(u,1-v),N,M),T,N,M).s,sH=cmp(grid((u,v)=>fn(1-u,v),N,M),T,N,M).s;
   const flipped=(sV>s+15&&sV>85)||(sH>s+15&&sH>85);
@@ -1695,9 +1708,8 @@ async function flagFromData(d){
   const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg)});
   const a=d.w/d.h,RW=360,RH=Math.max(8,Math.round(RW/a)),c=document.createElement('canvas');c.width=RW;c.height=RH;
   const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(img,0,0,RW,RH);const px=x.getImageData(0,0,RW,RH).data;
-  const cm=Object.entries(d.colorMap||{}).map(([hx,k])=>[hex2rgb(hx),k]).filter(([,k])=>KIDX[k]!==undefined),grid=new Uint8Array(RW*RH),memo=new Map();
-  for(let q=0;q<RW*RH;q++){if(px[q*4+3]<128){grid[q]=KIDX.x;continue}const r=px[q*4],g=px[q*4+1],b=px[q*4+2],key=(r>>3)<<10|(g>>3)<<5|(b>>3);
-    let k=memo.get(key);if(k===undefined){let bi=-1,bd=60*60*3;for(const[c3,kk]of cm){const dd=(c3[0]-r)**2+(c3[1]-g)**2+(c3[2]-b)**2;if(dd<bd){bd=dd;bi=KIDX[kk]}}k=bi>=0?bi:nearestKey(r,g,b);memo.set(key,k)}grid[q]=k}
+  const cm=Object.entries(d.colorMap||{}).map(([hx,k])=>[hex2rgb(hx),k]).filter(([,k])=>KIDX[k]!==undefined),grid=new Uint8Array(RW*RH),mp=makeMapper(d.colorMap);
+  for(let q=0;q<RW*RH;q++){if(px[q*4+3]<128){grid[q]=KIDX.x;continue}grid[q]=mp(px[q*4],px[q*4+1],px[q*4+2])}
   const real={};for(const[c3,k]of cm)if(!real[k])real[k]='#'+c3.map(v=>v.toString(16).padStart(2,'0')).join('');
   const f={name,ratio:approxRatio(d.w,d.h),real,img,code:d.code,tip:d.note||'',
     cls:(u,v)=>KEYS[grid[Math.min(RH-1,Math.max(0,Math.floor(v*RH)))*RW+Math.min(RW-1,Math.max(0,Math.floor(u*RW)))]]};
