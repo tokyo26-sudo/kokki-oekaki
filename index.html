@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>国旗お絵かき v0.40</title>
+<title>国旗お絵かき v0.42</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPHJlY3QgeD0iNSIgeT0iNCIgd2lkdGg9IjQuNSIgaGVpZ2h0PSI1NyIgcng9IjIuMiIgZmlsbD0iIzZiNWE0NSIvPgogIDxwYXRoIGQ9Ik05LjUgN2g1MHYzNmgtNTB6IiBmaWxsPSIjZmZmIiBzdHJva2U9IiMyMjIiIHN0cm9rZS13aWR0aD0iMi44IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCAzLjc1KSByb3RhdGUoNDUgMzQuNSAyMS4yNSkiPgogICAgPHJlY3QgeD0iMzAuNSIgeT0iOCIgd2lkdGg9IjgiIGhlaWdodD0iMjIiIHJ4PSIxLjIiIGZpbGw9IiNmZmM4M2QiIHN0cm9rZT0iIzIyMiIgc3Ryb2tlLXdpZHRoPSIyLjIiLz4KICAgIDxwYXRoIGQ9Ik0zMC41IDMwaDhsLTQgOC41eiIgZmlsbD0iI2YzZDliMSIgc3Ryb2tlPSIjMjIyIiBzdHJva2Utd2lkdGg9IjIuMiIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgogICAgPHBhdGggZD0iTTMzLjEgMzUuNmgyLjhMMzQuNSAzOC41eiIgZmlsbD0iIzIyMiIvPgogICAgPHJlY3QgeD0iMzAuNSIgeT0iNCIgd2lkdGg9IjgiIGhlaWdodD0iNSIgcng9IjEuMiIgZmlsbD0iI2YwOGFhNiIgc3Ryb2tlPSIjMjIyIiBzdHJva2Utd2lkdGg9IjIuMiIvPgogIDwvZz4KPC9zdmc+">
 <style>
 :root{--bg:#f4f1ea;--panel:#fff;--ink:#222;--sub:#777;--line:#ddd;--accent:#e0457b}
@@ -121,6 +121,11 @@ body.battle #setBtn,body.battle #skip{display:none}
 #btWarn{font-size:13px;color:#a3542b;line-height:1.6}#btMsg{font-size:13px;color:#a3542b;min-height:1em;margin-top:6px;word-break:break-all}
 .btrow{display:flex;gap:8px}.btrow .tin{flex:1}
 .btrule{font-size:12.5px;color:var(--sub);line-height:1.6;margin-top:8px}
+#btWait{position:absolute;inset:0;z-index:3;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.35);cursor:not-allowed}
+#btWait.hidden{display:none}
+body.bthold #judge{opacity:.45;pointer-events:none}body.bthold #timer{visibility:hidden}
+.bwbox{background:rgba(42,38,32,.88);color:#fff;border-radius:16px;padding:14px 22px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.bwt{font-weight:800;font-size:18px}.bws{font-size:13px;opacity:.85;margin-top:4px;font-variant-numeric:tabular-nums}
 #rVs{margin:8px 0 4px}#rVs.hidden{display:none}
 body.battle #res .pair figure:first-child{display:none}  /* 対決では自分の絵は上のくらべに出ている */
 .vsrow{display:flex;align-items:center;gap:8px;justify-content:center}
@@ -129,6 +134,7 @@ body.battle #res .pair figure:first-child{display:none}  /* 対決では自分�
 .vsc img{width:100%;border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,.15)}
 .vsn{font-weight:800;font-size:13px}.vss{font-weight:900;font-size:22px}.vst{font-size:11px;color:var(--sub)}
 .noimg{font-size:12px;color:var(--sub);padding:18px 0}
+.btninfo{text-align:center;font-size:13px;font-weight:700;color:var(--sub);margin-top:6px;min-height:1em}.btninfo.hidden{display:none}
 .vsx{font-weight:900;color:#d14f7a}.vsv{text-align:center;font-weight:800;margin-top:6px}
 table.sum th{font-size:12px;color:var(--sub)}table.sum td.w{color:#d14f7a;font-weight:900}table.sum tr.tot td{font-weight:800;border-top:1px solid var(--line)}
 .timer{margin-left:auto;font-variant-numeric:tabular-nums;font-weight:800;font-size:20px;background:#fff;border-radius:10px;padding:3px 12px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
@@ -155,6 +161,10 @@ button.partb:hover{border-color:var(--accent)}
 .palrow{margin-top:2px}
 .sw.pick{display:flex;align-items:center;justify-content:center;font-size:18px;background:#fff}
 .only-m{display:none}
+@media (min-width:641px){
+  body:not(.toolsOpen):not(.freeTools) #drawer>.row:not(.pwrow){display:none}
+  body.freeTools #drawerBtn{display:none}
+}
 .dhead{align-items:center;justify-content:space-between;margin:-2px 0 6px;font-size:15px}
 .tsel{display:flex;flex-direction:column;gap:10px}
 .tsel button{flex-direction:column;align-items:center;gap:2px;padding:12px}
@@ -242,7 +252,7 @@ table.sum td:last-child{text-align:right;font-weight:700}
 </head>
 <body>
 <div class="wrap">
-  <header><h1>国旗お絵かき v0.40</h1><div class="hd"><div id="prog"></div><button id="histBtn" class="mini">📜 りれき</button><button id="setBtn" class="mini">⚙ 設定</button></div></header>
+  <header><h1>国旗お絵かき v0.42</h1><div class="hd"><div id="prog"></div><button id="histBtn" class="mini">📜 りれき</button><button id="setBtn" class="mini">⚙ 設定</button></div></header>
   <div class="main"><div class="left">
   <div class="q"><div class="qname" id="qname"></div><div class="qratio" id="qratio"></div></div>
   <div class="stage" id="stage">
@@ -251,7 +261,7 @@ table.sum td:last-child{text-align:right;font-weight:700}
       <div class="hintbox hidden" id="hintBox" title="押しているあいだ大きく見られる"><canvas id="hintCv"></canvas><div id="hintLbl"></div></div>
       <div class="oppchip hidden" id="oppChip"></div><div class="timer hidden" id="timer"></div>
     </div>
-    <div id="cvWrap"><canvas id="c"></canvas><div id="peek"><canvas id="peekCv"></canvas><div id="peekLbl"></div></div><div id="fx"><div id="fxShade"></div><div id="fxMarks"></div><div id="fxLine"></div><div id="fxTag"></div><div id="fxBox"><div id="fxNum"></div><div id="fxWord"></div></div><div id="fxSkip">タップでとばす</div></div></div>
+    <div id="cvWrap"><canvas id="c"></canvas><div id="btWait" class="hidden"><div class="bwbox"><div class="bwt" id="btWaitT"></div><div class="bws" id="btWaitS"></div></div></div><div id="peek"><canvas id="peekCv"></canvas><div id="peekLbl"></div></div><div id="fx"><div id="fxShade"></div><div id="fxMarks"></div><div id="fxLine"></div><div id="fxTag"></div><div id="fxBox"><div id="fxNum"></div><div id="fxWord"></div></div><div id="fxSkip">タップでとばす</div></div></div>
   </div>
   </div>
 
@@ -263,7 +273,7 @@ table.sum td:last-child{text-align:right;font-weight:700}
         <button id="mErase" class="big2">🧽 消しゴム</button>
         <button id="partBtn" class="big2 partb">🧩 部品</button>
         <button id="mMove" class="sm2">✋ 動かす</button>
-        <button id="drawerBtn" class="sm2 only-m">🧰 道具</button>
+        <button id="drawerBtn" class="sm2">🧰 道具</button>
       </div>
       <div class="row" id="eraseRow" style="display:none"><span class="lbl">消しゴム</span>
         <button data-ew="0.025">小</button>
@@ -275,7 +285,7 @@ table.sum td:last-child{text-align:right;font-weight:700}
     </div>
     <div class="drawer" id="drawer">
       <div class="dhead only-m"><b>🧰 道具</b><button id="drawerClose">✕ とじる</button></div>
-    <div class="row"><span class="lbl">太さ</span>
+    <div class="row pwrow"><span class="lbl">太さ</span>
       <button data-pw="0" class="on">細（仕切り）</button>
       <button data-pw="0.02">中</button>
       <button data-pw="0.045">太</button>
@@ -353,7 +363,8 @@ table.sum td:last-child{text-align:right;font-weight:700}
   <ul class="hints" id="rHints"></ul>
   <div class="tip" id="rTip"></div>
   <button class="big" id="next">次へ</button>
-  <button class="ghost hidden" id="btSkipWait">待たずに進む</button>
+  <div class="btninfo hidden" id="btNextInfo"></div>
+  <button class="ghost hidden" id="btSkipWait">ひとりで進む</button>
 </div></div>
 
 <div class="modal hidden" id="sum"><div class="card">
@@ -383,7 +394,7 @@ table.sum td:last-child{text-align:right;font-weight:700}
   <div class="tdata" id="tData">国旗データを読みこみ中…</div>
   <div class="tlinks"><button id="tSet" class="mini">⚙ あそびかた設定</button><button id="tHist" class="mini">📜 りれき</button></div>
   <div class="tmode" id="tMode"></div>
-  <div class="tver">v0.40</div>
+  <div class="tver">v0.42</div>
 </div></div>
 
 <div class="modal hidden" id="btM"><div class="card setup">
@@ -762,8 +773,13 @@ function openParts(){
 }
 $('#partBtn').onclick=openParts;
 // スマホの引き出し（右から）。中のボタンを押したら閉じる（吸着だけは開いたまま）
+// PC（横641px以上）：🧰道具は右の列の中で開く・閉じる（開いたままを覚える）。じぶんの旗モードは全部出す
+const TOOLS_KEY='kokki-oekaki-tools-open';let toolsOpen=(()=>{try{return localStorage.getItem(TOOLS_KEY)==='1'}catch(e){return false}})();
+function updToolsBtn(){document.body.classList.toggle('toolsOpen',toolsOpen);if(window.innerWidth>640)$('#drawerBtn').textContent=toolsOpen?'🧰 道具 ▾':'🧰 道具 ▸';else $('#drawerBtn').textContent='🧰 道具'}
+window.addEventListener('resize',updToolsBtn);
 function setDrawer(o){$('#drawer').classList.toggle('open',o);$('#drawerBack').classList.toggle('open',o)}
-$('#drawerBtn').onclick=()=>setDrawer(!$('#drawer').classList.contains('open'));
+$('#drawerBtn').onclick=()=>{if(window.innerWidth>640){toolsOpen=!toolsOpen;try{localStorage.setItem(TOOLS_KEY,toolsOpen?'1':'0')}catch(e){}updToolsBtn();if(typeof fit==='function')fit();return}setDrawer(!$('#drawer').classList.contains('open'))};
+updToolsBtn();
 $('#drawerClose').onclick=()=>setDrawer(false);$('#drawerBack').onclick=()=>setDrawer(false);
 $('#drawer').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.id==='snap'||b.id==='drawerClose')return;if(window.innerWidth<=640)setTimeout(()=>setDrawer(false),120)});$('#pClose').onclick=()=>$('#partsM').classList.add('hidden');
 
@@ -1331,7 +1347,8 @@ function partScoreOf(D,T,N,M){PS_DETAIL=[];const n=N*M,comp=new Int32Array(n).fi
   const R=1,K=8,isEdge=(G,c)=>{const ci=c%N,cj=(c-ci)/N;return(ci>0&&G[c-1]!==G[c])||(ci<N-1&&G[c+1]!==G[c])||(cj>0&&G[c-N]!==G[c])||(cj<M-1&&G[c+N]!==G[c])};
   const dE=new Uint8Array(n);for(let c=0;c<n;c++)dE[c]=isEdge(D,c)?1:0;
   let sw=0,ss=0;
-  for(const pt of parts){if(pt.cells.length/n<.003)continue;let hit=0,x0=N,x1=0,y0=M,y1=0;
+  for(const pt of parts){if(pt.cells.length/n<.003)continue;if(PMASK){let mk=0;for(const c of pt.cells)mk+=PMASK[c];if(mk>pt.cells.length*.5)continue}  // 部品の中の部分は、部品の置き方で採点する
+    let hit=0,x0=N,x1=0,y0=M,y1=0;
     for(const c of pt.cells){const ci=c%N,cj=(c-ci)/N;if(ci<x0)x0=ci;if(ci>x1)x1=ci;if(cj<y0)y0=cj;if(cj>y1)y1=cj;let ok=D[c]===pt.col?1:0;
       if(!ok)for(let dj=-R;dj<=R&&!ok;dj++)for(let di=-R;di<=R;di++){const ii=ci+di,jj=cj+dj;if(ii<0||jj<0||ii>=N||jj>=M)continue;if(D[jj*N+ii]===pt.col){ok=1;break}}hit+=ok}
     let ex=0;for(let j=Math.max(0,y0-2);j<=Math.min(M-1,y1+2);j++)for(let i=Math.max(0,x0-2);i<=Math.min(N-1,x1+2);i++){const c=j*N+i;if(D[c]!==pt.col)continue;let near=0;
@@ -1339,18 +1356,19 @@ function partScoreOf(D,T,N,M){PS_DETAIL=[];const n=N*M,comp=new Int32Array(n).fi
     let be=0,bh=0;for(const c of pt.cells){const ci=c%N,cj=(c-ci)/N;if(!(ci>0&&ci<N-1&&cj>0&&cj<M-1)||!isEdge(T,c))continue;be++;let best=99;
       for(let dj=-K;dj<=K;dj++)for(let di=-K;di<=K;di++){const ii=ci+di,jj=cj+dj;if(ii<0||jj<0||ii>=N||jj>=M||!dE[jj*N+ii])continue;const d=Math.hypot(di,dj);if(d<best)best=d}
       bh+=Math.max(0,Math.min(1,1-(best-1)/K))}
-    const iou=hit/(pt.cells.length+ex),bf=be?bh/be:1,psc=be>8?.65*iou+.35*bf:iou,w=Math.sqrt(pt.cells.length/n);sw+=w;ss+=w*psc;
+    const iou=hit/(pt.cells.length+ex),bf=be?bh/be:1,psc=be>8?.65*iou+.35*bf*Math.min(1,iou*2):iou,w=Math.sqrt(pt.cells.length/n);sw+=w;ss+=w*psc;
     let sx=0,sy=0;for(const c of pt.cells){sx+=c%N;sy+=(c-c%N)/N}PS_DETAIL.push({col:pt.col,area:pt.cells.length/n,cx:(sx/pt.cells.length+.5)/N,cy:(sy/pt.cells.length+.5)/M,x0:x0/N,x1:(x1+1)/N,y0:y0/M,y1:(y1+1)/M,full:x0===0&&x1===N-1||y0===0&&y1===M-1,psc})}
   return sw?100*ss/sw:0}
 // 正しい部品を置いたときは、本物の旗でその部品があるところ（部品の形の中）は、色ではなく部品の置き方で採点する
 // → そのマスは「描いた絵＝本物」としてあつかう（紋章の中のこまかい色で点が上下しないように）
-function maskPlacedParts(D,T,N,M){
+let PMASK=null;  // 正しく置いた部品でかくれるマス（色の採点では数えない）
+function maskPlacedParts(D,T,N,M){PMASK=null;
   const placed=st.shapes.filter(x=>x.type==='part');if(!placed.length)return;
   const code=NAME2CODE[flag.name]||flag.code,fd=PDATA.find(f=>f.code===code);if(!fd)return;
   for(const p of (fd.parts||[])){if(p.use==='others'||!p.bbox||!placed.some(x=>x.pid===p.id))continue;const P=PIMG[p.id];if(!P)continue;const b=p.bbox;
     for(let j=0;j<M;j++){const v=(j+.5)/M,lv=(v-b.y)/b.h;if(lv<0||lv>=1)continue;
       for(let i=0;i<N;i++){const u=(i+.5)/N,lu=(u-b.x)/b.w;if(lu<0||lu>=1)continue;
-        if(P.keys[Math.floor(lv*P.KH)*P.KW+Math.floor(lu*P.KW)]!==255)D[j*N+i]=T[j*N+i]}}}}
+        if(P.keys[Math.floor(lv*P.KH)*P.KW+Math.floor(lu*P.KW)]!==255){D[j*N+i]=T[j*N+i];(PMASK||(PMASK=new Uint8Array(N*M)))[j*N+i]=1}}}}}
 const fracName=w=>{const c=[[1/2,'半分'],[1/3,'3分の1'],[1/4,'4分の1'],[2/3,'3分の2'],[1/5,'5分の1'],[3/5,'5分の3'],[2/5,'5分の2'],[3/4,'4分の3']];let b=c[0];for(const x of c)if(Math.abs(x[0]-w)<Math.abs(b[0]-w))b=x;return Math.abs(b[0]-w)<.02?b[1]:Math.round(w*100)+'%'};
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 function judge(){
@@ -1526,7 +1544,7 @@ function showResult(r){
   $('#rHints').innerHTML=r.hints.map(t=>`<li>${t}</li>`).join('');
   $('#rTip').innerHTML=flag.tip?`<b>📘 豆知識</b>　${flag.tip}`:'';$('#rTip').style.display=flag.tip?'':'none';
   $('#next').textContent=qi<order.length-1?'次の問題へ':'結果を見る';
-  if(BT&&BT.game)btShowVs();else{$('#rVs').classList.add('hidden');$('#next').disabled=false;$('#btSkipWait').classList.add('hidden')}
+  if(BT&&BT.game){btShowVs();setTimeout(btTryAdvance,1200)}else{$('#btNextInfo').classList.add('hidden');$('#rVs').classList.add('hidden');$('#next').disabled=false;$('#btSkipWait').classList.add('hidden')}
   $('#res').classList.remove('hidden');
 }
 // ---- 設定（ヒント・おしまいの合図） ----
@@ -1668,7 +1686,7 @@ window.addEventListener('pointercancel',()=>{if(ovShown&&ovShown.hold)hideOverla
 $('#hintBox').addEventListener('contextmenu',e=>e.preventDefault());
 
 function stopQ(){qDone=true;clkPause();peekState=null;hideOverlay();document.body.classList.remove('peeking');updEye()}
-function doJudge(isTimeUp){if(qDone)return;stopQ();const r=judge();r.rank=rankText(r.s);scores.push({name:flag.name,s:r.s});addHist(r);if(BT&&BT.game)btSubmit(r);$('#rTimeUp').classList.toggle('hidden',!isTimeUp);playFx(r,isTimeUp,()=>showResult(r))}
+function doJudge(isTimeUp){if(qDone)return;stopQ();const r=judge();r.rank=rankText(r.s);scores.push({name:flag.name,s:r.s});addHist(r);$('#rTimeUp').classList.toggle('hidden',!isTimeUp);if(BT&&BT.game){btSubmit(r);btHold(r,isTimeUp);return}playFx(r,isTimeUp,()=>showResult(r))}
 // 答え合わせの演出（ぜんぶで3秒くらい）：走査線が上からおりる → 合っているところに⭕ → ％がルーレット → 一言がポン。タップでとばせる
 const FX_SCAN=1500,FX_ROLL=1000,FX_HOLD=750;
 function playFx(r,isTimeUp,done){
@@ -1718,7 +1736,7 @@ function loadQ(){
   $('#qname').textContent=flag.name;$('#qratio').textContent=`たて：よこ ＝ ${flag.ratio[0]}：${flag.ratio[1]}`;
   $('#prog').textContent=flag.free?'🎨 じぶんの旗':`第${qi+1}問 / ${order.length}`;setPen(0);
   $('#judge').textContent=flag.free?'💾 保存':'こたえあわせ';$('#skip').textContent=flag.free?'おわる':'とばす';  // さいしょはペンの細（仕切り線）
-  $('#fx').classList.remove('show');document.body.classList.remove('judging');
+  $('#fx').classList.remove('show');document.body.classList.remove('judging');document.body.classList.toggle('freeTools',!!flag.free);
   qDone=false;peekState=null;peekUsed=0;hintIdx=-1;clkReset();hideOverlay();document.body.classList.remove('peeking');
   const useBox=!flag.free&&setting.hint==='sample',useEye=!flag.free&&setting.hint==='peek',useTimer=!flag.free&&setting.end==='limit';
   $('#stageTop').classList.toggle('hidden',!(useBox||useEye||useTimer));$('#hintBox').classList.toggle('hidden',!useBox);$('#eyeBox').classList.toggle('hidden',!useEye);$('#timer').classList.toggle('hidden',!useTimer);
@@ -1826,13 +1844,13 @@ async function flagFromData(d){
 window.addEventListener('resize',()=>{if(flag)fit()});
 showTitle();
 
-// ===================== ⚔️ 対決モード（v0.40） =====================
+// ===================== ⚔️ 対決モード（v0.42） =====================
 // 2人で同じ国を同時に描く。3問勝負。どっちかが「こたえあわせ」したら、もう1人はのこり1分。1問3分まで。
 // 通信：Supabase Realtime の部屋チャンネル（broadcast だけ。テーブルは使わない）。
 // テスト用：URLに ?fakenet=1 を付けると、同じブラウザのタブどうしで BroadcastChannel を使う。
 const SB_URL='https://acytuhewfhuoxugwmbat.supabase.co',SB_KEY='sb_publishable_ruAGcA3YSvXXCPkc3s6aTQ_4lg3wAYJ';
 const SB_CDN='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js';
-const BT_CAP=180,BT_CHASE=60,BT_HB=2000,BT_LOST=8000,BT_NAME_KEY='kokki-oekaki-name',APP_VER='v0.40';
+const BT_CAP=180,BT_CHASE=60,BT_HB=2000,BT_LOST=8000,BT_NAME_KEY='kokki-oekaki-name',APP_VER='v0.42';
 let BT=null;  // いまの部屋（入っていなければ null）
 const btFake=()=>/[?&]fakenet=1/.test(location.search);
 const rid=()=>Math.random().toString(36).slice(2,10);
@@ -1859,13 +1877,14 @@ async function btOpen(code,host){
   BT=b;btSendHb();b.hb=setInterval(()=>{btSendHb();btCheck()},BT_HB);
   return true}
 function btClose(silent){if(!BT)return;try{BT.tr.send({t:'bye',id:BT.me.id})}catch(e){}clearInterval(BT.hb);try{BT.tr.close()}catch(e){}
-  if(BT.saved){setting=BT.saved}BT=null;document.body.classList.remove('battle');$('#oppChip').classList.add('hidden');if(!silent)btMsg('')}
+  if(BT.saved){setting=BT.saved}BT=null;document.body.classList.remove('battle','bthold');$('#btWait').classList.add('hidden');$('#oppChip').classList.add('hidden');if(!silent)btMsg('')}
 window.addEventListener('pagehide',()=>{if(BT)try{BT.tr.send({t:'bye',id:BT.me.id})}catch(e){}});
 function btSendHb(){if(!BT)return;const g=BT.game;
   const m={t:'hb',id:BT.me.id,name:BT.me.name,host:BT.me.host,joined:BT.me.joined,stamp:btStamp(),ver:APP_VER};
-  if(g){m.gid=g.gid;m.ready=g.ready.me;m.res={};for(const q in g.res)m.res[q]={s:g.res[q].s,at:g.res[q].at};if(BT.me.host)m.start=g.spec}
+  if(g){m.gid=g.gid;m.ready=g.ready.me;m.res={};for(const q in g.res)m.res[q]={s:g.res[q].s,at:g.res[q].at};if(BT.me.host){m.start=g.spec;m.go=g.go||0}}
   BT.tr.send(m)}
-function btOpp(){if(!BT)return null;const ps=Object.values(BT.peers).sort((a,b)=>a.joined-b.joined);return ps[0]||null}
+// 相手：応答のある人を先に（再読みこみで残った「おばけ」をえらばないように）。なければいちばん最近まで応答のあった人
+function btOpp(){if(!BT)return null;const ps=Object.values(BT.peers),al=ps.filter(btAlive).sort((a,b)=>a.joined-b.joined);return al[0]||ps.sort((a,b)=>(b.last||0)-(a.last||0))[0]||null}
 const btAlive=p=>p&&Date.now()-p.last<BT_LOST;
 function btRecv(b,m){if(b!==BT||!m||m.id===b.me.id)return;
   if(m.t==='bye'){delete b.peers[m.id];btUpd();return}
@@ -1878,16 +1897,19 @@ function btRecv(b,m){if(b!==BT||!m||m.id===b.me.id)return;
       if(earlier.length>=2){btMsg('この部屋はもう2人そろっています（満員）');btClose(true);btShowStep(1);return}
       if(b.me.host&&m.host&&m.joined<b.me.joined){btMsg('その番号はほかの人が使っていたので、番号を変えます…');btClose(true);btCreate();return}}
     if(b.game&&m.gid===b.game.gid){const g=b.game;
-      if(typeof m.ready==='number'&&m.ready>g.ready.opp){g.ready.opp=m.ready;btTryAdvance()}
+      if(typeof m.ready==='number'&&m.ready>g.ready.opp){g.ready.opp=m.ready;btRefreshNext()}
+      if(!b.me.host&&typeof m.go==='number'&&m.go>(g.go||0)){g.go=m.go;btTryAdvance()}
       for(const q in(m.res||{}))if(!g.opp[q]){g.opp[q]={s:m.res[q].s,at:m.res[q].at,img:null};btOnOppRes(+q)}}
     if(!b.me.host&&m.start&&(!b.game||b.game.gid!==m.start.gid)&&!b.starting)btBegin(m.start);
     btUpd();return}
   if(!p)return;p.last=Date.now();
   if(m.t==='start'&&!b.me.host&&(!b.game||b.game.gid!==m.start.gid)&&!b.starting)btBegin(m.start);
   if(m.t==='res'&&b.game&&m.gid===b.game.gid){const g=b.game,had=g.opp[m.q];g.opp[m.q]={s:m.s,at:m.at,img:m.img||(had&&had.img)||null};if(!had)btOnOppRes(m.q);else btRefresh()}
-  if(m.t==='ready'&&b.game&&m.gid===b.game.gid&&m.q>b.game.ready.opp){b.game.ready.opp=m.q;btTryAdvance()}
+  if(m.t==='ready'&&b.game&&m.gid===b.game.gid&&m.q>b.game.ready.opp){b.game.ready.opp=m.q;btRefreshNext()}
+  if(m.t==='go'&&!b.me.host&&b.game&&m.gid===b.game.gid&&m.q>(b.game.go||0)){b.game.go=m.q;btTryAdvance()}
   btUpd()}
-function btCheck(){if(!BT)return;btUpd();if(BT.game)btTryAdvance()}
+function btCheck(){if(!BT)return;for(const id in BT.peers)if(Date.now()-(BT.peers[id].last||0)>30000)delete BT.peers[id];  // 30秒だまっている人は名簿から消す
+  btUpd();if(BT.game){btTryAdvance();if(!$('#res').classList.contains('hidden'))btNextBtn()}}
 // ---- 画面（部屋の窓） ----
 function btMsg(t){const e=$('#btMsg');if(e)e.textContent=t||''}
 function btShowStep(n){$('#btStep1').classList.toggle('hidden',n!==1);$('#btStep2').classList.toggle('hidden',n!==2)}
@@ -1927,17 +1949,31 @@ async function btBegin(spec,already){if(!BT)return;BT.starting=true;
     freeMode=false;order=list;qi=0;scores=[];loadQ()}
   finally{if(BT)BT.starting=false}}
 // loadQ から：対決の表示（時計・相手のようす）
-function btLoadQ(){const g=BT.game;g.qStart=0;g.capEnd=0;g.chaseEnd=0;
+function btLoadQ(){const g=BT.game;g.hold=null;$('#btWait').classList.add('hidden');document.body.classList.remove('bthold');g.qStart=0;g.capEnd=0;g.chaseEnd=0;
   $('#stageTop').classList.remove('hidden');$('#timer').classList.remove('hidden');showTimer(BT_CAP);$('#oppChip').classList.remove('hidden');btChip()}
 function btQStart(){const g=BT&&BT.game;if(!g)return;g.qStart=Date.now();g.capEnd=g.qStart+BT_CAP*1000;
   if(g.opp[qi]&&!g.res[qi])g.chaseEnd=Math.min(g.capEnd,Date.now()+BT_CHASE*1000);btChip()}
-function btTick(){const g=BT.game;if(!flag||qDone||spinState||!g.qStart)return;
+// 先に「こたえあわせ」したら：絵はロック、点数はまだ見せずに、相手がそろうのを待つ。そろったら2人同時に演出 → 結果
+function btHold(r,isTimeUp){const g=BT.game,o=btOpp();
+  if(g.opp[qi]||!btAlive(o)){btRelease(r,isTimeUp);return}
+  const myAt=g.res[qi].at*1000;g.hold={r,isTimeUp,q:qi,waitEnd:Math.min(g.capEnd||Infinity,(g.qStart||Date.now())+myAt+BT_CHASE*1000)};
+  $('#btWait').classList.remove('hidden');document.body.classList.add('bthold');btWaitUpd()}
+function btWaitUpd(){const g=BT&&BT.game;if(!g||!g.hold)return;const o=btOpp(),nm=o?esc(o.name):'相手';
+  const left=Math.max(0,(g.hold.waitEnd-Date.now())/1000),s=Math.ceil(left);
+  $('#btWaitT').innerHTML=`⏳ ${nm}を待っています…`;
+  $('#btWaitS').textContent=!btAlive(o)?'📡 応答なし':left>0?`${nm}ののこり ${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`:'もうすぐ…'}
+function btRelease(r,isTimeUp){const g=BT&&BT.game;if(g)g.hold=null;$('#btWait').classList.add('hidden');document.body.classList.remove('bthold');playFx(r,isTimeUp,()=>showResult(r))}
+function btHoldCheck(){const g=BT.game,h=g.hold;if(!h)return;
+  if(h.q!==qi){g.hold=null;$('#btWait').classList.add('hidden');document.body.classList.remove('bthold');return}
+  const o=btOpp();if(g.opp[h.q]||!btAlive(o)||Date.now()>h.waitEnd+10000){btRelease(h.r,h.isTimeUp);return}  // 相手の時間切れから10秒たっても来なければ先へ
+  btWaitUpd()}
+function btTick(){const g=BT.game;if(g.hold){btHoldCheck();return}if(!flag||qDone||spinState||!g.qStart)return;
   const end=g.chaseEnd?Math.min(g.capEnd,g.chaseEnd):g.capEnd,left=Math.max(0,(end-Date.now())/1000);showTimer(left);
   if(left<=0)timeUp()}
 function btChip(){const g=BT&&BT.game,el=$('#oppChip');if(!g)return;const o=btOpp(),nm=o?esc(o.name):'相手';
   let t;if(!btAlive(o))t=`📡 ${nm}：応答なし`;else if(g.opp[qi])t=`✅ ${nm}：できた！`+(g.res[qi]?'':'（のこり1分）');else t=`✏️ ${nm}：描いてる…`;
   el.innerHTML=t;el.classList.toggle('done',!!g.opp[qi])}
-function btOnOppRes(q){const g=BT.game;if(q===qi&&!g.res[q]&&g.qStart){g.chaseEnd=Math.min(g.capEnd,Date.now()+BT_CHASE*1000);btToast(`${btOpp()?esc(btOpp().name):'相手'}ができた！ のこり1分`)}btChip();btRefresh()}
+function btOnOppRes(q){const g=BT.game;if(g.hold&&g.hold.q===q){btChip();btHoldCheck();return}if(q===qi&&!g.res[q]&&g.qStart){g.chaseEnd=Math.min(g.capEnd,Date.now()+BT_CHASE*1000);btToast(`${btOpp()?esc(btOpp().name):'相手'}ができた！ のこり1分`)}btChip();btRefresh()}
 function btToast(t){const e=$('#btToast');e.innerHTML=t;e.classList.remove('show');void e.offsetWidth;e.classList.add('show');clearTimeout(btToast.t);btToast.t=setTimeout(()=>e.classList.remove('show'),2600)}
 // doJudge から：自分の答えを送る
 function btSubmit(r){const g=BT.game,at=g.qStart?(Date.now()-g.qStart)/1000:0;let img=null;
@@ -1953,13 +1989,24 @@ function btShowVs(){const g=BT&&BT.game;if(!g)return;const box=$('#rVs');box.cla
   box.innerHTML=`<div class="vsrow">${card('あなた',a,true)}<div class="vsx">VS</div>${card(on,b,false)}</div><div class="vsv">${!b?`${on}はまだ描いてる…（のこり最大1分）`:v>0?'🎉 この問題はあなたの勝ち！':v<0?`😣 この問題は${on}の勝ち`:'🤝 引き分け'}${a&&b&&a.s===b.s&&v!==0?'（同点なので先に出したほうの勝ち）':''}</div>`;
   btNextBtn()}
 function btRefresh(){if(!BT||!BT.game)return;if(!$('#res').classList.contains('hidden'))btShowVs();if(!$('#sum').classList.contains('hidden'))btSummary()}
-function btNextBtn(){const g=BT.game,b=$('#next');const waiting=g.ready.me>=qi;
-  if(waiting){b.textContent='相手を待っています…';b.disabled=true;$('#btSkipWait').classList.remove('hidden')}
-  else{b.textContent=qi<order.length-1?'次の問題へ':'結果を見る';b.disabled=false;$('#btSkipWait').classList.add('hidden')}}
-function btNext(){const g=BT.game;g.ready.me=qi;BT.tr.send({t:'ready',id:BT.me.id,gid:g.gid,q:qi});btNextBtn();btTryAdvance()}
-function btTryAdvance(force){const g=BT&&BT.game;if(!g||g.ready.me<qi)return;if(!qDone||$('#res').classList.contains('hidden'))return;
-  const o=btOpp();if(!force&&g.ready.opp<qi&&btAlive(o))return;
-  $('#res').classList.add('hidden');$('#next').disabled=false;$('#btSkipWait').classList.add('hidden');nextQ()}
+// 次の問題はホストが始める。参加者は「👍 準備OK」で待つ。さいごの「結果を見る」はそれぞれ自由
+function btNextBtn(){const g=BT&&BT.game;if(!g)return;const b=$('#next'),info=$('#btNextInfo'),sk=$('#btSkipWait'),o=btOpp(),on=o?esc(o.name):'相手',alive=btAlive(o);
+  sk.classList.add('hidden');info.classList.remove('hidden');
+  if(qi>=order.length-1){b.textContent='結果を見る';b.disabled=false;info.textContent='';return}
+  if(BT.me.host){b.textContent='次の問題へ（2人いっしょに）';b.disabled=false;
+    info.textContent=!alive?`📡 ${on}：応答なし`:g.ready.opp>=qi?`${on}：👍 準備OK`:`${on}：結果を見てる…`;return}
+  if(g.ready.me>=qi){b.textContent='ホストが次の問題を始めるのを待ってね…';b.disabled=true;
+    info.textContent=alive?'':`📡 ${on}（ホスト）の応答がありません`;if(!alive){sk.textContent='ひとりで進む';sk.classList.remove('hidden')}}
+  else{b.textContent='👍 準備OK';b.disabled=false;info.textContent=''}}
+function btRefreshNext(){if(BT&&BT.game&&!$('#res').classList.contains('hidden'))btNextBtn()}
+function btNext(){const g=BT.game;
+  if(qi>=order.length-1){btAdvance();return}
+  if(BT.me.host){g.go=qi+1;BT.tr.send({t:'go',id:BT.me.id,gid:g.gid,q:qi+1});btAdvance();return}
+  g.ready.me=qi;BT.tr.send({t:'ready',id:BT.me.id,gid:g.gid,q:qi});btNextBtn();btTryAdvance()}
+function btAdvance(){$('#res').classList.add('hidden');$('#next').disabled=false;$('#btSkipWait').classList.add('hidden');$('#btNextInfo').classList.add('hidden');nextQ()}
+// 参加者：ホストが次へ進んでいたら、ついていく（結果の窓が出ているときだけ）
+function btTryAdvance(){const g=BT&&BT.game;if(!g||BT.me.host)return;if(!qDone||$('#res').classList.contains('hidden'))return;if(qi>=order.length-1)return;
+  if((g.go||0)>qi)btAdvance()}
 // まとめ
 function btSummary(){const g=BT.game,o=btOpp(),on=o?esc(o.name):'相手';let w=0,l=0,sa=0,sb=0;
   const rows=order.map((f,i)=>{const a=g.res[i],b=g.opp[i],v=btVerdict(a,b);if(a&&b){if(v>0)w++;else if(v<0)l++}sa+=a?a.s:0;sb+=b?b.s:0;
@@ -1968,7 +2015,7 @@ function btSummary(){const g=BT.game,o=btOpp(),on=o?esc(o.name):'相手';let w=0
   $('#sAvg').innerHTML=`${w}<small>勝</small> ${l}<small>敗</small>`;$('#sMode').textContent=all?fin:`${on}の結果を待っています…`;
   $('#sTable').innerHTML=`<tr><th></th><th>あなた</th><th>${on}</th></tr>`+rows+`<tr class="tot"><td>合計</td><td>${sa}</td><td>${sb}</td></tr>`;
   $('#again').textContent=BT.me.host?'もう一回（同じ部屋で）':'もう一回（ホストを待つ）';$('#btLeaveSum').classList.remove('hidden')}
-function btAgain(){$('#sum').classList.add('hidden');BT.game=null;if(BT.saved){setting=BT.saved;BT.saved=null}document.body.classList.remove('battle');$('#oppChip').classList.add('hidden');
+function btAgain(){$('#sum').classList.add('hidden');BT.game=null;if(BT.saved){setting=BT.saved;BT.saved=null}document.body.classList.remove('battle','bthold');$('#btWait').classList.add('hidden');$('#oppChip').classList.add('hidden');
   $('#title').classList.remove('hidden');btOpenModal();btShowStep(2);btUpd()}
 // ---- ボタン ----
 $('#tBattle').onclick=()=>btOpenModal();
@@ -1979,7 +2026,7 @@ $('#btLeave').onclick=()=>{btClose();btShowStep(1);$('#btM').classList.add('hidd
 $('#btCopy').onclick=()=>{const u=btLink(BT.code);(navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>btMsg('リンクをコピーしました'),()=>btMsg(u))};
 document.querySelectorAll('#btModeSel button').forEach(b=>b.onclick=()=>{BT&&(BT.mode=b.dataset.v);document.querySelectorAll('#btModeSel button').forEach(x=>x.classList.toggle('on',x===b))});
 document.querySelectorAll('#btHintSel button').forEach(b=>b.onclick=()=>{BT&&(BT.hint=b.dataset.v);document.querySelectorAll('#btHintSel button').forEach(x=>x.classList.toggle('on',x===b))});
-$('#btSkipWait').onclick=()=>btTryAdvance(true);
+$('#btSkipWait').onclick=()=>btAdvance();
 $('#btLeaveSum').onclick=()=>{$('#sum').classList.add('hidden');btClose();showTitle()};
 // リンク（?room=1234）から来たら、番号を入れた状態で窓を開く
 {const m=location.search.match(/[?&]room=(\d{4})/);if(m)setTimeout(()=>{$('#title').classList.remove('hidden');btOpenModal(m[1])},300)}
