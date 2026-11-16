@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>国旗お絵かき v0.28</title>
+<title>国旗お絵かき v0.29</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPHJlY3QgeD0iNSIgeT0iNCIgd2lkdGg9IjQuNSIgaGVpZ2h0PSI1NyIgcng9IjIuMiIgZmlsbD0iIzZiNWE0NSIvPgogIDxwYXRoIGQ9Ik05LjUgN2g1MHYzNmgtNTB6IiBmaWxsPSIjZmZmIiBzdHJva2U9IiMyMjIiIHN0cm9rZS13aWR0aD0iMi44IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCAzLjc1KSByb3RhdGUoNDUgMzQuNSAyMS4yNSkiPgogICAgPHJlY3QgeD0iMzAuNSIgeT0iOCIgd2lkdGg9IjgiIGhlaWdodD0iMjIiIHJ4PSIxLjIiIGZpbGw9IiNmZmM4M2QiIHN0cm9rZT0iIzIyMiIgc3Ryb2tlLXdpZHRoPSIyLjIiLz4KICAgIDxwYXRoIGQ9Ik0zMC41IDMwaDhsLTQgOC41eiIgZmlsbD0iI2YzZDliMSIgc3Ryb2tlPSIjMjIyIiBzdHJva2Utd2lkdGg9IjIuMiIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgogICAgPHBhdGggZD0iTTMzLjEgMzUuNmgyLjhMMzQuNSAzOC41eiIgZmlsbD0iIzIyMiIvPgogICAgPHJlY3QgeD0iMzAuNSIgeT0iNCIgd2lkdGg9IjgiIGhlaWdodD0iNSIgcng9IjEuMiIgZmlsbD0iI2YwOGFhNiIgc3Ryb2tlPSIjMjIyIiBzdHJva2Utd2lkdGg9IjIuMiIvPgogIDwvZz4KPC9zdmc+">
 <style>
 :root{--bg:#f4f1ea;--panel:#fff;--ink:#222;--sub:#777;--line:#ddd;--accent:#e0457b}
@@ -137,7 +137,10 @@ button.partb:hover{border-color:var(--accent)}
 .tsel button{flex-direction:column;align-items:center;gap:2px;padding:12px}
 .tsel button small{font-size:12px;font-weight:600;opacity:.9}
 #tStartN{background:#2b6cb0}
+#tFree{background:#3d8b5a}
 .tdata{font-size:11px;color:var(--sub);margin-top:4px}
+.tin{font:inherit;font-size:16px;width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:10px}
+.nin{font:inherit;font-size:16px;width:4.2em;padding:5px 8px;border:1px solid var(--line);border-radius:8px;text-align:center}
 #title{position:fixed;inset:0;z-index:8;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto}
 #title.hidden{display:none}
 .tcard{max-width:460px;width:100%;text-align:center}
@@ -216,7 +219,7 @@ table.sum td:last-child{text-align:right;font-weight:700}
 </head>
 <body>
 <div class="wrap">
-  <header><h1>国旗お絵かき v0.28</h1><div class="hd"><div id="prog"></div><button id="histBtn" class="mini">📜 りれき</button><button id="setBtn" class="mini">⚙ 設定</button></div></header>
+  <header><h1>国旗お絵かき v0.29</h1><div class="hd"><div id="prog"></div><button id="histBtn" class="mini">📜 りれき</button><button id="setBtn" class="mini">⚙ 設定</button></div></header>
   <div class="main"><div class="left">
   <div class="q"><div class="qname" id="qname"></div><div class="qratio" id="qratio"></div></div>
   <div class="stage" id="stage">
@@ -296,7 +299,7 @@ table.sum td:last-child{text-align:right;font-weight:700}
     <b>おしまいの合図</b>：なし（自分で「こたえあわせ」）／1枚30・60・90秒（時間切れになったら、その時点の絵で答え合わせ）。点数は一致率だけで、早さは関係ない。<br>
     <b>白も塗る</b>：描きはじめは灰色（まだ塗っていない）。白いところも白で塗らないと点にならない。<br>
     <b>🧪 スポイト</b>：絵の上をタップすると、そこの色が「いまの色」になって「塗る」にもどる（部品の色をそのまま地に塗れる）。<br>
-    <b>モード</b>：はじめの画面で「練習（かんたんな旗だけ）」か「ふつう（199か国ぜんぶ）」。どちらも3問。<br>
+    <b>モード</b>：はじめの画面で「練習（かんたんな旗だけ）」か「ふつう（199か国ぜんぶ）」。どちらも3問。「🎨 じぶんの旗」は自由に描いて「💾 保存」でPNG・JPGに（灰色は白になる）。<br>
     <b>点数</b>：本物を帯・丸・葉っぱなどの「部分」に分けて、部分ごとに重なりとりんかくを見る。小さい部分も点に効く。<br>
     <b>部品</b>：「🧩 部品」で紋章・星・月などを置ける（工房で書き出した flags-data.js を、ゲームのとなり → kobo フォルダの順に探して読む）。置いたら図形と同じく、動かす・4すみで大きさ・上の○で回す。部品は本物と同じ大きさで出てくる。表示も採点もパレットの色。部品を置いたときは、点の3割が「正しい部品か・場所・大きさ・向き」になる。<br>
     <b>消しゴム</b>：こすったところだけ、ペンの線（色ペン・仕切り線）が切れて消える。図形・直線・輪っかはタップで丸ごと消える。大きさは小・中・大。<br>
@@ -348,11 +351,34 @@ table.sum td:last-child{text-align:right;font-weight:700}
   <div class="tsel">
     <button class="big" id="tStartE">🔰 練習モード<small>かんたんな旗だけ・3問</small></button>
     <button class="big" id="tStartN">🌍 ふつうモード<small>199か国ぜんぶから・3問</small></button>
+    <button class="big" id="tFree">🎨 じぶんの旗<small>自由に描いて、PNG・JPGで保存</small></button>
   </div>
   <div class="tdata" id="tData">国旗データを読みこみ中…</div>
   <div class="tlinks"><button id="tSet" class="mini">⚙ あそびかた設定</button><button id="tHist" class="mini">📜 りれき</button></div>
   <div class="tmode" id="tMode"></div>
-  <div class="tver">v0.28</div>
+  <div class="tver">v0.29</div>
+</div></div>
+
+<div class="modal hidden" id="freeM"><div class="card setup">
+  <div class="rank">🎨 じぶんの旗</div>
+  <div class="sgroup"><div class="slbl">旗の名前</div><input id="fName" class="tin" maxlength="24" value="じぶんの旗"></div>
+  <div class="sgroup"><div class="slbl">旗の形（たて：よこ）</div>
+    <div class="chips" id="fRatio"><button data-r="2:3" class="on">2：3</button><button data-r="1:2">1：2</button><button data-r="3:5">3：5</button><button data-r="1:1">1：1</button></div>
+    <div class="chips sub"><span>数字で</span><input id="fH" class="nin" type="number" min="1" max="30" value="2"><span>：</span><input id="fW" class="nin" type="number" min="1" max="30" value="3"></div>
+  </div>
+  <button class="big" id="fGo">描きはじめる</button>
+  <button class="ghost" id="fCancel">やめる</button>
+</div></div>
+
+<div class="modal hidden" id="saveM"><div class="card setup">
+  <div class="rank">💾 保存</div>
+  <div class="sgroup"><div class="slbl">名前（ファイル名になる）</div><input id="sName" class="tin" maxlength="24"></div>
+  <div class="sgroup"><div class="slbl">形式</div>
+    <div class="chips" id="sFmt"><button data-f="png" class="on">PNG（きれい）</button><button data-f="jpg">JPG（軽い）</button></div>
+    <div class="sdesc">横1200pxの絵で保存。まだ塗っていない灰色のところは白になる。りれきにも残る。</div>
+  </div>
+  <button class="big" id="sGo">保存する</button>
+  <button class="ghost" id="sCancel">とじる（描きつづける）</button>
 </div></div>
 
 <div class="modal hidden" id="partsM"><div class="card pcard">
@@ -1427,7 +1453,7 @@ function openSetup(ctx){setupCtx=ctx;draft={...setting};const canClose=ctx==='ga
   if(canClose)clkPause();updSetupUI();$('#setup').classList.remove('hidden')}
 $('#go').onclick=()=>{setting={...draft};saveSet();['#setup','#res','#sum'].forEach(s=>$(s).classList.add('hidden'));if(setupCtx==='title')showTitle();else start()};
 function showTitle(){$('#tMode').textContent=`いまの設定：${modeText()}`;$('#title').classList.remove('hidden')}
-$('#tStartE').onclick=()=>startMode('easy');$('#tStartN').onclick=()=>startMode('all');
+$('#tStartE').onclick=()=>{freeMode=false;startMode('easy')};$('#tStartN').onclick=()=>{freeMode=false;startMode('all')};
 function showTitleData(){const el=$('#tData');if(!el)return;
   if(pdataState==='loading'){el.textContent='国旗データを読みこみ中…';return}
   if(pdataState!=='ok'){el.textContent='国旗データ（flags-data.js）が見つからないので、15か国だけで遊びます';return}
@@ -1454,16 +1480,16 @@ function openHist(){
   const a=loadHist(),L=$('#hList');L.innerHTML='';$('#hClear').textContent='ぜんぶ消す';$('#hClear').style.display=a.length?'':'none';
   if(!a.length){L.innerHTML='<div class="hempty">まだないよ。答え合わせをすると、ここに残る。</div>'}
   const th=window.innerWidth<520?44:54;
-  for(const h of a){const f=FLAGS.find(x=>x.name===h.name)||(h.code&&SVGF[h.code]);const rr=f?f.ratio:h.ratio,r=rr?rr[1]/rr[0]:1.5,w=Math.round(th*r);
+  for(const h of a){const f=h.free?null:(FLAGS.find(x=>x.name===h.name)||(h.code&&SVGF[h.code]));const rr=f?f.ratio:h.ratio,r=rr?rr[1]/rr[0]:1.5,w=Math.round(th*r);
     const row=document.createElement('div');row.className='hrow';
     const im=new Image();im.src=h.img;im.style.width=w+'px';im.style.height=th+'px';im.alt='自分の絵';
     const vs=document.createElement('span');vs.className='vs';vs.textContent='▶';
     row.append(im,vs);
     if(f){const c=document.createElement('canvas');renderReal(c,f,w,th);row.appendChild(c)}
-    else{const d=PDATA.find(x=>x.code===h.code||x.ja===h.name);if(d){const c=document.createElement('canvas');row.appendChild(c);flagFromData(d).then(ff=>renderReal(c,ff,w,th)).catch(()=>{})}}
+    else if(!h.free){const d=PDATA.find(x=>x.code===h.code||x.ja===h.name);if(d){const c=document.createElement('canvas');row.appendChild(c);flagFromData(d).then(ff=>renderReal(c,ff,w,th)).catch(()=>{})}}
     const info=document.createElement('div');info.className='hi';
     info.innerHTML=`<div class="hn">${h.name}</div><div class="hd2">${fmtDate(h.t)}${h.mode?'　'+h.mode:''}</div>`;
-    const sc=document.createElement('div');sc.className='hs';sc.innerHTML=`${h.s}<small style="font-size:12px">%</small>`;
+    const sc=document.createElement('div');sc.className='hs';sc.innerHTML=h.free?'🎨':`${h.s}<small style="font-size:12px">%</small>`;
     row.append(info,sc);L.appendChild(row)}
   $('#hist').classList.remove('hidden');
 }
@@ -1575,8 +1601,10 @@ function timeUp(){
   down=null;boxSel=null;erasing=null;if(drag){drag=null;snapLabel=null;prune(st)}render();
   doJudge(true);
 }
-$('#judge').onclick=()=>doJudge(false);
-$('#skip').onclick=()=>{if(qDone)return;stopQ();scores.push({name:flag.name,s:0});nextQ()};
+$('#judge').onclick=()=>{if(flag&&flag.free){$('#sName').value=flag.name;$('#saveM').classList.remove('hidden');return}doJudge(false)};
+$('#skip').onclick=()=>{if(flag&&flag.free){const b=$('#skip');if(b.textContent!=='ほんとに？'){b.textContent='ほんとに？';setTimeout(()=>{if(flag&&flag.free)b.textContent='おわる'},2500);return}
+    stopQ();freeMode=false;showTitle();return}
+  if(qDone)return;stopQ();scores.push({name:flag.name,s:0});nextQ()};
 $('#next').onclick=()=>{$('#res').classList.add('hidden');nextQ()};
 $('#again').onclick=()=>{$('#sum').classList.add('hidden');showTitle()};
 
@@ -1585,16 +1613,18 @@ function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random
 function loadQ(){
   flag=order[qi];st=newState();hist=[];sel=null;rcache=null;lastPen=null;multi=[];lastDup=null;boxSel=null;
   $('#qname').textContent=flag.name;$('#qratio').textContent=`たて：よこ ＝ ${flag.ratio[0]}：${flag.ratio[1]}`;
-  $('#prog').textContent=`第${qi+1}問 / ${order.length}`;setPen(0);  // さいしょはペンの細（仕切り線）
+  $('#prog').textContent=flag.free?'🎨 じぶんの旗':`第${qi+1}問 / ${order.length}`;setPen(0);
+  $('#judge').textContent=flag.free?'💾 保存':'こたえあわせ';$('#skip').textContent=flag.free?'おわる':'とばす';  // さいしょはペンの細（仕切り線）
   $('#fx').classList.remove('show');document.body.classList.remove('judging');
   qDone=false;peekState=null;peekUsed=0;hintIdx=-1;clkReset();hideOverlay();document.body.classList.remove('peeking');
-  const useBox=setting.hint==='sample',useEye=setting.hint==='peek',useTimer=setting.end==='limit';
+  const useBox=!flag.free&&setting.hint==='sample',useEye=!flag.free&&setting.hint==='peek',useTimer=!flag.free&&setting.end==='limit';
   $('#stageTop').classList.toggle('hidden',!(useBox||useEye||useTimer));$('#hintBox').classList.toggle('hidden',!useBox);$('#eyeBox').classList.toggle('hidden',!useEye);$('#timer').classList.toggle('hidden',!useTimer);
-  hintImgs=setting.hint==='none'?null:buildHintImgs();
+  hintImgs=(flag.free||setting.hint==='none')?null:buildHintImgs();
   if(useTimer)showTimer(setting.limitSec);
   if(setting.hint==='sample')$('#hintLbl').innerHTML='<b>見本</b><br>押すと大きく';
   updEye();
   fit();
+  if(flag.free){$('#qname').textContent=flag.name;$('#qratio').classList.remove('hide');return}
   spinQ(()=>{if(!qDone)clkStart()});
 }
 // 出題ルーレット：国名がパラパラ切りかわって、だんだんゆっくりになって止まる（1.5秒くらい）。タップでとばせる
@@ -1624,7 +1654,28 @@ function showSummary(){
   $('#sTable').innerHTML=scores.map(x=>`<tr><td>${x.name}</td><td>${x.s}%</td></tr>`).join('');
   $('#sum').classList.remove('hidden');
 }
-const Q_PER_GAME=3;let gameMode='all';
+const Q_PER_GAME=3;let gameMode='all',freeMode=false;
+// ---- 🎨 じぶんの旗（自由に描く）：お題・採点・時計・ルーレットなし。💾でPNG/JPG保存 ----
+function openFree(){$('#freeM').classList.remove('hidden')}
+document.querySelectorAll('#fRatio button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#fRatio button').forEach(x=>x.classList.toggle('on',x===b));const[h,w]=b.dataset.r.split(':');$('#fH').value=h;$('#fW').value=w});
+['#fH','#fW'].forEach(id=>$(id).addEventListener('input',()=>{const r=`${$('#fH').value}:${$('#fW').value}`;document.querySelectorAll('#fRatio button').forEach(x=>x.classList.toggle('on',x.dataset.r===r))}));
+$('#tFree').onclick=openFree;$('#fCancel').onclick=()=>$('#freeM').classList.add('hidden');
+$('#fGo').onclick=()=>{const h=Math.max(1,Math.min(30,Math.round(+$('#fH').value||2))),w=Math.max(1,Math.min(30,Math.round(+$('#fW').value||3)));
+  const name=($('#fName').value||'').trim()||'じぶんの旗';
+  freeMode=true;order=[{name,ratio:[h,w],real:{},cls:()=>'x',free:true}];qi=0;scores=[];
+  $('#freeM').classList.add('hidden');$('#title').classList.add('hidden');loadQ()};
+function exportFlag(fmt){  // 横1200pxで描きなおして、塗っていないところは白に
+  const EW=1200,EH=Math.round(1200/ar()),keepW=W,keepH=H;W=EW;H=EH;rcache=null;let R;try{R=raster()}finally{W=keepW;H=keepH;rcache=null}
+  const c=document.createElement('canvas');c.width=R.RW;c.height=R.RH;const x=c.getContext('2d'),img=x.createImageData(R.RW,R.RH),xi=KIDX.x;
+  for(let p=0;p<R.J.length;p++){const q=R.J[p]===xi?[255,255,255]:PRGB[R.J[p]];img.data[p*4]=q[0];img.data[p*4+1]=q[1];img.data[p*4+2]=q[2];img.data[p*4+3]=255}
+  x.putImageData(img,0,0);render();return c}
+function saveFree(){const fmt=document.querySelector('#sFmt button.on').dataset.f,name=(($('#sName').value||'').trim()||'じぶんの旗').replace(/[\\/:*?"<>|]/g,'_');
+  const c=exportFlag(fmt);c.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`${name}.${fmt}`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),3000)},fmt==='jpg'?'image/jpeg':'image/png',.92);
+  try{const t=document.createElement('canvas'),tw=160;rasterToCanvas(t,raster(),tw,Math.round(tw/ar()));
+    const h=loadHist();h.unshift({name,free:true,ratio:flag.ratio,s:null,t:Date.now(),img:t.toDataURL('image/png'),mode:'🎨 じぶんの旗'});saveHist(h.slice(0,HIST_MAX))}catch(e){}
+  $('#saveM').classList.add('hidden')}
+document.querySelectorAll('#sFmt button').forEach(b=>b.onclick=()=>document.querySelectorAll('#sFmt button').forEach(x=>x.classList.toggle('on',x===b)));
+$('#sGo').onclick=saveFree;$('#sCancel').onclick=()=>$('#saveM').classList.add('hidden');
 // 出題の候補：データがあれば 練習＝かんたん（難易度1）／ふつう＝出題ONぜんぶ。なければ手作りの15か国
 function poolFor(mode){if(pdataState!=='ok')return FLAGS.map(f=>({hand:f}));
   return PDATA.filter(f=>f.enabled!==false&&(mode!=='easy'||f.diff===1)).map(d=>({data:d}))}
@@ -1634,7 +1685,7 @@ async function startMode(mode){gameMode=mode;const b1=$('#tStartE'),b2=$('#tStar
     if(!list.length)list.push(...shuffle([...FLAGS]).slice(0,Q_PER_GAME));
     order=list;qi=0;scores=[];$('#title').classList.add('hidden');loadQ()}
   finally{b1.disabled=b2.disabled=false}}
-function start(){startMode(gameMode)}
+function start(){if(freeMode){showTitle();return}startMode(gameMode)}
 // データの旗を、ゲームで使える形に（いまの15か国は手作りの形とコメントを使う）
 const SVGF={};
 function approxRatio(w,h){const r=h/w;let best=null;for(let q=1;q<=20;q++){const p=Math.round(r*q);if(p<1)continue;const e=Math.abs(p/q-r)/r;if(e<.01&&(!best||q<best.q))best={p,q}}return best?[best.p,best.q]:[Math.round(h),Math.round(w)]}
