@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>国旗お絵かき v0.34</title>
+<title>国旗お絵かき v0.35</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPHJlY3QgeD0iNSIgeT0iNCIgd2lkdGg9IjQuNSIgaGVpZ2h0PSI1NyIgcng9IjIuMiIgZmlsbD0iIzZiNWE0NSIvPgogIDxwYXRoIGQ9Ik05LjUgN2g1MHYzNmgtNTB6IiBmaWxsPSIjZmZmIiBzdHJva2U9IiMyMjIiIHN0cm9rZS13aWR0aD0iMi44IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCAzLjc1KSByb3RhdGUoNDUgMzQuNSAyMS4yNSkiPgogICAgPHJlY3QgeD0iMzAuNSIgeT0iOCIgd2lkdGg9IjgiIGhlaWdodD0iMjIiIHJ4PSIxLjIiIGZpbGw9IiNmZmM4M2QiIHN0cm9rZT0iIzIyMiIgc3Ryb2tlLXdpZHRoPSIyLjIiLz4KICAgIDxwYXRoIGQ9Ik0zMC41IDMwaDhsLTQgOC41eiIgZmlsbD0iI2YzZDliMSIgc3Ryb2tlPSIjMjIyIiBzdHJva2Utd2lkdGg9IjIuMiIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgogICAgPHBhdGggZD0iTTMzLjEgMzUuNmgyLjhMMzQuNSAzOC41eiIgZmlsbD0iIzIyMiIvPgogICAgPHJlY3QgeD0iMzAuNSIgeT0iNCIgd2lkdGg9IjgiIGhlaWdodD0iNSIgcng9IjEuMiIgZmlsbD0iI2YwOGFhNiIgc3Ryb2tlPSIjMjIyIiBzdHJva2Utd2lkdGg9IjIuMiIvPgogIDwvZz4KPC9zdmc+">
 <style>
 :root{--bg:#f4f1ea;--panel:#fff;--ink:#222;--sub:#777;--line:#ddd;--accent:#e0457b}
@@ -219,7 +219,7 @@ table.sum td:last-child{text-align:right;font-weight:700}
 </head>
 <body>
 <div class="wrap">
-  <header><h1>国旗お絵かき v0.34</h1><div class="hd"><div id="prog"></div><button id="histBtn" class="mini">📜 りれき</button><button id="setBtn" class="mini">⚙ 設定</button></div></header>
+  <header><h1>国旗お絵かき v0.35</h1><div class="hd"><div id="prog"></div><button id="histBtn" class="mini">📜 りれき</button><button id="setBtn" class="mini">⚙ 設定</button></div></header>
   <div class="main"><div class="left">
   <div class="q"><div class="qname" id="qname"></div><div class="qratio" id="qratio"></div></div>
   <div class="stage" id="stage">
@@ -356,7 +356,7 @@ table.sum td:last-child{text-align:right;font-weight:700}
   <div class="tdata" id="tData">国旗データを読みこみ中…</div>
   <div class="tlinks"><button id="tSet" class="mini">⚙ あそびかた設定</button><button id="tHist" class="mini">📜 りれき</button></div>
   <div class="tmode" id="tMode"></div>
-  <div class="tver">v0.34</div>
+  <div class="tver">v0.35</div>
 </div></div>
 
 <div class="modal hidden" id="freeM"><div class="card setup">
@@ -867,11 +867,17 @@ function snapEnd(pt,skip=-1){
   for(const L of st.lines){const q=nearSeg(px,py,L.a.u*W,L.a.v*H,L.b.u*W,L.b.v*H);cand(q.x,q.y)}
   return best?[clamp(best.x/W,0,1),clamp(best.y/H,0,1)]:null;
 }
+// 線のはしが枠のふちの近く（thr px以内）なら、ふちの少し外までのばす（すきまができないように）
+function edgeOut(pt,thr){const px=pt[0]*W,py=pt[1]*H,o=3;let x=pt[0],y=pt[1],hit=false;
+  if(px<thr){x=-o/W;hit=true}else if(px>W-thr){x=1+o/W;hit=true}
+  if(py<thr){y=-o/H;hit=true}else if(py>H-thr){y=1+o/H;hit=true}
+  return hit?[x,y]:null}
+function extendEnds(pts,thr){if(pts.length<2)return pts;const a=edgeOut(pts[0],thr),b=edgeOut(pts[pts.length-1],thr);if(a)pts.unshift(a);if(b)pts.push(b);return pts}
 function finishStroke(pts){
   let len=0;for(let i=1;i<pts.length;i++)len+=Math.hypot((pts[i][0]-pts[i-1][0])*W,(pts[i][1]-pts[i-1][1])*H);
   const s=pts[0],e=pts[pts.length-1];
   if(Math.hypot((s[0]-e[0])*W,(s[1]-e[1])*H)<20&&len>60)return{pts:[...pts,s]};
-  const a=snapEnd(s),b=snapEnd(e);if(a)pts.unshift(a);if(b)pts.push(b);return{pts};
+  const a=snapEnd(s),b=snapEnd(e);if(a)pts.unshift(a);if(b)pts.push(b);return{pts:extendEnds(pts,10)};
 }
 
 // ---- input ----
@@ -958,8 +964,8 @@ function toggleMulti(m){if(!m||(m.t!=='s'&&m.t!=='k'))return;if(sel&&(sel.t==='s
   if(inMulti(m))multi=multi.filter(x=>!(x.t===m.t&&x.i===m.i));else multi.push(m)}
 function clearMulti(){multi=[]}
 const sameObj=(a,b)=>!!(a&&b&&a.t===b.t&&a.i===b.i);
-cv.addEventListener('pointerdown',e=>{
-  const p=pos(e);cv.setPointerCapture(e.pointerId);TR=e.pointerType==='touch'?1.7:1;
+function cvDown(e){
+  const p=pos(e);try{cv.setPointerCapture(e.pointerId)}catch(_){}TR=e.pointerType==='touch'?1.7:1;
   if(mode==='erase'){pushHist();sel=null;multi=[];lastDup=null;erasing={p0:p,last:p,did:eraseAlong(p.x,p.y,p.x,p.y)};eraseCur=p;rafRender();return}
   if(mode==='pen'){if((e.shiftKey||lineLink)&&lastPen){sel=null;penLine(p);return}pen=[[p.u,p.v]];sel=null;return}
   if(mode==='pick'){const R=raster(),i=clamp(Math.floor(p.u*R.RW),0,R.RW-1),j=clamp(Math.floor(p.v*R.RH),0,R.RH-1),k=KEYS[R.J[j*R.RW+i]];
@@ -981,12 +987,20 @@ cv.addEventListener('pointerdown',e=>{
   if(!h)h=cands[0]||null;
   down={p0:p,hit:h,cands,wasSel};
   if(mode==='move'){sel=selOf(h);if(!h){down.box=true;boxSel={x0:p.x,y0:p.y,x1:p.x,y1:p.y}}render()}
-});
+}
 // 選んでいるものをもう一回タップしたら、その下にあるものへ順番に切り替え
 function cycleSel(){
   const objs=[];for(const c of down.cands){const o=selOf(c);if(!objs.some(x=>sameObj(x,o)))objs.push(o)}
   if(objs.length<2)return;const k=objs.findIndex(o=>sameObj(o,sel));sel=objs[(k+1)%objs.length];render();
 }
+cv.addEventListener('pointerdown',cvDown);
+// 枠の外がわ（40pxまで）から押しはじめても、ペン・消しゴムは描ける（端から端まですきまなく引けるように）
+document.addEventListener('pointerdown',e=>{
+  if(e.target===cv||e.button>0||!(mode==='pen'||mode==='erase')||!flag||qDone||peekState||spinState||document.body.classList.contains('judging'))return;
+  const stg=$('#stage');if(!(e.target===document.documentElement||e.target.contains(stg)||(stg.contains(e.target)&&!e.target.closest('#stageTop,#peek,#fx'))))return;
+  const r=cv.getBoundingClientRect(),B=40,x=e.clientX,y=e.clientY;
+  if(x<r.left-B||x>r.right+B||y<r.top-B||y>r.bottom+B)return;
+  e.preventDefault();cvDown(e)});
 cv.addEventListener('pointermove',e=>{
   const p=pos(e),a=ar();
   if(mode==='erase'){eraseCur=p;
@@ -1078,7 +1092,8 @@ function penLine(p){
   let k=lastPen.i!=null?st.strokes[lastPen.i]:null;
   if(k&&((k.w||null)!==penW||(penW&&k.k!==color)))k=null;
   if(!penW){const s0=k?k.pts[0]:lastPen.end;
-    if(Math.hypot((q[0]-s0[0])*W,(q[1]-s0[1])*H)<18)q=s0.slice();else{const s=snapEnd(q,k?lastPen.i:-1);if(s)q=s}}
+    if(Math.hypot((q[0]-s0[0])*W,(q[1]-s0[1])*H)<18)q=s0.slice();else{const s=snapEnd(q,k?lastPen.i:-1);if(s)q=s;const o=edgeOut(q,10);if(o)q=o}}
+  else{const o=edgeOut(q,10);if(o)q=o}
   if(k)k.pts.push(q);
   else{k={pts:[lastPen.end.slice(),q]};if(penW){k.w=penW;k.k=color}st.strokes.push(k);lastPen.i=st.strokes.length-1}
   lastPen.end=q;render();
@@ -1090,7 +1105,7 @@ function up(){
     else if(!e0.did)hist.pop();
     prune(st);render();return}
   if(pen){const pts=pen;pen=null;if(!penW&&pts.length<3){lastPen={i:null,end:pts[0]};render();return}
-    if(pts.length>=3||penW){pushHist();const k=penW?{pts}:finishStroke(pts);if(penW){k.w=penW;k.k=color}st.strokes.push(k);lastPen={i:st.strokes.length-1,end:k.pts[k.pts.length-1].slice()};sel={t:'k',i:st.strokes.length-1}}render();return}
+    if(pts.length>=3||penW){pushHist();const k=penW?{pts:extendEnds(pts,10)}:finishStroke(pts);if(penW){k.w=penW;k.k=color}st.strokes.push(k);lastPen={i:st.strokes.length-1,end:k.pts[k.pts.length-1].slice()};sel={t:'k',i:st.strokes.length-1}}render();return}
   if(down&&down.box&&boxSel){
     const x0=Math.min(boxSel.x0,boxSel.x1),x1=Math.max(boxSel.x0,boxSel.x1),y0=Math.min(boxSel.y0,boxSel.y1),y1=Math.max(boxSel.y0,boxSel.y1);boxSel=null;
     if(x1-x0>6||y1-y0>6){const got=[];st.shapes.forEach((sh,i)=>{const b=shapeBox(sh);if(b.x0>=x0&&b.y0>=y0&&b.x1<=x1&&b.y1<=y1)got.push({t:'s',i})});
