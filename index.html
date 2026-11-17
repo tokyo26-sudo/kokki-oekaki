@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>国旗お絵かき v0.42</title>
+<title>国旗お絵かき v0.44</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPHJlY3QgeD0iNSIgeT0iNCIgd2lkdGg9IjQuNSIgaGVpZ2h0PSI1NyIgcng9IjIuMiIgZmlsbD0iIzZiNWE0NSIvPgogIDxwYXRoIGQ9Ik05LjUgN2g1MHYzNmgtNTB6IiBmaWxsPSIjZmZmIiBzdHJva2U9IiMyMjIiIHN0cm9rZS13aWR0aD0iMi44IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCAzLjc1KSByb3RhdGUoNDUgMzQuNSAyMS4yNSkiPgogICAgPHJlY3QgeD0iMzAuNSIgeT0iOCIgd2lkdGg9IjgiIGhlaWdodD0iMjIiIHJ4PSIxLjIiIGZpbGw9IiNmZmM4M2QiIHN0cm9rZT0iIzIyMiIgc3Ryb2tlLXdpZHRoPSIyLjIiLz4KICAgIDxwYXRoIGQ9Ik0zMC41IDMwaDhsLTQgOC41eiIgZmlsbD0iI2YzZDliMSIgc3Ryb2tlPSIjMjIyIiBzdHJva2Utd2lkdGg9IjIuMiIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgogICAgPHBhdGggZD0iTTMzLjEgMzUuNmgyLjhMMzQuNSAzOC41eiIgZmlsbD0iIzIyMiIvPgogICAgPHJlY3QgeD0iMzAuNSIgeT0iNCIgd2lkdGg9IjgiIGhlaWdodD0iNSIgcng9IjEuMiIgZmlsbD0iI2YwOGFhNiIgc3Ryb2tlPSIjMjIyIiBzdHJva2Utd2lkdGg9IjIuMiIvPgogIDwvZz4KPC9zdmc+">
 <style>
 :root{--bg:#f4f1ea;--panel:#fff;--ink:#222;--sub:#777;--line:#ddd;--accent:#e0457b}
@@ -252,7 +252,7 @@ table.sum td:last-child{text-align:right;font-weight:700}
 </head>
 <body>
 <div class="wrap">
-  <header><h1>国旗お絵かき v0.42</h1><div class="hd"><div id="prog"></div><button id="histBtn" class="mini">📜 りれき</button><button id="setBtn" class="mini">⚙ 設定</button></div></header>
+  <header><h1>国旗お絵かき v0.44</h1><div class="hd"><div id="prog"></div><button id="histBtn" class="mini">📜 りれき</button><button id="setBtn" class="mini">⚙ 設定</button></div></header>
   <div class="main"><div class="left">
   <div class="q"><div class="qname" id="qname"></div><div class="qratio" id="qratio"></div></div>
   <div class="stage" id="stage">
@@ -394,7 +394,7 @@ table.sum td:last-child{text-align:right;font-weight:700}
   <div class="tdata" id="tData">国旗データを読みこみ中…</div>
   <div class="tlinks"><button id="tSet" class="mini">⚙ あそびかた設定</button><button id="tHist" class="mini">📜 りれき</button></div>
   <div class="tmode" id="tMode"></div>
-  <div class="tver">v0.42</div>
+  <div class="tver">v0.44</div>
 </div></div>
 
 <div class="modal hidden" id="btM"><div class="card setup">
@@ -479,9 +479,9 @@ const ACC='#e0457b',INK='#111111';
 const PAL={
   w:{n:'白',c:'#ffffff',g:'w'}, k:{n:'黒',c:'#111111',g:'k'},
   r:{n:'赤',c:'#d7263d',g:'r'}, m:{n:'えんじ',c:'#8d1b3d',g:'r'},
-  o:{n:'オレンジ',c:'#f28a1d',g:'o'}, y:{n:'黄',c:'#ffcc00',g:'y'},
-  g:{n:'緑',c:'#1d9a50',g:'g'}, d:{n:'深緑',c:'#0b5e3c',g:'g'},
-  s:{n:'水色',c:'#5ab4e5',g:'b'}, b:{n:'青',c:'#1f55b5',g:'b'}, n:{n:'紺',c:'#14286e',g:'b'},
+  o:{n:'オレンジ',c:'#f28a1d',g:'o'}, v:{n:'朱色',c:'#e05206',g:'o'}, y:{n:'黄',c:'#ffcc00',g:'y'},
+  g:{n:'緑',c:'#1d9a50',g:'g'}, d:{n:'深緑',c:'#0b5e3c',g:'g'}, f:{n:'濃い緑',c:'#01411c',g:'g'},
+  t:{n:'ターコイズ',c:'#00afca',g:'b'}, s:{n:'水色',c:'#5ab4e5',g:'b'}, b:{n:'青',c:'#1f55b5',g:'b'}, n:{n:'紺',c:'#14286e',g:'b'},
   x:{n:'まだ塗ってない',c:'#d6d2c9',g:'x',blank:true},  // パレットには出さない。採点では「色なし」
 };
 const KEYS=Object.keys(PAL),KIDX={};KEYS.forEach((k,i)=>KIDX[k]=i);
@@ -722,7 +722,11 @@ function partSvg(p){  // 幅と高さを書きこんでおく（ブラウザに�
 function makeMapper(colorMap){const cm=Object.entries(colorMap||{}).map(([hx,k])=>[hex2rgb(hx),k]).filter(([,k])=>KIDX[k]!==undefined),memo=new Map();
   return(r,g,b)=>{const key=(r>>3)<<10|(g>>3)<<5|(b>>3);let k=memo.get(key);if(k!==undefined)return k;
     let bi=-1,bd=60*60*3;for(const[c3,kk]of cm){const dd=(c3[0]-r)**2+(c3[1]-g)**2+(c3[2]-b)**2;if(dd<bd){bd=dd;bi=KIDX[kk]}}
-    k=bi>=0?bi:nearestKey(r,g,b);memo.set(key,k);return k}}
+    k=bi>=0?bi:nearestKey(r,g,b);
+    // v0.44で足した3色（濃い緑・朱色・ターコイズ）のほうが近く、その色にかなり近い（距離45以内）なら、工房の色の対応より優先する
+    if(bi>=0){const nk=nearestKey(r,g,b);if(NEWC.has(KEYS[nk])&&nk!==k){const P=PRGB[nk],Q=PRGB[k];if((P[0]-r)**2+(P[1]-g)**2+(P[2]-b)**2<45*45&&.3*(P[0]-r)**2+.59*(P[1]-g)**2+.11*(P[2]-b)**2<.3*(Q[0]-r)**2+.59*(Q[1]-g)**2+.11*(Q[2]-b)**2)k=nk}}
+    memo.set(key,k);return k}}
+const NEWC=new Set(['f','v','t']);
 function loadPart(p){
   if(PIMG[p.id])return Promise.resolve(PIMG[p.id]);
   return new Promise((res,rej)=>{const{url,asp}=partSvg(p),img=new Image();
@@ -1339,6 +1343,11 @@ function stripePurity(fn,dir){const N=60,K=40;let s=0;for(let i=0;i<N;i++){const
   for(let j=0;j<K;j++){const o=(j+.5)/K,c=dir==='v'?fn(t,o):fn(o,t);cnt[c]=(cnt[c]||0)+1;if(cnt[c]>mx)mx=cnt[c]}s+=mx/K}return s/N}
 // 部分ごとの採点：本物を「同じ色でつながった部分」（帯・丸・葉っぱ…）に分け、部分ごとに
 // 重なり（合っている所 ÷（本物の部分＋まわりのはみ出し））×0.65 ＋ りんかくの合い方 ×0.35。重みは面積の平方根。とても小さい部分（0.3%未満）は数えない
+// 色の仲間：緑と深緑・赤とえんじ・青と紺は同じ色として満点（本物の色がパレットのちょうど間のことが多く、どっちが正解かはほぼ運のため）。
+// 水色と青は見た目がちがうので6割、水色と紺は3割
+// v0.44：濃い緑・朱色・ターコイズを足した
+const COL_SIM={rm:1,gd:1,gf:1,df:1,bn:1,ov:1,rv:.6,st:1,sb:.6,sn:.3,bt:.6,nt:.3};let SIMF=1;
+const colSim=(a,b)=>a===b?1:((COL_SIM[a+b]||COL_SIM[b+a]||0)*SIMF);
 let PS_DETAIL=[];
 function partScoreOf(D,T,N,M){PS_DETAIL=[];const n=N*M,comp=new Int32Array(n).fill(-1),parts=[];
   for(let k=0;k<n;k++){if(comp[k]>=0)continue;const id=parts.length,col=T[k],q=[k];comp[k]=id;const cells=[];
@@ -1350,7 +1359,7 @@ function partScoreOf(D,T,N,M){PS_DETAIL=[];const n=N*M,comp=new Int32Array(n).fi
   for(const pt of parts){if(pt.cells.length/n<.003)continue;if(PMASK){let mk=0;for(const c of pt.cells)mk+=PMASK[c];if(mk>pt.cells.length*.5)continue}  // 部品の中の部分は、部品の置き方で採点する
     let hit=0,x0=N,x1=0,y0=M,y1=0;
     for(const c of pt.cells){const ci=c%N,cj=(c-ci)/N;if(ci<x0)x0=ci;if(ci>x1)x1=ci;if(cj<y0)y0=cj;if(cj>y1)y1=cj;let ok=D[c]===pt.col?1:0;
-      if(!ok)for(let dj=-R;dj<=R&&!ok;dj++)for(let di=-R;di<=R;di++){const ii=ci+di,jj=cj+dj;if(ii<0||jj<0||ii>=N||jj>=M)continue;if(D[jj*N+ii]===pt.col){ok=1;break}}hit+=ok}
+      if(!ok)for(let dj=-R;dj<=R&&ok<1;dj++)for(let di=-R;di<=R;di++){const ii=ci+di,jj=cj+dj;if(ii<0||jj<0||ii>=N||jj>=M)continue;const dd=D[jj*N+ii];if(dd===pt.col){ok=1;break}const sm=colSim(dd,pt.col);if(sm>ok)ok=sm}hit+=ok}
     let ex=0;for(let j=Math.max(0,y0-2);j<=Math.min(M-1,y1+2);j++)for(let i=Math.max(0,x0-2);i<=Math.min(N-1,x1+2);i++){const c=j*N+i;if(D[c]!==pt.col)continue;let near=0;
       for(let dj=-R;dj<=R&&!near;dj++)for(let di=-R;di<=R;di++){const ii=i+di,jj=j+dj;if(ii<0||jj<0||ii>=N||jj>=M)continue;if(T[jj*N+ii]===pt.col){near=1;break}}if(!near)ex++}
     let be=0,bh=0;for(const c of pt.cells){const ci=c%N,cj=(c-ci)/N;if(!(ci>0&&ci<N-1&&cj>0&&cj<M-1)||!isEdge(T,c))continue;be++;let best=99;
@@ -1470,8 +1479,9 @@ function judge(){
   if(!structural&&!flipped)for(const t of tcols){if(r.miss.includes(t)||great.includes(t)||covered.has(t)||r.per[t].share<.04)continue;
     if(r.per[t].r<.75)hints.push(`${nm(t)}が足りないところがあります。`);
     else if(r.per[t].p<.75)hints.push(`${nm(t)}が本物より広がりすぎ（はみ出し）。`)}
-  for(const t in sibOf)hints.push(`${nm(sibOf[t])}で塗ったところ、本物は${nm(t)}。近い色なので半分だけ点をあげてます。`);
-  if(!Object.keys(sibOf).length&&r.sib>0.1)hints.push('本物とちょっとだけ濃さのちがう色で塗ったところがあります。半分だけ点をあげてます。');
+  const tone=(a,b)=>{const L=k=>{const[r,g,bb]=hex2rgb(PAL[k].c);return r*.3+g*.59+bb*.11};return L(a)<L(b)?'もう少し暗い':'もう少し明るい'};
+  for(const t in sibOf){const u=sibOf[t],sm=colSim(u,t);hints.push(sm>=1?`${nm(u)}で塗ったところ、本物は${tone(t,u)}色（${nm(t)}）に近いヨ。点はそのまま！`:`${nm(u)}で塗ったところ、本物は${nm(t)}。近い色なので${Math.round(sm*10)}割の点にしてます。`)}
+  if(!Object.keys(sibOf).length&&r.sib>0.1)hints.push('本物とちょっとだけ濃さのちがう色で塗ったところがあります。');
   if(flag.name==='韓国'&&r.miss.includes('k'))hints.push('卦の棒は「四角」か、✏️の「太」ペンで描けます。');
   // --- 国ごと ---
   if(flag.name==='韓国'&&s<90)hints.push('四すみの卦は、左上が「☰（3本つながり）」、右下が「☷（3本ぜんぶ切れ）」、右上が「☵」、左下が「☲」。');
@@ -1844,13 +1854,13 @@ async function flagFromData(d){
 window.addEventListener('resize',()=>{if(flag)fit()});
 showTitle();
 
-// ===================== ⚔️ 対決モード（v0.42） =====================
+// ===================== ⚔️ 対決モード（v0.44） =====================
 // 2人で同じ国を同時に描く。3問勝負。どっちかが「こたえあわせ」したら、もう1人はのこり1分。1問3分まで。
 // 通信：Supabase Realtime の部屋チャンネル（broadcast だけ。テーブルは使わない）。
 // テスト用：URLに ?fakenet=1 を付けると、同じブラウザのタブどうしで BroadcastChannel を使う。
 const SB_URL='https://acytuhewfhuoxugwmbat.supabase.co',SB_KEY='sb_publishable_ruAGcA3YSvXXCPkc3s6aTQ_4lg3wAYJ';
 const SB_CDN='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js';
-const BT_CAP=180,BT_CHASE=60,BT_HB=2000,BT_LOST=8000,BT_NAME_KEY='kokki-oekaki-name',APP_VER='v0.42';
+const BT_CAP=180,BT_CHASE=60,BT_HB=2000,BT_LOST=8000,BT_NAME_KEY='kokki-oekaki-name',APP_VER='v0.44';
 let BT=null;  // いまの部屋（入っていなければ null）
 const btFake=()=>/[?&]fakenet=1/.test(location.search);
 const rid=()=>Math.random().toString(36).slice(2,10);
