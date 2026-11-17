@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>国旗お絵かき v0.44</title>
+<title>国旗お絵かき v0.45</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPHJlY3QgeD0iNSIgeT0iNCIgd2lkdGg9IjQuNSIgaGVpZ2h0PSI1NyIgcng9IjIuMiIgZmlsbD0iIzZiNWE0NSIvPgogIDxwYXRoIGQ9Ik05LjUgN2g1MHYzNmgtNTB6IiBmaWxsPSIjZmZmIiBzdHJva2U9IiMyMjIiIHN0cm9rZS13aWR0aD0iMi44IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCAzLjc1KSByb3RhdGUoNDUgMzQuNSAyMS4yNSkiPgogICAgPHJlY3QgeD0iMzAuNSIgeT0iOCIgd2lkdGg9IjgiIGhlaWdodD0iMjIiIHJ4PSIxLjIiIGZpbGw9IiNmZmM4M2QiIHN0cm9rZT0iIzIyMiIgc3Ryb2tlLXdpZHRoPSIyLjIiLz4KICAgIDxwYXRoIGQ9Ik0zMC41IDMwaDhsLTQgOC41eiIgZmlsbD0iI2YzZDliMSIgc3Ryb2tlPSIjMjIyIiBzdHJva2Utd2lkdGg9IjIuMiIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgogICAgPHBhdGggZD0iTTMzLjEgMzUuNmgyLjhMMzQuNSAzOC41eiIgZmlsbD0iIzIyMiIvPgogICAgPHJlY3QgeD0iMzAuNSIgeT0iNCIgd2lkdGg9IjgiIGhlaWdodD0iNSIgcng9IjEuMiIgZmlsbD0iI2YwOGFhNiIgc3Ryb2tlPSIjMjIyIiBzdHJva2Utd2lkdGg9IjIuMiIvPgogIDwvZz4KPC9zdmc+">
 <style>
 :root{--bg:#f4f1ea;--panel:#fff;--ink:#222;--sub:#777;--line:#ddd;--accent:#e0457b}
@@ -252,7 +252,7 @@ table.sum td:last-child{text-align:right;font-weight:700}
 </head>
 <body>
 <div class="wrap">
-  <header><h1>国旗お絵かき v0.44</h1><div class="hd"><div id="prog"></div><button id="histBtn" class="mini">📜 りれき</button><button id="setBtn" class="mini">⚙ 設定</button></div></header>
+  <header><h1>国旗お絵かき v0.45</h1><div class="hd"><div id="prog"></div><button id="histBtn" class="mini">📜 りれき</button><button id="setBtn" class="mini">⚙ 設定</button></div></header>
   <div class="main"><div class="left">
   <div class="q"><div class="qname" id="qname"></div><div class="qratio" id="qratio"></div></div>
   <div class="stage" id="stage">
@@ -293,10 +293,10 @@ table.sum td:last-child{text-align:right;font-weight:700}
       <button id="linkBtn">⇧ 直線つなぎ</button>
     </div>
     <div class="row"><span class="lbl">線</span>
-      <button id="addV">＋縦線</button>
-      <button id="addH">＋横線</button>
-      <button id="addD">＋斜め線</button>
-      <button id="addR" data-ico="ring">輪っか</button>
+      <button id="addV">｜ 縦線</button>
+      <button id="addH">― 横線</button>
+      <button id="addD">＼ ななめ線</button>
+      <button id="addR">◯ 輪っか</button>
     </div>
     <div class="row" id="eqV"><span class="lbl">たて等分 <span class="ico">|||</span></span></div>
     <div class="row" id="eqH"><span class="lbl">よこ等分 <span class="ico">三</span></span></div>
@@ -306,6 +306,7 @@ table.sum td:last-child{text-align:right;font-weight:700}
       <button id="addB" data-ico="rect">四角</button>
       <button id="addT" data-ico="tri">三角</button>
       <button id="addS" data-ico="star">星</button>
+      <button id="addX" data-ico="cross">十字</button>
     </div>
     <div class="row"><span class="lbl">えらぶ</span>
       <button id="multiBtn">☐ 複数えらび</button>
@@ -394,7 +395,7 @@ table.sum td:last-child{text-align:right;font-weight:700}
   <div class="tdata" id="tData">国旗データを読みこみ中…</div>
   <div class="tlinks"><button id="tSet" class="mini">⚙ あそびかた設定</button><button id="tHist" class="mini">📜 りれき</button></div>
   <div class="tmode" id="tMode"></div>
-  <div class="tver">v0.44</div>
+  <div class="tver">v0.45</div>
 </div></div>
 
 <div class="modal hidden" id="btM"><div class="card setup">
@@ -610,6 +611,7 @@ function inShape(sh,u,v,a){
   if(sh.type==='star')return inPoly(u*a,v,starPts(sh.u*a,sh.v,sh.rh,sh.rot||0));
   const[lx,ly]=local(sh,u,v,a);
   if(sh.type==='rect')return Math.abs(lx)<=sh.hw&&Math.abs(ly)<=sh.hh;
+  if(sh.type==='cross')return(Math.abs(ly)<=sh.th&&Math.abs(lx)<=sh.hw)||(Math.abs(lx)<=sh.th&&Math.abs(ly)<=sh.hh);
   if(lx*lx+ly*ly>sh.rh*sh.rh)return false;return sh.type!=='half'||ly>=0;
 }
 function shapeHit(s,u,v,a){for(let i=s.shapes.length-1;i>=0;i--)if(inShape(s.shapes[i],u,v,a))return i;return -1}
@@ -723,7 +725,7 @@ function makeMapper(colorMap){const cm=Object.entries(colorMap||{}).map(([hx,k])
   return(r,g,b)=>{const key=(r>>3)<<10|(g>>3)<<5|(b>>3);let k=memo.get(key);if(k!==undefined)return k;
     let bi=-1,bd=60*60*3;for(const[c3,kk]of cm){const dd=(c3[0]-r)**2+(c3[1]-g)**2+(c3[2]-b)**2;if(dd<bd){bd=dd;bi=KIDX[kk]}}
     k=bi>=0?bi:nearestKey(r,g,b);
-    // v0.44で足した3色（濃い緑・朱色・ターコイズ）のほうが近く、その色にかなり近い（距離45以内）なら、工房の色の対応より優先する
+    // v0.45で足した3色（濃い緑・朱色・ターコイズ）のほうが近く、その色にかなり近い（距離45以内）なら、工房の色の対応より優先する
     if(bi>=0){const nk=nearestKey(r,g,b);if(NEWC.has(KEYS[nk])&&nk!==k){const P=PRGB[nk],Q=PRGB[k];if((P[0]-r)**2+(P[1]-g)**2+(P[2]-b)**2<45*45&&.3*(P[0]-r)**2+.59*(P[1]-g)**2+.11*(P[2]-b)**2<.3*(Q[0]-r)**2+.59*(Q[1]-g)**2+.11*(Q[2]-b)**2)k=nk}}
     memo.set(key,k);return k}}
 const NEWC=new Set(['f','v','t']);
@@ -789,17 +791,23 @@ $('#drawer').addEventListener('click',e=>{const b=e.target.closest('button');if(
 
 // ---- drawing ----
 function setupCanvas(c,w,h){const d=window.devicePixelRatio||1;c.width=Math.round(w*d);c.height=Math.round(h*d);c.style.width=w+'px';c.style.height=h+'px';const x=c.getContext('2d');x.setTransform(d,0,0,d,0,0);return x}
+// ✚ 十字：中心(u,v)・よこのうでの半分の長さ hw・たてのうで hh・太さの半分 th（どれも旗の高さが1）・回転 rot
+const crossLocal=sh=>{const a=sh.hw,b=sh.hh,t=sh.th;return[[-t,-b],[t,-b],[t,-t],[a,-t],[a,t],[t,t],[t,b],[-t,b],[-t,t],[-a,t],[-a,-t],[-t,-t]]};
+const toScr=(sh,w,h,pts)=>{const c=Math.cos(sh.rot||0),s=Math.sin(sh.rot||0),cx=sh.u*w,cy=sh.v*h;return pts.map(([x,y])=>[cx+(x*c-y*s)*h,cy+(x*s+y*c)*h])};
+const crossPts=(sh,w,h)=>toScr(sh,w,h,crossLocal(sh));
+const crossHandles=sh=>toScr(sh,W,H,[[sh.hw,0],[-sh.hw,0],[0,sh.hh],[0,-sh.hh],[Math.min(sh.hw,sh.th+.06),-sh.th]]).map((p,i)=>({t:i<2?'sxw':i<4?'sxh':'sxt',p}));
 function rectCorners(sh,w,h){const c=Math.cos(sh.rot||0),s=Math.sin(sh.rot||0),cx=sh.u*w,cy=sh.v*h,X=sh.hw*h,Y=sh.hh*h;return[[-X,-Y],[X,-Y],[X,Y],[-X,Y]].map(([x,y])=>[cx+x*c-y*s,cy+x*s+y*c])}
 function shapePath(x,sh,w,h){
   const cx=sh.u*w,cy=sh.v*h,R=(sh.rh||0)*h,r=sh.rot||0;
   if(sh.type==='circle'||sh.type==='ring')x.arc(cx,cy,R,0,Math.PI*2);
   else if(sh.type==='half'){x.arc(cx,cy,R,r,r+Math.PI);x.closePath()}
   else if(sh.type==='poly'){sh.pts.forEach((q,i)=>i?x.lineTo(q[0]*w,q[1]*h):x.moveTo(q[0]*w,q[1]*h));x.closePath()}
+  else if(sh.type==='cross'){crossPts(sh,w,h).forEach((q,i)=>i?x.lineTo(q[0],q[1]):x.moveTo(q[0],q[1]));x.closePath()}
   else if(sh.type==='rect'){rectCorners(sh,w,h).forEach((q,i)=>i?x.lineTo(q[0],q[1]):x.moveTo(q[0],q[1]));x.closePath()}
   else if(sh.type==='part'){partCorners(sh,w,h).forEach((q,i)=>i?x.lineTo(q[0],q[1]):x.moveTo(q[0],q[1]));x.closePath()}
   else{starPts(cx,cy,R,r).forEach((q,i)=>i?x.lineTo(q[0],q[1]):x.moveTo(q[0],q[1]));x.closePath()}
 }
-const reach=sh=>sh.type==='rect'?sh.hh:sh.rh;
+const reach=sh=>sh.type==='rect'||sh.type==='cross'?sh.hh:sh.rh;
 const polyCenter=sh=>{let x=0,y=0;for(const q of sh.pts){x+=q[0];y+=q[1]}return[x/sh.pts.length*W,y/sh.pts.length*H]};
 const rotHandle=sh=>{if(sh.type==='poly'){const b=shapeBox(sh),c=polyCenter(sh);return[c[0],b.y0-22]}const R=reach(sh)*H+22,r=sh.rot||0;return[sh.u*W+R*Math.sin(r),sh.v*H-R*Math.cos(r)]};
 // 画面上の囲み（px）
@@ -807,6 +815,7 @@ function shapeBox(sh){
   let xs,ys;
   if(sh.type==='poly'){xs=sh.pts.map(q=>q[0]*W);ys=sh.pts.map(q=>q[1]*H)}
   else if(sh.type==='rect'){const c=rectCorners(sh,W,H);xs=c.map(q=>q[0]);ys=c.map(q=>q[1])}
+  else if(sh.type==='cross'){const c=crossPts(sh,W,H);xs=c.map(q=>q[0]);ys=c.map(q=>q[1])}
   else if(sh.type==='part'){const c=partCorners(sh,W,H);xs=c.map(q=>q[0]);ys=c.map(q=>q[1])}
   else{const R=sh.rh*H;xs=[sh.u*W-R,sh.u*W+R];ys=[sh.v*H-R,sh.v*H+R]}
   return{x0:Math.min(...xs),y0:Math.min(...ys),x1:Math.max(...xs),y1:Math.max(...ys)};
@@ -869,10 +878,11 @@ function render(){
       const[hx,hy]=rotHandle(sh),c=polyCenter(sh);ctx.strokeStyle=ACC;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(c[0],c[1]);ctx.lineTo(hx,hy);ctx.stroke();
       ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(hx,hy,8,0,7);ctx.fill();ctx.stroke();return}
     ctx.setLineDash([5,4]);ctx.strokeStyle=ACC;ctx.lineWidth=2;ctx.beginPath();
-    if(sh.type==='rect'||sh.type==='part')shapePath(ctx,sh,W,H);else ctx.arc(sh.u*W,sh.v*H,sh.rh*H,0,7);ctx.stroke();ctx.setLineDash([]);
+    if(sh.type==='rect'||sh.type==='part'||sh.type==='cross')shapePath(ctx,sh,W,H);else ctx.arc(sh.u*W,sh.v*H,sh.rh*H,0,7);ctx.stroke();ctx.setLineDash([]);
     ctx.fillStyle=ACC;ctx.beginPath();ctx.arc(sh.u*W,sh.v*H,4,0,7);ctx.fill();
     if(sh.type==='rect'){for(const{p:q}of rectHandles(sh)){ctx.beginPath();ctx.rect(q[0]-6,q[1]-6,12,12);ctx.fill()}
       for(const q of rectCorners(sh,W,H)){ctx.fillStyle='#fff';ctx.strokeStyle=ACC;ctx.lineWidth=2;ctx.beginPath();ctx.arc(q[0],q[1],6,0,7);ctx.fill();ctx.stroke()}ctx.fillStyle=ACC}
+    else if(sh.type==='cross'){for(const h of crossHandles(sh)){if(h.t==='sxt'){ctx.fillStyle='#fff';ctx.strokeStyle=ACC;ctx.lineWidth=2;ctx.beginPath();ctx.arc(h.p[0],h.p[1],6,0,7);ctx.fill();ctx.stroke();ctx.fillStyle=ACC}else{ctx.beginPath();ctx.rect(h.p[0]-6,h.p[1]-6,12,12);ctx.fill()}}}  // 十字：■うでの長さ ●太さ
     else if(sh.type==='part'){for(const q of partCorners(sh,W,H)){ctx.beginPath();ctx.rect(q[0]-6,q[1]-6,12,12);ctx.fill()}}  // 部品：4すみ（どれをつかんでも大きさ）
     else{ctx.beginPath();ctx.arc(sh.u*W+sh.rh*H,sh.v*H,8,0,7);ctx.fill()}
     if(sh.type!=='circle'&&sh.type!=='ring'){const[hx,hy]=rotHandle(sh);ctx.strokeStyle=ACC;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(sh.u*W,sh.v*H);ctx.lineTo(hx,hy);ctx.stroke();
@@ -980,7 +990,8 @@ function hitList(p){
     if(sh&&sh.type==='poly')sh.pts.forEach((q,vi)=>{if(Math.hypot(p.x-q[0]*W,p.y-q[1]*H)<12*TR)out.push({t:'pv',i:sel.i,vi})});
     if(sh&&sh.type==='rect')rectCorners(sh,W,H).forEach((q,vi)=>{if(Math.hypot(p.x-q[0],p.y-q[1])<11*TR)out.push({t:'rc',i:sel.i,vi})});
     if(sh&&sh.type!=='circle'&&sh.type!=='ring'){const[hx,hy]=rotHandle(sh);if(Math.hypot(p.x-hx,p.y-hy)<14*TR)out.push({t:'sr',i:sel.i})}
-    if(sh&&sh.type==='rect')for(const h of rectHandles(sh))if(Math.hypot(p.x-h.p[0],p.y-h.p[1])<12*TR)out.push({t:h.t,side:h.side,i:sel.i});}
+    if(sh&&sh.type==='rect')for(const h of rectHandles(sh))if(Math.hypot(p.x-h.p[0],p.y-h.p[1])<12*TR)out.push({t:h.t,side:h.side,i:sel.i});
+    if(sh&&sh.type==='cross')for(const h of crossHandles(sh))if(Math.hypot(p.x-h.p[0],p.y-h.p[1])<12*TR)out.push({t:h.t,i:sel.i});}
   const idx=st.lines.map((_,i)=>i);if(sel&&sel.t==='l'){idx.splice(idx.indexOf(sel.i),1);idx.unshift(sel.i)}
   for(const i of idx){const L=st.lines[i];for(const end of['a','b'])if(Math.hypot(p.x-L[end].u*W,p.y-L[end].v*H)<14*TR)out.push({t:'le',i,end})}
   st.lines.map((L,i)=>({i,d:segDist(p.x,p.y,L.a.u*W,L.a.v*H,L.b.u*W,L.b.v*H)})).filter(x=>x.d<12*TR).sort((x,y)=>x.d-y.d)
@@ -989,7 +1000,7 @@ function hitList(p){
   ks.sort((x,y)=>x.d-y.d).forEach(({i})=>out.push({t:'km',i,p0:{u:p.u,v:p.v},K0:clone(st.strokes[i].pts)}));
   for(let i=st.shapes.length-1;i>=0;i--){const sh=st.shapes[i];
     if(sh.type==='poly'){if(inShape(sh,p.u,p.v,a))out.push({t:'sm',i,du:0,dv:0,p0:{u:p.u,v:p.v},P0:clone(sh.pts)});continue}
-    if(sh.type==='rect'){if(inShape(sh,p.u,p.v,a))out.push({t:'sm',i,du:p.u-sh.u,dv:p.v-sh.v});continue}
+    if(sh.type==='rect'||sh.type==='cross'){if(inShape(sh,p.u,p.v,a))out.push({t:'sm',i,du:p.u-sh.u,dv:p.v-sh.v});continue}
     const cx=sh.u*W,cy=sh.v*H,R=sh.rh*H,d=Math.hypot(p.x-cx,p.y-cy);
     if(Math.abs(d-R)<12*TR)out.push({t:'ss',i});
     else if(d<R&&(sh.type==='circle'||sh.type==='ring'||d<R*.5||inShape(sh,p.u,p.v,a)))out.push({t:'sm',i,du:p.u-sh.u,dv:p.v-sh.v})}
@@ -1130,7 +1141,7 @@ cv.addEventListener('pointermove',e=>{
     const sh=st.shapes[drag.i],nu=p.u-drag.du,nv=p.v-drag.dv,ss=shapeSnap(drag.i,nu,nv);
     if(ss){sh.u=ss.u;sh.v=ss.v;snapLabel={x:p.x,y:p.y,text:ss.t}}
     else{const su=snapTo(FR,nu,.015),sv=snapTo(FR,nv,.015);sh.u=clamp(su.v,-.2,1.2);sh.v=clamp(sv.v,-.2,1.2);snapLabel={x:p.x,y:p.y,text:`よこ ${su.t||pct(sh.u)}・たて ${sv.t||pct(sh.v)}`}}
-    const fs=frameSnap(sh);if(fs)snapLabel={x:p.x,y:p.y,text:fs};
+    const fs=sh.type==='cross'?null:frameSnap(sh);if(fs)snapLabel={x:p.x,y:p.y,text:fs};  // 十字はうでを枠の外までのばすので、ふちには吸い付けない
   }else if(drag.t==='ss'){
     const sh=st.shapes[drag.i],raw=Math.hypot((p.u-sh.u)*a,p.v-sh.v),zs=sh.type==='part'?null:sizeSnap(drag.i,raw);
     if(sh.type==='part'){sh.rh=clamp(raw,.03,2);const{hh}=partHalf(sh);snapLabel={x:p.x,y:p.y,text:`部品の高さ＝旗の高さの ${Math.round(hh*200)}%`}}else
@@ -1138,6 +1149,14 @@ cv.addEventListener('pointermove',e=>{
     else{const s=snapTo(FR,2*raw,.02);sh.rh=clamp(s.v,0.03,2)/2;snapLabel={x:p.x,y:p.y,text:`${sh.type==='star'?'星の幅':'直径'}＝高さの ${s.t||(Math.round(sh.rh*200)/100)}`}}
   }else if(drag.t==='sr'){
     const sh=st.shapes[drag.i],s=snapAng(Math.atan2(p.x-sh.u*W,-(p.y-sh.v*H)));sh.rot=s.v;snapLabel={x:p.x,y:p.y,text:s.t};
+  }else if(drag.t==='sxw'||drag.t==='sxh'){
+    // 十字のうで：左右（上下）いっしょにのびちぢみ。枠の外までのばしてOK（はみ出しは見えない）
+    const sh=st.shapes[drag.i],[lx,ly]=local(sh,p.u,p.v,a),L=Math.max(sh.th+.01,Math.abs(drag.t==='sxw'?lx:ly));
+    const s=snapTo(FR,L,.015),v=clamp(s.v,sh.th+.01,3);if(drag.t==='sxw')sh.hw=v;else sh.hh=v;
+    snapLabel={x:p.x,y:p.y,text:`うでの長さ（中心から）＝高さの ${s.t||Math.round(v*100)/100}`};
+  }else if(drag.t==='sxt'){
+    const sh=st.shapes[drag.i],[,ly]=local(sh,p.u,p.v,a),s=snapTo(FR,2*Math.abs(ly),.01),t=clamp(s.v/2,.005,Math.min(sh.hw,sh.hh)-.005);sh.th=t;
+    snapLabel={x:p.x,y:p.y,text:`十字の太さ＝高さの ${s.t||Math.round(t*200)/100}`};
   }else if(drag.t==='rw'||drag.t==='rh'){
     // 反対側の辺は動かさず、引っぱった側だけ伸び縮み
     const sh=st.shapes[drag.i];if(!drag.R0)drag.R0={u:sh.u,v:sh.v,hw:sh.hw,hh:sh.hh,rot:sh.rot||0};
@@ -1253,13 +1272,13 @@ for(const[dir,el]of[['v','#eqV'],['h','#eqH']]){
 function addShape(type){
   if(type==='tri'){pushHist();st.shapes.push({type:'poly',pts:[[0,0],[.5,.5],[0,1]],k:color});sel={t:'s',i:st.shapes.length-1};clearMulti();setMode('move');return}
   pushHist();const s={type,u:.5,v:.5,rot:0,k:type==='star'?'w':color};
-  if(type==='rect'){s.hw=.2;s.hh=.04}else s.rh=type==='star'?.12:.25;
+  if(type==='rect'){s.hw=.2;s.hh=.04}else if(type==='cross'){s.hw=.3;s.hh=.3;s.th=.09}else s.rh=type==='star'?.12:.25;
   st.shapes.push(s);sel={t:'s',i:st.shapes.length-1};setMode('move');
 }
 $('#addC').onclick=()=>addShape('circle');$('#addHf').onclick=()=>addShape('half');$('#addS').onclick=()=>addShape('star');
-$('#addB').onclick=()=>addShape('rect');$('#addR').onclick=()=>addShape('ring');$('#addT').onclick=()=>addShape('tri');
+$('#addB').onclick=()=>addShape('rect');$('#addX').onclick=()=>addShape('cross');$('#addR').onclick=()=>addShape('ring');$('#addT').onclick=()=>addShape('tri');
 const ICON={circle:'<circle cx="9" cy="9" r="7"/>',half:'<path d="M2 6h14a7 7 0 0 1-14 0z"/>',rect:'<rect x="2" y="4" width="14" height="10"/>',tri:'<path d="M3 2l13 7-13 7z"/>',
-  star:'<path d="M9 1.5l2.1 5.1 5.4.4-4.1 3.5 1.3 5.3L9 13 4.3 15.8l1.3-5.3L1.5 7l5.4-.4z"/>',ring:'<circle cx="9" cy="9" r="6" fill="none" stroke="#333" stroke-width="2.2"/>'};
+  star:'<path d="M9 1.5l2.1 5.1 5.4.4-4.1 3.5 1.3 5.3L9 13 4.3 15.8l1.3-5.3L1.5 7l5.4-.4z"/>',ring:'<circle cx="9" cy="9" r="6" fill="none" stroke="#333" stroke-width="2.2"/>',cross:'<path d="M7 2h4v5h5v4h-5v5H7v-5H2V7h5z"/>'};
 document.querySelectorAll('[data-ico]').forEach(b=>{b.innerHTML=`<svg width="18" height="18" viewBox="0 0 18 18" fill="#333">${ICON[b.dataset.ico]}</svg>`+b.innerHTML});
 $('#multiBtn').onclick=()=>{multiOn=!multiOn;$('#multiBtn').classList.toggle('on',multiOn);$('#multiBtn').textContent=(multiOn?'☑':'☐')+' 複数えらび';if(!multiOn&&!multi.length)render();setMode('move')};
 $('#dup').onclick=()=>{
@@ -1345,7 +1364,7 @@ function stripePurity(fn,dir){const N=60,K=40;let s=0;for(let i=0;i<N;i++){const
 // 重なり（合っている所 ÷（本物の部分＋まわりのはみ出し））×0.65 ＋ りんかくの合い方 ×0.35。重みは面積の平方根。とても小さい部分（0.3%未満）は数えない
 // 色の仲間：緑と深緑・赤とえんじ・青と紺は同じ色として満点（本物の色がパレットのちょうど間のことが多く、どっちが正解かはほぼ運のため）。
 // 水色と青は見た目がちがうので6割、水色と紺は3割
-// v0.44：濃い緑・朱色・ターコイズを足した
+// v0.45：濃い緑・朱色・ターコイズを足した
 const COL_SIM={rm:1,gd:1,gf:1,df:1,bn:1,ov:1,rv:.6,st:1,sb:.6,sn:.3,bt:.6,nt:.3};let SIMF=1;
 const colSim=(a,b)=>a===b?1:((COL_SIM[a+b]||COL_SIM[b+a]||0)*SIMF);
 let PS_DETAIL=[];
@@ -1854,13 +1873,13 @@ async function flagFromData(d){
 window.addEventListener('resize',()=>{if(flag)fit()});
 showTitle();
 
-// ===================== ⚔️ 対決モード（v0.44） =====================
+// ===================== ⚔️ 対決モード（v0.45） =====================
 // 2人で同じ国を同時に描く。3問勝負。どっちかが「こたえあわせ」したら、もう1人はのこり1分。1問3分まで。
 // 通信：Supabase Realtime の部屋チャンネル（broadcast だけ。テーブルは使わない）。
 // テスト用：URLに ?fakenet=1 を付けると、同じブラウザのタブどうしで BroadcastChannel を使う。
 const SB_URL='https://acytuhewfhuoxugwmbat.supabase.co',SB_KEY='sb_publishable_ruAGcA3YSvXXCPkc3s6aTQ_4lg3wAYJ';
 const SB_CDN='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js';
-const BT_CAP=180,BT_CHASE=60,BT_HB=2000,BT_LOST=8000,BT_NAME_KEY='kokki-oekaki-name',APP_VER='v0.44';
+const BT_CAP=180,BT_CHASE=60,BT_HB=2000,BT_LOST=8000,BT_NAME_KEY='kokki-oekaki-name',APP_VER='v0.45';
 let BT=null;  // いまの部屋（入っていなければ null）
 const btFake=()=>/[?&]fakenet=1/.test(location.search);
 const rid=()=>Math.random().toString(36).slice(2,10);
